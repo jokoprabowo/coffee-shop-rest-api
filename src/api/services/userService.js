@@ -9,6 +9,12 @@ const userService = {
         return rows[0];
     },
 
+    async findOne(email){
+        const sql = 'select * from users where email = $1';
+        const { rows } = await postgre.query(sql, [email]);
+        return rows;
+    },
+
     async update(updateArgs){
         const { email, encrypt, name, address } = updateArgs;
         const sql = 'update users set password = $1, name = $2, address = $3, updated_at = $4 ' +
