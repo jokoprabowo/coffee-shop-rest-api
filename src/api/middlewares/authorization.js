@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const { verifyToken } = require('../utilities/token');
 const userService = require('../services/userService');
 
 module.exports = {
@@ -6,9 +6,9 @@ module.exports = {
         try{
             const bearerToken = req.headers.authorization;
             const token = bearerToken.split("Bearer ")[1];
-            const tokenPayload = jwt.verify(token, process.env.JWT_SECRET);
+            const tokenPayload = verifyToken(token);
 
-            req.user = await userService.findOne(tokenPayload);
+            req.user = await userService.findOne(tokenPayload.email);
             next();
         }catch(error){
             console.log(error);
