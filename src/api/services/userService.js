@@ -1,5 +1,7 @@
 const userRepository = require('../repositories/userRepository');
-const { checkPassword, encryptPassword } = require('../Utilities/encrypt');
+const { checkPassword, encryptPassword } = require('../utilities/encrypt');
+const { createToken }  = require('../utilities/token');
+const { validateEmail } = require('../utilities/email');
 
 const userService = {
     async register(args){
@@ -15,6 +17,30 @@ const userService = {
         }catch(err){
             throw err.message;
         }
-
-    }
+    },
+    
+    async login(args){
+        try{
+            const { email, password } = args;
+            const isEmail = validateEmail(email);
+            if(!isEmail){
+                throw new Error("It is not an email!");
+            }
+            const user = await userRepository.findOne(email);
+            if(user != 0){
+                throw new Error("User not found!");
+            };
+            const isMatch = checkPassword(user.password, password);
+            if(!isMatch){
+                throw new Error("Incorrect password!");
+            };
+            delete user.password;
+            const token = createToken(user);
+            return token;
+        }catch(err){
+            throw new Error(err.message);
+        }
+    },
 }
+
+module.exports = userService;
