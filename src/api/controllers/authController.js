@@ -1,8 +1,8 @@
 const userService = require('../services/userService');
 const authController = {
-    async regis(req, res){
+    async register(req, res){
         try{
-            const user = await userService(req.body);
+            const user = await userService.register(req.body);
             res.status(201).json({
                 status: "SUCCESS",
                 message: "Account successfully created!",
@@ -25,7 +25,7 @@ const authController = {
 
     async login(req, res){
         try{
-            const token = await userService(req.body);
+            const token = await userService.login(req.body);
             res.status(200).json({
                 status: "SUCCESS",
                 message: "Login successfull!",
