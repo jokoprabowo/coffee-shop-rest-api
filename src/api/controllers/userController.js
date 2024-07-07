@@ -15,6 +15,14 @@ const userController = {
                 message: err.message
             })
         }
+    },
+
+    async whoAmI(req, res){
+        res.status(201).json({
+            status: "SUCCESS",
+            message: "Your data have been retrieved!",
+            data: req.user
+        })
     }
 }
 
