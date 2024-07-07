@@ -1,6 +1,6 @@
 const userRepository = require('../repositories/userRepository');
 const { checkPassword, encryptPassword } = require('../utilities/encrypt');
-const { createToken }  = require('../utilities/token');
+const { createToken, verifyToken }  = require('../utilities/token');
 const { validateEmail } = require('../utilities/email');
 
 const userService = {
@@ -37,6 +37,22 @@ const userService = {
             delete user.password;
             const token = createToken(user);
             return token;
+        }catch(err){
+            throw new Error(err.message);
+        }
+    },
+
+    async update(args, auth){
+        try{
+            const { email, password, name, address } = args;
+            const encrypt = esncryptPassword(password);
+            const bearerToken = auth;
+            const token = bearerToken.split("Bearer ")[1];
+            const tokenPayload = verifyToken(token);
+
+            const data = await userRepository.update({email, encrypt, name, address}, tokenPayload.email);
+            delete data.password;
+            return data;
         }catch(err){
             throw new Error(err.message);
         }
