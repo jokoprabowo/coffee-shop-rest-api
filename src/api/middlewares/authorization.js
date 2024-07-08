@@ -1,7 +1,7 @@
 const { verifyToken } = require('../utilities/token');
 const userService = require('../services/userService');
 
-module.exports = {
+const authorization = {
     async authorize(req, res, next){
         try{
             const bearerToken = req.headers.authorization;
@@ -10,11 +10,28 @@ module.exports = {
 
             req.user = await userService.findOne(tokenPayload.email);
             next();
-        }catch(error){
-            console.log(error);
+        }catch(err){
+            console.log(err.message);
+            res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
+    },
+
+    async cookiesAuth(req, res, next){
+        try{
+            const token = req.cookies.token;
+            const user = verifyToken(token);
+            req.user = user;
+            next();
+        }catch(err){
+            res.clearCookie("token");
+            console.log(err.message);
             res.status(401).json({
                 message: 'Unauthorized'
             });
         }
     }
 }
+
+module.exports = authorization;

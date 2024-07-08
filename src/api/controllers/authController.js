@@ -26,10 +26,11 @@ const authController = {
     async login(req, res){
         try{
             const token = await userService.login(req.body);
-            res.status(200).json({
+            res.cookie("token", token, {
+                httpOnly: true,
+            }).status(200).json({
                 status: "SUCCESS",
                 message: "Login successfull!",
-                token: token
             });
         }catch(err){
             if(err.message == "It is not an email!"){
