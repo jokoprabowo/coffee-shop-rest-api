@@ -1,5 +1,5 @@
 const userRepository = require('../repositories/userRepository');
-const { encryptPassword } = require('../utilities/encrypt');
+const { encryptPassword, checkPassword } = require('../utilities/encrypt');
 const { createToken }  = require('../utilities/token');
 
 const userService = {
@@ -9,7 +9,6 @@ const userService = {
             const check = await userRepository.findOne(email);
             if(check){
                 throw new Error("Email already in used!")
-                return;
             };
             const encrypt = await encryptPassword(password);
             const data = await userRepository.create({email, encrypt, name, address});
@@ -19,11 +18,18 @@ const userService = {
         }
     },
     
-    async login(email){
+    async login(args){
+        const { email, password } = args;
         const user = await userRepository.findOne(email);
+        if(!user){
+            throw new Error("Account not found!");
+        };
+        const isMatch = await checkPassword(user.password, password);
+        if(!isMatch){
+            throw new Error("Incorrect password!");
+        }
         delete user.password;
         const token = createToken(user);
-        console.log(token);
         return token;
     },
 
