@@ -5,7 +5,7 @@ module.exports = {
     checkPassword(encryptedPassword, password){
         return new Promise((resolve, reject) => {
             bcrypt.compare(password, encryptedPassword, (err, isPasswordCorrect) =>{
-                if(!err){
+                if(err){
                     reject(err);
                     return;
                 };
@@ -17,7 +17,7 @@ module.exports = {
     encryptPassword(password){
         return new Promise((resolve, reject) => {
             bcrypt.hash(password, SALT, (err, encryptedPassword) => {
-                if(!err){
+                if(err){
                     reject(err);
                     return;
                 };

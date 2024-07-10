@@ -12,7 +12,7 @@ const userRepository = {
     async findOne(email){
         const sql = 'select * from users where email = $1';
         const { rows } = await postgre.query(sql, [email]);
-        return rows;
+        return rows[0];
     },
 
     async update(updateArgs){

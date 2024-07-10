@@ -1,12 +1,12 @@
+const { use } = require('../routers/userRoute');
 const userService = require('../services/userService');
-const { validateEmail } = require('../utilities/email');
 const { checkPassword } = require('../utilities/encrypt');
 
 const authController = {
     async register(req, res){
         try{
             const check = await userService.findOne(req.body.email);
-            if(check){
+            if(!check){
                 res.status(404).json({
                     status: "FAIL",
                     message: "Email already in used!",
@@ -29,14 +29,6 @@ const authController = {
 
     async login(req, res){
         try{
-            const isEmail = validateEmail(req.body.email);
-            if(!isEmail){
-                res.status(422).json({
-                    status: "FAIL",
-                    message: "It is not an email!"
-                });
-                return;
-            };
             const user = await userService.findOne(req.body.email);
             if(!user){
                 res.status(404).json({
@@ -45,7 +37,7 @@ const authController = {
                 });
                 return;
             }
-            const isMatch = checkPassword(user.password, req.body.password);
+            const isMatch = await checkPassword(user.password, req.body.password);
             if(!isMatch){
                 res.status(400).json({
                     status: "FAIL",
@@ -53,7 +45,7 @@ const authController = {
                 });
                 return;
             }
-            const token = await userService.login(req.body);
+            const token = await userService.login(req.body.email);
             res.cookie("token", token, {
                 httpOnly: true,
             }).status(200).json({
