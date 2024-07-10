@@ -6,11 +6,16 @@ const userService = {
     async register(args){
         try{
             const { email, password, name, address } = args;
+            const check = await userRepository.findOne(email);
+            if(check){
+                throw new Error("Email already in used!")
+                return;
+            };
             const encrypt = await encryptPassword(password);
             const data = await userRepository.create({email, encrypt, name, address});
             return data;
         }catch(err){
-            throw err.message;
+            throw new Error(err.message);
         }
     },
     

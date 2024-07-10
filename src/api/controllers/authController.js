@@ -5,25 +5,25 @@ const { checkPassword } = require('../utilities/encrypt');
 const authController = {
     async register(req, res){
         try{
-            const check = await userService.findOne(req.body.email);
-            if(!check){
-                res.status(404).json({
-                    status: "FAIL",
-                    message: "Email already in used!",
-                });
-                return;
-            };
             const user = await userService.register(req.body);
+            delete user.password;
             res.status(201).json({
                 status: "SUCCESS",
                 message: "Account successfully created!",
                 user: user
             });
         }catch(err){
-            res.status(500).json({
-                status: "INTERNAL ERROR",
-                message: err.message
-            });
+            if(err.message == "Email already in used!"){
+                res.status(400).json({
+                    status: "FAIL",
+                    message: err.message,
+                });
+            }else{
+                res.status(500).json({
+                    status: "INTERNAL ERROR",
+                    message: err.message
+                });
+            }
         }
     },
 
