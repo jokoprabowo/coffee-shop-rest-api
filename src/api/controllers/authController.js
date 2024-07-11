@@ -54,6 +54,13 @@ const authController = {
                 });
             }
         }
+    },
+
+    async logout(req, res){
+        res.clearCookie("token").status(200).json({
+            status: "SUCCESS",
+            message: "You have been logout!"
+        });
     }
 }
 
