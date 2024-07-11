@@ -36,10 +36,6 @@ const userService = {
     async update(args, auth){
         const { email, password, name, address } = args;
         const encrypt = await encryptPassword(password);
-        // const bearerToken = auth;
-        // const token = bearerToken.split("Bearer ")[1];
-        // const tokenPayload = verifyToken(token);
-
         const data = await userRepository.update({email, encrypt, name, address}, auth);
         delete data.password;
         return data;
