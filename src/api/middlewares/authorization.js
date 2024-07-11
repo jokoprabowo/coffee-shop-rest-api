@@ -20,15 +20,15 @@ const authorization = {
 
     async cookiesAuth(req, res, next){
         try{
-            const token = req.cookies.token;
+            const token = req.headers.cookie.split('=')[1];
             const user = verifyToken(token);
             req.user = user;
             next();
         }catch(err){
             res.clearCookie("token");
-            console.log(err.message);
             res.status(401).json({
-                message: 'Unauthorized'
+                status: 'Unauthorized!',
+                message: err.message
             });
         }
     }
