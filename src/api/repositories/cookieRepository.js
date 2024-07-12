@@ -13,7 +13,13 @@ const cookieRepository = {
         const sql = 'select * from cookies';
         const { rows } = await postgre.query(sql);
         return rows;
-    }
+    },
+
+    async findOne(name){
+        const sql = 'select * from cookies where name = $1';
+        const { rows } = await postgre.query(sql, [name]);
+        return rows[0];
+    },
 }
 
 module.exports = cookieRepository;
