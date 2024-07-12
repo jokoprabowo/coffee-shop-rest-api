@@ -24,6 +24,15 @@ const cookieService = {
         }catch(err){
             throw new Error(err.message);
         }
+    },
+
+    async findAll(){
+        try{
+            const data = await cookieRepository.findAll();
+            return data;
+        }catch(err){
+            throw new Error(err.message);
+        }
     }
 };
 
