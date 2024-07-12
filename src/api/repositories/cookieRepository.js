@@ -20,6 +20,14 @@ const cookieRepository = {
         const { rows } = await postgre.query(sql, [name]);
         return rows[0];
     },
+
+    async update(updateArgs){
+        const { id, name, description, price, image } = updateArgs;
+        const sql = 'update cookies set name = $1,  description = $2, price = $3, image = $4 updated_at = $5 ' +
+                    'where id = $6 returning *';
+        const { rows } = await postgre.query(sql, [name, description, price, image, new Date(), id]);
+        return rows[0];
+    }
 }
 
 module.exports = cookieRepository;
