@@ -33,6 +33,19 @@ const cookieService = {
         }catch(err){
             throw new Error(err.message);
         }
+    },
+
+    async update(args){
+        try{
+            const check = await cookieRepository.findOne(args.id);
+            if(!check){
+                throw new Error('Cookies not found!');
+            }
+            const data = await cookieRepository.update(args);
+            return data;
+        }catch(err){
+            throw new Error(err.message);
+        }
     }
 };
 
