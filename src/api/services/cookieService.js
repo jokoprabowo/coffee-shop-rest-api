@@ -12,6 +12,18 @@ const cookieService = {
         }catch(err){
             throw new Error(err.message);
         }
+    },
+
+    async findOne(name){
+        try{
+            const data = await cookieRepository.findOne(name);
+            if(!data){
+                throw new Error('Cookies not found!');
+            }
+            return data;
+        }catch(err){
+            throw new Error(err.message);
+        }
     }
 };
 
