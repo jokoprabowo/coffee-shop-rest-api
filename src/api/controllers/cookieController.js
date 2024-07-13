@@ -38,7 +38,23 @@ const cookieController = {
                 message: err.message
             });
         }
-    }
+    },
+
+    async getAll(){
+        try{
+            const data = await cookieService.findAll();
+            res.status(201).json({
+                status: "SUCCESS",
+                message: "Cookies has been retrieved!",
+                data: data
+            });
+        }catch(err){
+            res.status(500).json({
+                status: "INTERNAL ERROR",
+                message: err.message
+            });
+        }
+    },
 };
 
 module.exports = cookieController;
