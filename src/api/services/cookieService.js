@@ -5,7 +5,7 @@ const cookieService = {
         try{
             const check = await cookieRepository.findOne(args.name);
             if(check){
-                throw new Error('Cookies already exist!');
+                throw new Error('Cookie already exist!');
             }
             const data = await cookieRepository.create(args);
             return data;
@@ -18,7 +18,7 @@ const cookieService = {
         try{
             const data = await cookieRepository.findOne(name);
             if(!data){
-                throw new Error('Cookies not found!');
+                throw new Error('Cookie not found!');
             }
             return data;
         }catch(err){
@@ -39,7 +39,7 @@ const cookieService = {
         try{
             const check = await cookieRepository.findOne(args.id);
             if(!check){
-                throw new Error('Cookies not found!');
+                throw new Error('Cookie not found!');
             }
             const data = await cookieRepository.update(args);
             return data;
