@@ -21,7 +21,7 @@ const cookieController = {
                     message: err.message
                 });
             }
-        }
+        };
     },
 
     async getOne(req, res){
@@ -37,10 +37,10 @@ const cookieController = {
                 status: "INTERNAL ERROR",
                 message: err.message
             });
-        }
+        };
     },
 
-    async getAll(){
+    async getAll(req, res){
         try{
             const data = await cookieService.findAll();
             res.status(201).json({
@@ -49,11 +49,41 @@ const cookieController = {
                 data: data
             });
         }catch(err){
-            res.status(500).json({
-                status: "INTERNAL ERROR",
-                message: err.message
+            if(err.message == "Cookie not found!"){
+                res.status(404).json({
+                    status: "FAIL",
+                    message: err.message
+                });
+            }else{
+                res.status(500).json({
+                    status: "INTERNAL ERROR",
+                    message: err.message
+                });
+            };
+        };
+    },
+
+    async update(req, res){
+        try{
+            const data = await cookieService.update(req.body);
+            res.status(201).json({
+                status: "SUCCESS",
+                message: "Cookies has been updated!",
+                data: data
             });
-        }
+        }catch(err){
+            if(err.message == "Cookie not found!"){
+                res.status(404).json({
+                    status: "FAIL",
+                    message: err.message
+                });
+            }else{
+                res.status(500).json({
+                    status: "INTERNAL ERROR",
+                    message: err.message
+                });
+            };
+        };
     },
 };
 
