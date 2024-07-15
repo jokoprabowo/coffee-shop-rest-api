@@ -26,7 +26,7 @@ const cookieController = {
 
     async getOne(req, res){
         try{
-            const data = await cookieService.findOne(req.body.name);
+            const data = await cookieService.findOne(req.params.name);
             res.status(201).json({
                 status: "SUCCESS",
                 message: "Cookie has been retrieved!",
