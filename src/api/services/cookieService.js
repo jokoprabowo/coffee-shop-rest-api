@@ -14,9 +14,9 @@ const cookieService = {
         }
     },
 
-    async findOne(name){
+    async findOne(id){
         try{
-            const data = await cookieRepository.findOne(name);
+            const data = await cookieRepository.findOne(id);
             if(!data){
                 throw new Error('Cookie not found!');
             }
@@ -35,13 +35,13 @@ const cookieService = {
         }
     },
 
-    async update(args){
+    async update(args, id){
         try{
-            const check = await cookieRepository.findOne(args.id);
+            const check = await cookieRepository.findOne(id);
             if(!check){
                 throw new Error('Cookie not found!');
             }
-            const data = await cookieRepository.update(args);
+            const data = await cookieRepository.update(args, id);
             return data;
         }catch(err){
             throw new Error(err.message);

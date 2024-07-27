@@ -26,17 +26,24 @@ const cookieController = {
 
     async getOne(req, res){
         try{
-            const data = await cookieService.findOne(req.params.name);
+            const data = await cookieService.findOne(req.params.id);
             res.status(201).json({
                 status: "SUCCESS",
                 message: "Cookie has been retrieved!",
                 data: data
             });
         }catch(err){
-            res.status(500).json({
-                status: "INTERNAL ERROR",
-                message: err.message
-            });
+            if(err.message == "Cookie not found!"){
+                res.status(404).json({
+                    status: "FAIL",
+                    message: err.message
+                });
+            }else{
+                res.status(500).json({
+                    status: "INTERNAL ERROR",
+                    message: err.message
+                });
+            }
         };
     },
 
@@ -65,7 +72,7 @@ const cookieController = {
 
     async update(req, res){
         try{
-            const data = await cookieService.update(req.body);
+            const data = await cookieService.update(req.body, req.params.id);
             res.status(201).json({
                 status: "SUCCESS",
                 message: "Cookies has been updated!",
