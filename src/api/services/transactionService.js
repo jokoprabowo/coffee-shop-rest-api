@@ -29,6 +29,19 @@ const transactionService = {
         }catch(err){
             throw new Error(err.message);
         }
+    },
+
+    async update(args, id){
+        try{
+            const check = await transactionRepository.findOne(id);
+            if(!check){
+                throw new Error("Transaction not found!");
+            }
+            const data = await transactionRepository.update(args, id);
+            return data;
+        }catch(err){
+            throw new Error(err.message);
+        }
     }
 };
 
