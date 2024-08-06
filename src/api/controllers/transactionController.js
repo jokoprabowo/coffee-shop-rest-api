@@ -54,6 +54,29 @@ const transactionController = {
                 });
             }
         }
+    },
+
+    async update(req, res){
+        try{
+            const data = await transactionService.update(req.body, req.params.id);
+            res.status(201).json({
+                status: "SUCCESS",
+                message: "Transaction has been updated!",
+                data
+            })
+        }catch(err){
+            if(err.message == "Transaction not found!"){
+                res.status(404).json({
+                    status: "FAIL",
+                    message: err.message
+                })
+            }else{
+                res.status(500).json({
+                    status: "INTERNAL ERROR",
+                    message: err.message
+                })
+            }
+        }
     }
 };
 
