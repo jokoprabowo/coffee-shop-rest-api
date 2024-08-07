@@ -7,11 +7,11 @@ require('dotenv').config();
 app.use(cors());
 app.use(express.json());
 
-const userRouter = require('./src/api/routers/userRoute');
+const userRoute = require('./src/api/routers/userRoute');
 const cookieRoute = require('./src/api/routers/cookieRoute');
 const transactionRoute = require('./src/api/routers/transactionRoute');
 
-app.use('/api/user', userRouter);
+app.use('/api/user', userRoute);
 app.use('/api/cookie', cookieRoute);
 app.use('/api/transaction', transactionRoute);
 

@@ -6,3 +6,5 @@ router.get("", transactionController.getAll);
 router.get("/:id", transactionController.getOne);
 router.post("", transactionController.create);
 router.put("/:id", transactionController.update);
+
+module.exports = router;
