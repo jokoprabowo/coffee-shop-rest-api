@@ -22,10 +22,10 @@ const transactionRepository = {
     },
 
     async update(args, id){
-        const { userId, cookieId, totalItems, totalPrice } = args;
-        const sql = 'update set userId = $1, cookieId = $2, totalItem = $3, totalPrice = $4, updated_at = $5 ' +
+        const { email, cookieId, totalItem, totalPrice } = args;
+        const sql = 'update transactions set email = $1, cookie_id = $2, total_item = $3, total_price = $4, updated_at = $5 ' +
                     'where id = $6 returning *';
-        const { rows } = await postgre.query(sql, [userId, cookieId, totalItems, totalPrice, new Date(), id]);
+        const { rows } = await postgre.query(sql, [email, cookieId, totalItem, totalPrice, new Date(), id]);
         return rows[0];
     }
 };

@@ -37,11 +37,14 @@ const transactionService = {
 
     async update(args, id){
         try{
+            const { email, cookieId, totalItem } = args;
             const check = await transactionRepository.findOne(id);
             if(!check){
                 throw new Error("Transaction not found!");
             }
-            const data = await transactionRepository.update(args, id);
+            const cookie = await cookieRepository.findOne(cookieId);
+            const totalPrice = cookie.price * totalItem; 
+            const data = await transactionRepository.update({ email, cookieId, totalItem, totalPrice }, id);
             return data;
         }catch(err){
             throw new Error(err.message);
