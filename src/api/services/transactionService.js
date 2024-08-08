@@ -1,9 +1,13 @@
 const transactionRepository = require('../repositories/transactionRepository');
+const cookieRepository = require('../repositories/cookieRepository');
 
 const transactionService = {
-    async create(args){
+    async create(email, args){
         try{
-            const data = await transactionRepository.create(args);
+            const { cookieId, totalItem } = args;
+            const cookie = await cookieRepository.findOne(cookieId);
+            const totalPrice = cookie.price * totalItem;
+            const data = await transactionRepository.create({ email, cookieId, totalItem, totalPrice });
             return data;
         }catch(err){
             throw new Error(err.message);

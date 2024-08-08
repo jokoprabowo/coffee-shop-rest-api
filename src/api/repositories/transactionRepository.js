@@ -2,10 +2,10 @@ const postgre = require('../database/index');
 
 const transactionRepository = {
     async create(args){
-        const { userId, cookieId, totalItems, totalPrice } = args;
-        const sql = 'insert into transactions(userId, cookieId, totalItem, totalPrice, created_at, updated_at) ' +
-                    'values($1, S2, $3, $4, $5, $6) returning *';
-        const { rows } = await postgre.query(sql, [userId, cookieId, totalItems, totalPrice, new Date(), null]);
+        const { email, cookieId, totalItem, totalPrice } = args;
+        const sql = 'insert into transactions(email, cookie_id, total_item, total_price, created_at, updated_at) ' +
+                    'values($1, $2, $3, $4, $5, $6) returning *';
+        const { rows } = await postgre.query(sql, [email, cookieId, totalItem, totalPrice, new Date(), null]);
         return rows[0];
     },
 
@@ -23,7 +23,7 @@ const transactionRepository = {
 
     async update(args, id){
         const { userId, cookieId, totalItems, totalPrice } = args;
-        const sql = 'update set userId = $1, cookieId = $2, totalItems = $3, totalPrice = $4, updated_at = $5 ' +
+        const sql = 'update set userId = $1, cookieId = $2, totalItem = $3, totalPrice = $4, updated_at = $5 ' +
                     'where id = $6 returning *';
         const { rows } = await postgre.query(sql, [userId, cookieId, totalItems, totalPrice, new Date(), id]);
         return rows[0];

@@ -3,7 +3,7 @@ const transactionService = require('../services/transactionService');
 const transactionController = {
     async create(req, res){
         try{
-            const data = await transactionService.create(req.body);
+            const data = await transactionService.create(req.user.email, req.body);
             res.status(201).json({
                 status: "SUCCESS",
                 message: "Transaction success!",
@@ -35,7 +35,7 @@ const transactionController = {
 
     async getOne(req, res){
         try{
-            const data = await transactionService.getOne(req.params.id);
+            const data = await transactionService.findOne(req.params.id);
             res.status(201).json({
                 status: "SUCCESS",
                 message: "Transaction has been retrieved!",
@@ -77,7 +77,7 @@ const transactionController = {
                 })
             }
         }
-    }
+    },
 };
 
 module.exports = transactionController;
