@@ -18,6 +18,11 @@ const authController = {
                     status: "FAIL",
                     message: err.message,
                 });
+            }else if(err.message == "Password does not meet minimum security requirements"){
+                res.status(400).json({
+                    status: "FAIL",
+                    message: err.message,
+                });
             }else{
                 res.status(500).json({
                     status: "INTERNAL ERROR",
