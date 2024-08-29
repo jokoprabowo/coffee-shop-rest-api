@@ -4,22 +4,24 @@ module.exports = {
         const validLength = password.length >= 8;
         
         //has at least 1 letter
-        let hasLetter = false;
-        const alphabet = "abcdefghijklmnopqrstuvwxyz";
-        for (letter of alphabet){
-            if(password.toLowerCase().includes(letter)){
-                hasLetter = true;
-            }
-        };
+        let hasLetter = /[a-zA-Z]/g.test(password);
+        // let hasLetter = false;
+        // const alphabet = "abcdefghijklmnopqrstuvwxyz";
+        // for (letter of alphabet){
+        //     if(password.toLowerCase().includes(letter)){
+        //         hasLetter = true;
+        //     }
+        // };
 
-        //has at least one number 
-        let hasNumber = false;
-        const numbers = "1234567890";
-        for (number of numbers){
-            if(password.includes(number)){
-                hasNumber = true
-            }
-        };
+        //has at least one number
+        let hasNumber = /[0-9]/g.test(password);
+        // let hasNumber = false;
+        // const numbers = "1234567890";
+        // for (number of numbers){
+        //     if(password.includes(number)){
+        //         hasNumber = true
+        //     }
+        // };
         
         const validPassword = validLength && hasLetter && hasNumber;
         return validPassword;
