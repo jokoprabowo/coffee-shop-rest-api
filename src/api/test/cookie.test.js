@@ -43,4 +43,23 @@ describe("GET /api/cookie/:id", () => {
             expect(response.statusCode).toBe(404);
         });
     });
+
+});
+
+describe("GET /api/cookie", () => {
+    
+    describe("Get all cookie data that already added", () => {
+        test("Should respond with a 200 status code", async () => {
+            const response = await request(app).get("/api/cookie").send({});
+            expect(response.statusCode).toBe(200);
+        });
+    });
+
+    describe("Get all cookie data that not exist", () => {
+        test("Should respond with a 404 status code", async () => {
+            const response = await request(app).get("/api/cookie").send({});
+            expect(response.statusCode).toBe(404);
+        });
+    });
+
 });
