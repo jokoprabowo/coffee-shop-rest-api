@@ -42,3 +42,21 @@ describe("GET /api/transaction/:id", () => {
     });
 
 });
+
+describe("GET /api/transaction", () => {
+    
+    describe("Get all transaction data that already added", () => {
+        test("Should respond with a 200 status code", async () => {
+            const response = await request(app).get("/api/transaction").send({});
+            expect(response.statusCode).toBe(200);
+        });
+    });
+
+    describe("Get all transaction data that not exist", () => {
+        test("Should respond with a 404 status code", async () => {
+            const response = await request(app).get("/api/transaction").send({});
+            expect(response.statusCode).toBe(404);
+        });
+    });
+
+});
