@@ -60,3 +60,27 @@ describe("GET /api/transaction", () => {
     });
 
 });
+
+describe("PUT /api/transaction/:id", () => {
+
+    describe("Given all requirement data with correct transaction id", () => {
+        test("Should respond with a 201 status code", async () => {
+            const response = await request(app).put("/api/transaction/:1").send({
+                cookieId : 1,
+                totalItem : 4         
+             });
+             expect(response.statusCode).toBe(201);
+        });
+    });
+
+    describe("Given all requirement data with wrong transaction id", () => {
+        test("Should respond with a 404 status code", async () => {
+            const response = await request(app).put("/api/transaction/:10").send({
+                cookieId : 1,
+                totalItem : 4             
+             });
+             expect(response.statusCode).toBe(404);
+        });
+    });
+
+});
