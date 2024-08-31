@@ -27,3 +27,20 @@ describe("POST /api/cookie", () => {
         });
     });
 });
+
+describe("GET /api/cookie/:id", () => {
+    
+    describe("Given an id of cookie that already exist", () => {
+        test("Should respond with a 200 status code", async () => {
+            const response = await request(app).get("/api/cookie/:1").send({});
+            expect(response.statusCode).toBe(200);
+        });
+    });
+
+    describe("Given an id of cookie that is not exist", () => {
+        test("Should respond with a 404 status code", async () => {
+            const response = await request(app).get("/api/cookie/:10").send({});
+            expect(response.statusCode).toBe(404);
+        });
+    });
+});
