@@ -24,3 +24,21 @@ describe("POST /api/transaction", () => {
     });
 
 });
+
+describe("GET /api/transaction/:id", () => {
+    
+    describe("Given an id of transaction that already exist", () => {
+        test("Should respond with a 200 status code", async () => {
+            const response = await request(app).get("/api/transaction/:1").send({});
+            expect(response.statusCode).toBe(200);
+        });
+    });
+
+    describe("Given an id of transaction that is not exist", () => {
+        test("Should respond with a 404 status code", async () => {
+            const response = await request(app).get("/api/transaction/:10").send({});
+            expect(response.statusCode).toBe(404);
+        });
+    });
+
+});
