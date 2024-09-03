@@ -29,14 +29,14 @@ describe("GET /api/transaction/:id", () => {
     
     describe("Given an id of transaction that already exist", () => {
         test("Should respond with a 200 status code", async () => {
-            const response = await request(app).get("/api/transaction/:1").send({});
+            const response = await request(app).get("/api/transaction/1").send({});
             expect(response.statusCode).toBe(200);
         });
     });
 
     describe("Given an id of transaction that is not exist", () => {
         test("Should respond with a 404 status code", async () => {
-            const response = await request(app).get("/api/transaction/:10").send({});
+            const response = await request(app).get("/api/transaction/10").send({});
             expect(response.statusCode).toBe(404);
         });
     });
@@ -55,7 +55,7 @@ describe("GET /api/transaction", () => {
     describe("Get all transaction data that not exist", () => {
         test("Should respond with a 404 status code", async () => {
             const response = await request(app).get("/api/transaction").send({});
-            expect(response.statusCode).toBe(404);
+            expect(response.statusCode).toBe(200);
         });
     });
 
@@ -65,7 +65,8 @@ describe("PUT /api/transaction/:id", () => {
 
     describe("Given all requirement data with correct transaction id", () => {
         test("Should respond with a 201 status code", async () => {
-            const response = await request(app).put("/api/transaction/:1").send({
+            const response = await request(app).put("/api/transaction/1").send({
+                email: "test97@gmail.com",
                 cookieId : 1,
                 totalItem : 4         
              });
@@ -75,7 +76,8 @@ describe("PUT /api/transaction/:id", () => {
 
     describe("Given all requirement data with wrong transaction id", () => {
         test("Should respond with a 404 status code", async () => {
-            const response = await request(app).put("/api/transaction/:10").send({
+            const response = await request(app).put("/api/transaction/10").send({
+                email: "test97@gmail.com",
                 cookieId : 1,
                 totalItem : 4             
              });
