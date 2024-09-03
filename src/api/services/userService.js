@@ -1,6 +1,7 @@
 const userRepository = require('../repositories/userRepository');
 const { encryptPassword, checkPassword } = require('../utilities/encrypt');
 const { createToken }  = require('../utilities/token');
+const { validatePassword, validateEmail } = require('../utilities/validate');
 
 const userService = {
     async register(args){
@@ -8,7 +9,15 @@ const userService = {
             const { email, password, name, address } = args;
             const check = await userRepository.findOne(email);
             if(check){
-                throw new Error("Email already in used!")
+                throw new Error("Email already in used!");
+            };
+            const validEmail = validateEmail(email);
+            if(!validEmail){
+                throw new Error("It is not an email");
+            }
+            const validPassword = validatePassword(password);
+            if(!validPassword){
+                throw new Error("Password does not meet minimum security requirements");
             };
             const encrypt = await encryptPassword(password);
             const data = await userRepository.create({email, encrypt, name, address});

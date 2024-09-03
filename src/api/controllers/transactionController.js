@@ -36,7 +36,7 @@ const transactionController = {
     async getOne(req, res){
         try{
             const data = await transactionService.findOne(req.params.id);
-            res.status(201).json({
+            res.status(200).json({
                 status: "SUCCESS",
                 message: "Transaction has been retrieved!",
                 data

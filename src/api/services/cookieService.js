@@ -3,7 +3,7 @@ const cookieRepository = require('../repositories/cookieRepository');
 const cookieService = {
     async create(args){
         try{
-            const check = await cookieRepository.findOne(args.name);
+            const check = await cookieRepository.findOneByName(args.name);
             if(check){
                 throw new Error('Cookie already exist!');
             }
