@@ -21,6 +21,12 @@ const cookieRepository = {
         return rows[0];
     },
 
+    async findOneByName(name){
+        const sql = 'select * from cookies where name = $1';
+        const { rows } = await postgre.query(sql, [name]);
+        return rows[0];
+    },
+
     async update(updateArgs, id){
         const { name, description, price, image } = updateArgs;
         const sql = 'update cookies set name = $1,  description = $2, price = $3, image = $4, updated_at = $5 ' +
