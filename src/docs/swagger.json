@@ -28,5 +28,246 @@
     ],
     "produces": [
         "application/json"
-    ]
+    ],
+    "paths": {
+        "/api/user/registration": {
+            "post": {
+                "summary": "Sign Up",
+                "description": "Create new account",
+                "operationId": "signup",
+                "responses": {
+                    "201": {
+                        "description": "A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/regis_response"
+                        }
+                    },
+                    "default": {
+                        "description": "An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/regis_request"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Auth"
+                ]
+            }
+        },
+        "/api/user/login": {
+            "post": {
+                "summary": "Sing In",
+                "description": "Login to account",
+                "operationId": "signin",
+                "responses": {
+                    "200": {
+                        "description":"A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/login_response"
+                        }
+                    },
+                    "default": {
+                        "description":"An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/login_request"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Auth"
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "user": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "update_at": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        },
+        "cookie": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        },
+        "transaction": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "cookie_id": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "total_item": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "total_price": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        },
+        "login_request": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type":"string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "login_response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "access_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "regis_request": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type":"string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "update_at": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        },
+        "regis_response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "access_token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/user_model"
+                }
+            }
+        },
+        "error_response": {
+            "type": "object",
+            "properties":{
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }
