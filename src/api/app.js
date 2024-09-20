@@ -1,17 +1,15 @@
 const express = require('express');
 const cors = require('cors');
-const swaggerJSDoc = require('swagger-jsdoc')
 const swaggerUi = require('swagger-ui-express')
-const { options } = require('../docs/swagger')
 
 const app = express();
-const specs = swaggerJSDoc(options)
 require('dotenv').config();
+const swaggerDoc = require('../docs/swagger.json')
 
 
 app.use(cors());
 app.use(express.json());
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc))
 
 const userRoute = require('./routers/userRoute');
 const cookieRoute = require('./routers/cookieRoute');

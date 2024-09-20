@@ -1,0 +1,32 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Cookies API",
+        "version": "1.0.0",
+        "contact": {
+            "name": "Joko Prabowo",
+            "url": "https://github.com/JokoPrabowo",
+            "email": "jokoprabowo4550@gmail.com"
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth"
+        },
+        {
+            "name": "Users"
+        },
+        {
+            "name": "Cookies"
+        },
+        {
+            "name": "Transactions"
+        }
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ]
+}
