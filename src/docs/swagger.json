@@ -1,0 +1,770 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Cookies API",
+        "version": "1.0.0",
+        "description": "An application programming interface for cookies marketplace",
+        "contact": {
+            "name": "Joko Prabowo",
+            "url": "https://github.com/JokoPrabowo",
+            "email": "jokoprabowo4550@gmail.com"
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth"
+        },
+        {
+            "name": "Users"
+        },
+        {
+            "name": "Cookies"
+        },
+        {
+            "name": "Transactions"
+        }
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/api/user/registration": {
+            "post": {
+                "summary": "Sign up",
+                "description": "Create new account",
+                "operationId": "signup",
+                "responses": {
+                    "201": {
+                        "description": "A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/regis_response"
+                        }
+                    },
+                    "default": {
+                        "description": "An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/regis_request"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Auth"
+                ]
+            }
+        },
+        "/api/user/login": {
+            "post": {
+                "summary": "Sing in",
+                "description": "Login to account",
+                "operationId": "signin",
+                "responses": {
+                    "200": {
+                        "description":"A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/login_response"
+                        }
+                    },
+                    "default": {
+                        "description":"An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/login_request"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Auth"
+                ]
+            }
+        },
+        "/api/user/update": {
+            "put": {
+                "summary": "Update",
+                "description": "Update user profile",
+                "operationId": "update_profile",
+                "security": [ { "AccessTokenAuth": [] } ],
+                "responses": {
+                    "200": {
+                        "description":"A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/users_response"
+                        }
+                    },
+                    "default": {
+                        "description": "An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/update_request"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Users"
+                ]
+            }
+        },
+        "/api/user/profile": {
+            "get": {
+                "summary": "Profile",
+                "description": "Retrieve user profile",
+                "operationId": "get_profile",
+                "security": [ { "AccessTokenAuth": [] } ],
+                "responses": {
+                    "200": {
+                        "description": "A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/users_response"
+                        }
+                    },
+                    "default": {
+                        "description": "An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "access_token",
+                        "in": "cookies",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Users"
+                ]
+            }
+        },
+        "/api/cookies": {
+            "post": {
+                "summary": "Add cookie",
+                "description": "Create new cookie data",
+                "operationId": "add_cookie",
+                "responses": {
+                    "201": {
+                        "description":"A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/cookies_response"
+                        }
+                    },
+                    "default": {
+                        "description":"An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cookies_request"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Cookies"
+                ]
+            },
+            "get": {
+                "summary": "Get all cookies",
+                "description": "Retrieve all cookies data",
+                "operationId": "get_all_cookies",
+                "responses": {
+                    "200": {
+                        "description": "A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/cookies_response"
+                        }
+                    },
+                    "default": {
+                        "description":"An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                      },
+                      {
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                      }
+                ],
+                "tags": [
+                    "Cookies"
+                ]
+            }
+        },
+        "/api/cookies/{id}": {
+            "put": {
+                "summary": "Update cookies",
+                "description": "Update cookies data",
+                "operationId": "update_cookie",
+                "responses": {
+                    "201": {
+                        "description":"A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/cookies_response"
+                        }
+                    },
+                    "default": {
+                        "description": "An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cookies_request"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Cookies"
+                ]
+            },
+            "get": {
+                "summary": "Get cookie by id",
+                "description": "Retrieve cookie data by id",
+                "operationId": "get_cookie",
+                "responses": {
+                    "200": {
+                        "description":"A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/cookies_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                ],
+                "tags": [
+                    "Cookies"
+                ]
+            }
+        },
+        "/api/transaction": {
+            "post": {
+                "summary": "Create transactions",
+                "description": "Create new transaction data",
+                "operationId": "create_transaction",
+                "responses": {
+                    "201": {
+                        "description":"A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/transactions_response"
+                        }
+                    },
+                    "default": {
+                        "description":"An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/transactions_request"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Transactions"
+                ]
+            },
+            "get": {
+                "summary": "Get all transactions",
+                "description": "Retrieve all transactions data",
+                "operationId": "get_all_transactions",
+                "responses": {
+                    "200": {
+                        "description":"A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/transactions_list_response"
+                        }
+                    },
+                    "default": {
+                        "description":"An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                      },
+                      {
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                      }
+                ],
+                "tags": [
+                    "Transactions"
+                ]
+            }
+        },
+        "/api/transaction/{id}": {
+            "put": {
+                "summary": "Update transactions",
+                "description": "Update transaction data",
+                "operationId": "update_transaction",
+                "responses": {
+                    "201": {
+                        "description":"A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/transactions_response"
+                        }
+                    },
+                    "default": {
+                        "description":"An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/transactions_request"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Transactions"
+                ]
+            },
+            "get": {
+                "summary": "Retrieve transactions",
+                "description": "Retrieve transaction data",
+                "operationId": "get_transaction",
+                "responses": {
+                    "200": {
+                        "description":"A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/transactions_response"
+                        }
+                    },
+                    "default": {
+                        "description":"An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                ],
+                "tags": [
+                    "Transactions"
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "users": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "update_at": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        },
+        "cookies": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        },
+        "transactions": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "cookie_id": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "total_item": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "total_price": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        },
+        "login_request": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type":"string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "login_response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "access_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "regis_request": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type":"string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                }
+            }
+        },
+        "regis_response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "access_token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/users"
+                }
+            }
+        },
+        "update_request": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type":"string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                }
+            }
+        },
+        "users_response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/users"
+                }
+            }
+        },
+        "cookies_request": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "image": {
+                    "type": "string"
+                }
+            }
+        },
+        "cookies_response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "cookie": {
+                    "$ref": "#/definitions/cookies"
+                }
+            }
+        },
+        "cookies_list_response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "cookies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cookies"
+                    }
+                }
+            }
+        },
+        "transactions_request": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "cookie_id": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "total_item": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "total_price": {
+                    "type": "integer",
+                    "format": "int32"
+                }
+            }
+        },
+        "transactions_response":{
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "transaction": {
+                    "type": "object",
+                    "schema": {
+                        "$ref": "#/definitions/transactions"
+                    }
+                }
+            }
+        },
+        "transactions_list_response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/transactions"
+                    }
+                }
+            }
+        },
+        "error_response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
