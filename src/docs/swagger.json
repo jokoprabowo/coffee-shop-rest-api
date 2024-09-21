@@ -139,6 +139,7 @@
                 "summary": "Profile",
                 "description": "Retrieve user profile",
                 "operationId": "profile",
+                "security": [ { "AccessTokenAuth": [] } ],
                 "responses": {
                     "200": {
                         "description": "A succesful response",
