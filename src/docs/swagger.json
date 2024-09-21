@@ -3,6 +3,7 @@
     "info": {
         "title": "Cookies API",
         "version": "1.0.0",
+        "description": "An application programming interface for cookies marketplace",
         "contact": {
             "name": "Joko Prabowo",
             "url": "https://github.com/JokoPrabowo",
@@ -32,7 +33,7 @@
     "paths": {
         "/api/user/registration": {
             "post": {
-                "summary": "Sign Up",
+                "summary": "Sign up",
                 "description": "Create new account",
                 "operationId": "signup",
                 "responses": {
@@ -66,7 +67,7 @@
         },
         "/api/user/login": {
             "post": {
-                "summary": "Sing In",
+                "summary": "Sing in",
                 "description": "Login to account",
                 "operationId": "signin",
                 "responses": {
@@ -97,6 +98,72 @@
                     "Auth"
                 ]
             }
+        },
+        "/api/user/update": {
+            "put": {
+                "summary": "Update",
+                "description": "Update user profile",
+                "operationId": "update",
+                "responses": {
+                    "200": {
+                        "description":"A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/users_response"
+                        }
+                    },
+                    "default": {
+                        "description": "An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/update_request"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Users"
+                ]
+            }
+        },
+        "/api/user/profile": {
+            "get": {
+                "summary": "Profile",
+                "description": "Retrieve user profile",
+                "operationId": "profile",
+                "responses": {
+                    "200": {
+                        "description": "A succesful response",
+                        "schema": {
+                            "$ref": "#/definitions/users_response"
+                        }
+                    },
+                    "default": {
+                        "description": "An expected error response",
+                        "schema": {
+                            "$ref": "#/definitions/error_response"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "access_token",
+                        "in": "cookies",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Users"
+                ]
+            }
         }
     },
     "definitions": {
@@ -104,9 +171,6 @@
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 },
                 "name": {
@@ -222,14 +286,6 @@
                 },
                 "address": {
                     "type": "string"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time"
-                },
-                "update_at": {
-                    "type": "string",
-                    "format": "date-time"
                 }
             }
         },
@@ -250,7 +306,42 @@
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/user_model"
+                    "$ref": "#/definitions/user"
+                }
+            }
+        },
+        "update_request": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type":"string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                }
+            }
+        },
+        "users_response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/user"
                 }
             }
         },
