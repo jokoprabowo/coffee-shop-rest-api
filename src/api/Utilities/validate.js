@@ -1,36 +1,36 @@
 module.exports = {
-    validatePassword(password){
-        //has at least 8 characters
-        const validLength = password.length >= 8;
-        
-        //has at least 1 letter
-        let hasLetter = /[a-zA-Z]/g.test(password);
+  validatePassword(password) {
+    // has at least 8 characters
+    const validLength = password.length >= 8;
 
-        //has at least one number
-        let hasNumber = /[0-9]/g.test(password);
+    // has at least 1 letter
+    const hasLetter = /[a-zA-Z]/g.test(password);
 
-        const validPassword = validLength && hasLetter && hasNumber;
-        return validPassword;
-    },
+    // has at least one number
+    const hasNumber = /[0-9]/g.test(password);
 
-    validateEmail(email){
-        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    const validPassword = validLength && hasLetter && hasNumber;
+    return validPassword;
+  },
 
-        // Check if the email is defined and not too long
-        if (!email || email.length > 254) return false;
+  validateEmail(email) {
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
-        // Use a single regex check for the standard email parts
-        if (!emailRegex.test(email)) return false;
+    // Check if the email is defined and not too long
+    if (!email || email.length > 254) return false;
 
-        // Split once and perform length checks on the parts
-        const parts = email.split("@");
-        if (parts[0].length > 64) return false;
+    // Use a single regex check for the standard email parts
+    if (!emailRegex.test(email)) return false;
 
-        // Perform length checks on domain parts
-        const domainParts = parts[1].split(".");
-        if (domainParts.some(part => part.length > 63)) return false;
+    // Split once and perform length checks on the parts
+    const parts = email.split('@');
+    if (parts[0].length > 64) return false;
 
-        // If all checks pass, the email is valid
-        return true;
-    }
-}
+    // Perform length checks on domain parts
+    const domainParts = parts[1].split('.');
+    if (domainParts.some((part) => part.length > 63)) return false;
+
+    // If all checks pass, the email is valid
+    return true;
+  },
+};
