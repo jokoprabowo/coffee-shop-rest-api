@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../app');
+const app = require('../api/app');
 
 describe('PUT /api/user/update', () => {
   describe('Given all the update data', () => {

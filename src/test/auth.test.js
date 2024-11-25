@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../app');
+const app = require('../api/app');
 
 describe('POST /api/user/registration', () => {
   describe('Given an unused email with password that fullfill the minimum requirements', () => {

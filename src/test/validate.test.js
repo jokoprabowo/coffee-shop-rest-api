@@ -1,4 +1,4 @@
-const { validateEmail, validatePassword } = require('../utilities/validate');
+const { validateEmail, validatePassword } = require('../api/utilities/validate');
 
 test('Returns false for empty email', () => {
   expect(validateEmail('')).toBe(false);
