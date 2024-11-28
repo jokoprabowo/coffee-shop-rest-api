@@ -3,11 +3,11 @@ const postgre = require('../database/index');
 const userRepository = {
   async create(createArgs) {
     const {
-      email, encrypt, name, address,
+      email, encrypt, name, address, latitude, longitude,
     } = createArgs;
-    const sql = 'insert into users(email, password, name, address, created_at, updated_at) '
-    + 'values($1, $2, $3, $4, $5, $6) returning *';
-    const { rows } = await postgre.query(sql, [email, encrypt, name, address, new Date(), null]);
+    const sql = 'insert into users(email, password, name, address, latitude, longitude, created_at, updated_at) '
+    + 'values($1, $2, $3, $4, $5, $6, $7, $8) returning *';
+    const { rows } = await postgre.query(sql, [email, encrypt, name, address, latitude, longitude, new Date(), null]);
     return rows[0];
   },
 
@@ -19,11 +19,11 @@ const userRepository = {
 
   async update(updateArgs) {
     const {
-      email, encrypt, name, address,
+      email, encrypt, name, address, latitude, longitude,
     } = updateArgs;
-    const sql = 'update users set password = $1, name = $2, address = $3, updated_at = $4 '
-    + 'where email = $5 returning *';
-    const { rows } = await postgre.query(sql, [encrypt, name, address, new Date(), email]);
+    const sql = 'update users set password = $1, name = $2, address = $3, latitude = $4, longitude = $5, updated_at = $6 '
+    + 'where email = $7 returning *';
+    const { rows } = await postgre.query(sql, [encrypt, name, address, latitude, longitude, new Date(), email]);
     return rows[0];
   },
 };
