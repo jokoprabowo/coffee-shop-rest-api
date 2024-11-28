@@ -7,7 +7,7 @@ const userService = {
   async register(args) {
     try {
       const {
-        email, password, name, address,
+        email, password, name, address, longitude, latitude,
       } = args;
       const check = await userRepository.findOne(email);
       if (check) {
@@ -23,7 +23,7 @@ const userService = {
       }
       const encrypt = await encryptPassword(password);
       const data = await userRepository.create({
-        email, encrypt, name, address,
+        email, encrypt, name, address, longitude, latitude,
       });
       return data;
     } catch (err) {
