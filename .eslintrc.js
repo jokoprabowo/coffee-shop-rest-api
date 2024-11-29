@@ -6,6 +6,7 @@ module.exports = {
     jest: true,
   },
   extends: 'airbnb-base',
+  ignores: ['src/public'],
   parserOptions: {
     ecmaVersion: 12,
   },
