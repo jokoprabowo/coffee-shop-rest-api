@@ -1,12 +1,24 @@
 var map = L.map('map').setView([-3.513, 121.733], 5);
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+let openStreet = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+});
 
-// L.marker([51.5, -0.09]).addTo(map)
-//     .bindPopup('A pretty CSS popup.<br> Easily customizable.')
-//     .openPopup();
+let googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+  maxZoom: 20,
+  subdomains:['mt0','mt1','mt2','mt3']
+});
+
+let googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+  maxZoom: 20,
+  subdomains:['mt0','mt1','mt2','mt3']
+});
+
+let mapList = [ openStreet, googleStreets, googleSat ];
+
+mapList.map(item => {
+  item.addTo(map);
+});
 
 var theMarker = {};
 
