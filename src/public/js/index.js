@@ -1,4 +1,4 @@
-var map = L.map('map').setView([-3.513, 121.733], 5);
+let map = L.map('map').setView([-3.513, 121.733], 5);
 
 let osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -21,8 +21,8 @@ googleSat.addTo(map);
 let theMarker = {};
 
   map.on('click',function(e){
-    lat = e.latlng.lat;
-    lon = e.latlng.lng;
+    let lat = e.latlng.lat;
+    let lon = e.latlng.lng;
 
     if (theMarker != undefined) {
             map.removeLayer(theMarker);
@@ -42,3 +42,4 @@ let baseLayers = {
 };
 
 L.control.layers(baseLayers).addTo(map);
+L.Control.geocoder().addTo(map);
