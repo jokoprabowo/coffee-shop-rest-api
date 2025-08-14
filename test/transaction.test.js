@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../api/app');
+const app = require('../src/app');
 
 describe('POST /api/transaction', () => {
   describe('Given all requirements data', () => {

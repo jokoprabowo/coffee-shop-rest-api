@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../api/app');
+const app = require('../src/app');
 
 describe('POST /api/cookie', () => {
   describe('Given an unused cookie name', () => {

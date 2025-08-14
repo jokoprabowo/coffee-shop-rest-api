@@ -7,7 +7,7 @@ const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 require('dotenv').config();
-const swaggerDoc = require('../docs/swagger.json');
+const swaggerDoc = require('./docs/swagger.json');
 
 app.use(cors(corsOptions));
 app.use(logger);
