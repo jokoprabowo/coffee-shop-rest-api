@@ -34,10 +34,8 @@ class CoffeeService {
   }
 
   public async delete(id: string) {
+    await this.findOne(id);
     const coffee = await this.repository.delete(id);
-    if (!coffee) {
-      throw new NotFoundError('Coffee not found!');
-    }
     return coffee;
   }
 }

@@ -1,30 +1,28 @@
 import { Pool } from 'pg';
 import { coffeeDto } from '../dto';
-import { v4 } from 'uuid';
 
 class CoffeeRepository {
   private database: Pool;
 
-  constructor() {
-    this.database = new Pool();
+  constructor(database: Pool) {
+    this.database = database;
   }
 
   public async create(data: coffeeDto) {
     const {
       name, price, description, image,
     } = data;
-    const id = `coffee-${v4()}`;
     const createdAt = new Date();
     const updatedAt = createdAt;
 
     const query = {
-      text: 'insert into coffees(id, name, price, description, image, created_at, updated_at) '
-      + 'values ($1, $2, $3, $4, $5, $6, $8) returning name, price, description, image,',
-      values: [id, name, price, description, image, createdAt, updatedAt],
+      text: 'insert into coffees(name, price, description, image, created_at, updated_at) '
+      + 'values ($1, $2, $3, $4, $5, $6) returning name, price, description, image',
+      values: [name, price, description, image, createdAt, updatedAt],
     };
 
-    const result = await this.database.query(query);
-    return result;
+    const { rows } = await this.database.query(query);
+    return rows[0];
   }
 
   public async findOne(id: string) {
@@ -40,8 +38,8 @@ class CoffeeRepository {
     const query = {
       text: 'select name, price, description, image from coffees',
     };
-    const result = await this.database.query(query);
-    return result;
+    const { rows } = await this.database.query(query);
+    return rows;
   }
 
   public async update(id: string, data: Partial<coffeeDto>) {
@@ -51,8 +49,8 @@ class CoffeeRepository {
     const updatedAt = new Date();
     const query = {
       text: 'update coffees set name = $1, price = $2, description = $3, image = $4, '
-      + 'update_at = $6 where id = $7 returning name, price, description, image,',
-      values: [name, price, description, image, updatedAt],
+      + 'updated_at = $5 where id = $6 returning name, price, description, image',
+      values: [name, price, description, image, updatedAt, id],
     };
 
     const { rows } = await this.database.query(query);
@@ -65,8 +63,8 @@ class CoffeeRepository {
       values: [id],
     };
 
-    const result = await this.database.query(query);
-    return result;
+    const { rows } = await this.database.query(query);
+    return rows[0];
   }
 }
 
