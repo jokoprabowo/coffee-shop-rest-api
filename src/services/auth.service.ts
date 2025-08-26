@@ -1,4 +1,4 @@
-import { userDto } from '../dto';
+import { userDto, loginUserDto } from '../dto';
 import UserService from './user.service';
 import { checkPassword } from '../utilities/encrypt';
 import { ClientError } from '../exceptions';
@@ -15,9 +15,9 @@ class AuthService {
     return user;
   }
 
-  public async login(email: string, password: string) {
-    const user = await this.service.findOne(email);
-    const isMatch = await checkPassword(password, user.password);
+  public async login(data: loginUserDto) {
+    const user = await this.service.findOne(data.email);
+    const isMatch = await checkPassword(data.password, user.password);
     if (!isMatch) {
       throw new ClientError('Password invalid!');
     }

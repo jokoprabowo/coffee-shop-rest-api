@@ -54,8 +54,7 @@ class AuthController {
   public async login(req: Request, res: Response) {
     try {
       this.validator.validateLoginPayload(req.body);
-      const { email, password } = req.body;
-      const user = await this.service.login(email, password);
+      const user = await this.service.login(req.body);
       delete user.password;
 
       res.status(200).json({

@@ -1,8 +1,9 @@
 import { ClientError } from '../../exceptions';
 import { registerPayloadSchema, loginPayloadSchema } from './schema';
+import { userDto, loginUserDto } from '../../dto';
 
 const AuthenticateValidator = {
-  validateRegisterPayload: (payload: any) => {
+  validateRegisterPayload: (payload: userDto) => {
     const validationResult = registerPayloadSchema.validate(payload, {
       abortEarly: false,
       allowUnknown: true,
@@ -14,7 +15,7 @@ const AuthenticateValidator = {
     }
   },
   
-  validateLoginPayload: (payload: any) => {
+  validateLoginPayload: (payload: loginUserDto) => {
     const validationResult = loginPayloadSchema.validate(payload, {
       abortEarly: false,
       allowUnknown: true,
@@ -25,6 +26,6 @@ const AuthenticateValidator = {
       throw new ClientError(errorMessages.join(', '));
     }
   }
-}
+};
 
 export default AuthenticateValidator;

@@ -12,3 +12,7 @@ export interface userDto {
   role: userRole,
 }
 
+export interface loginUserDto {
+  email: string,
+  password: string,
+}
