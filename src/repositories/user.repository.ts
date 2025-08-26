@@ -17,7 +17,7 @@ class UserRepository {
 
     const query = {
       text: 'insert into users(email, password, fullname, address, phone, role, created_at, updated_at) '
-      + 'values($1, $2, $3, $4, $5, $6, $7, $8) returning email fullname, address, phone',
+      + 'values($1, $2, $3, $4, $5, $6, $7, $8) returning email, fullname, address, phone',
       values: [email, password, fullname, address, phone, role, createdAt, updatedAt],
     };
     const { rows } = await this.database.query(query);

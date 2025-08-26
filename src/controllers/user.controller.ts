@@ -1,12 +1,15 @@
 import { Request, Response } from 'express';
 import { UserService } from '../services';
-import { NotFoundError } from '../exceptions';
+import { NotFoundError, ClientError } from '../exceptions';
+import UserValidator from '../validators/user';
 
 class UserController {
   private service: UserService;
+  private validator: typeof UserValidator;
 
-  constructor(service: UserService) {
+  constructor(service: UserService, validator: typeof UserValidator) {
     this.service = service;
+    this.validator = validator;
     this.getUserDetails = this.getUserDetails.bind(this);
     this.getAllUsers = this.getAllUsers.bind(this);
     this.updateUser = this.updateUser.bind(this);
@@ -61,6 +64,7 @@ class UserController {
 
   public async updateUser(req: Request, res: Response) {
     try {
+      this.validator.validatePutPayload(req.body);
       const {
         email, password, fullname, address, phone
       } = req.body;
@@ -75,6 +79,11 @@ class UserController {
       });
     } catch(err) {
       if (err instanceof NotFoundError) {
+        res.status(err.statusCode).json({
+          status: err.status,
+          message: err.message,
+        });
+      } else if (err instanceof ClientError) {
         res.status(err.statusCode).json({
           status: err.status,
           message: err.message,

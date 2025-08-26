@@ -1,18 +1,22 @@
 import { Request, Response } from 'express';
-import { AuthorizationError, ConflictError } from '../exceptions';
+import { AuthorizationError, ClientError, ConflictError } from '../exceptions';
 import AuthService from '../services/auth.service';
+import AuthenticateValidator from '../validators/authentication';
 
 class AuthController {
   private service: AuthService;
+  private validator: typeof AuthenticateValidator;
 
-  constructor(service: AuthService) {
+  constructor(service: AuthService, validator: typeof AuthenticateValidator) {
     this.service = service;
+    this.validator = validator;
     this.register = this.register.bind(this);
     this.login = this.login.bind(this);
   }
 
   public async register(req: Request, res: Response) {
     try {
+      this.validator.validateRegisterPayload(req.body);
       const user = await this.service.register(req.body);
       res.status(201).json({
         status: 'SUCCESS',
@@ -23,6 +27,11 @@ class AuthController {
       });
     } catch (err) {
       if (err instanceof AuthorizationError) {
+        res.status(err.statusCode).json({
+          status: err.status,
+          message: err.message,
+        });
+      } else if (err instanceof ClientError) {
         res.status(err.statusCode).json({
           status: err.status,
           message: err.message,
@@ -44,6 +53,7 @@ class AuthController {
 
   public async login(req: Request, res: Response) {
     try {
+      this.validator.validateLoginPayload(req.body);
       const { email, password } = req.body;
       const user = await this.service.login(email, password);
       delete user.password;
@@ -57,6 +67,11 @@ class AuthController {
       });
     } catch(err) {
       if (err instanceof AuthorizationError) {
+        res.status(err.statusCode).json({
+          status: err.status,
+          message: err.message,
+        });
+      } else if (err instanceof ClientError) {
         res.status(err.statusCode).json({
           status: err.status,
           message: err.message,
