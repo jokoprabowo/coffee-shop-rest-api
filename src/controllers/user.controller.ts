@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../services';
-import { NotFoundError, ClientError, AuthenticationError, AuthorizationError } from '../exceptions';
+import { AuthenticationError } from '../exceptions';
 import UserValidator from '../validators/user';
 
 class UserController {
-  private service: UserService;
-  private validator: typeof UserValidator;
+  private readonly service: UserService;
+  private readonly validator: typeof UserValidator;
 
   constructor(service: UserService, validator: typeof UserValidator) {
     this.service = service;
@@ -16,7 +16,7 @@ class UserController {
     this.deleteUser = this.deleteUser.bind(this);
   }
 
-  public async getUserDetails(req: Request, res: Response) {
+  public async getUserDetails(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.userId) {
         throw new AuthenticationError('Authentication required!');
@@ -31,22 +31,11 @@ class UserController {
         }
       });
     } catch(err) {
-      if (err instanceof NotFoundError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else {
-        console.log(err);
-        res.status(500).json({
-          status: 'INTERNAL_ERROR',
-          message: 'Something went wrong!',
-        });
-      }
+      next(err);
     }
   }
 
-  public async getAllUsers(req: Request, res: Response) {
+  public async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
       const users = await this.service.findAll();
       res.status(200).json({
@@ -57,15 +46,11 @@ class UserController {
         }
       });
     } catch(err) {
-      console.log(err);
-      res.status(500).json({
-        status: 'INTERNAL_ERROR',
-        message: 'Something went wrong!',
-      });
+      next(err);
     }
   }
 
-  public async updateUser(req: Request, res: Response) {
+  public async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
       this.validator.validatePutPayload(req.body);
       const {
@@ -84,32 +69,11 @@ class UserController {
         }
       });
     } catch(err) {
-      if (err instanceof NotFoundError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else if (err instanceof AuthorizationError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else if (err instanceof ClientError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else {
-        console.log(err);
-        res.status(500).json({
-          status: 'INTERNAL_ERROR',
-          message: 'Something went wrong!',
-        });
-      }
+      next(err);
     }
   }
 
-  public async deleteUser(req: Request, res: Response) {
+  public async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.userId) {
         throw new AuthenticationError('Authentication required!');
@@ -123,28 +87,7 @@ class UserController {
         }
       });
     } catch(err) {
-      if (err instanceof NotFoundError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else if (err instanceof AuthorizationError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else if (err instanceof AuthenticationError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else {
-        console.log(err);
-        res.status(500).json({
-          status: 'INTERNAL_ERROR',
-          message: 'Something went wrong!',
-        });
-      }
+      next(err);
     }
   }
 }

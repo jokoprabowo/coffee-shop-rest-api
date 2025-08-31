@@ -1,9 +1,7 @@
-import { ClientError } from './ClientError';
+import { AppError } from './AppError';
 
-export class AuthorizationError extends ClientError {
-
+export class AuthorizationError extends AppError {
   constructor(message: string) {
     super(message, 403, 'FORBIDDEN');
-    this.name = 'AuthorizationError';
   }
 }

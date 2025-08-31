@@ -1,13 +1,13 @@
-import { Request, Response } from 'express';
-import { AuthorizationError, ClientError, ConflictError } from '../exceptions';
+import { NextFunction, Request, Response } from 'express';
+import { AuthorizationError } from '../exceptions';
 import AuthenticateValidator from '../validators/authentication';
 import { RefreshTokenService, AuthService } from '../services';
 import { generateAccessToken } from '../utilities/token';
 
 class AuthController {
-  private service: AuthService;
-  private token: RefreshTokenService;
-  private validator: typeof AuthenticateValidator;
+  private readonly service: AuthService;
+  private readonly token: RefreshTokenService;
+  private readonly validator: typeof AuthenticateValidator;
 
   constructor(service: AuthService, token: RefreshTokenService, validator: typeof AuthenticateValidator) {
     this.service = service;
@@ -19,7 +19,7 @@ class AuthController {
     this.logout = this.logout.bind(this);
   }
 
-  public async register(req: Request, res: Response) {
+  public async register(req: Request, res: Response, next: NextFunction) {
     try {
       this.validator.validateRegisterPayload(req.body);
       const {
@@ -48,32 +48,11 @@ class AuthController {
         }
       });
     } catch (err) {
-      if (err instanceof AuthorizationError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else if (err instanceof ClientError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else if (err instanceof ConflictError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else {
-        console.log(err);
-        res.status(500).json({
-          status: 'INTERNAL_ERROR',
-          message: 'Something went wrong!',
-        });
-      }
+      next(err);
     }
   }
 
-  public async login(req: Request, res: Response) {
+  public async login(req: Request, res: Response, next: NextFunction) {
     try {
       this.validator.validateLoginPayload(req.body);
       const {
@@ -99,32 +78,11 @@ class AuthController {
         }
       });
     } catch(err) {
-      if (err instanceof AuthorizationError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else if (err instanceof ClientError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else if (err instanceof ConflictError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else {
-        console.log(err);
-        res.status(500).json({
-          status: 'INTERNAL ERROR',
-          message: 'Something went wrong!',
-        });
-      }
+      next(err);
     }
   }
 
-  public async refreshToken(req: Request, res: Response) {
+  public async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
       const {
@@ -162,22 +120,11 @@ class AuthController {
         },
       });
     } catch (err) {
-      if (err instanceof AuthorizationError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else {
-        console.log(err);
-        res.status(500).json({
-          status: 'INTERNAL ERROR',
-          message: 'Something went wrong!',
-        });
-      }
+      next(err);
     }
   }
 
-  public async logout(req: Request, res: Response) {
+  public async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
       const { userId } = req.body;
@@ -192,11 +139,7 @@ class AuthController {
         message: 'Logout successfull!',
       });
     } catch (err) {
-      console.log(err);
-      res.status(500).json({
-        status: 'INTERNAL ERROR',
-        message: 'Something went wrong!',
-      });
+      next(err);
     }
   }
 }

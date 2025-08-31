@@ -1,11 +1,10 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { CoffeeService } from '../services';
 import CoffeeValidator from '../validators/coffee';
-import { NotFoundError, AuthorizationError } from '../exceptions';
 
 class CoffeeController {
-  private service: CoffeeService;
-  private validator: typeof CoffeeValidator;
+  private readonly service: CoffeeService;
+  private readonly validator: typeof CoffeeValidator;
 
   constructor(service: CoffeeService, validator: typeof CoffeeValidator) {
     this.service = service;
@@ -17,7 +16,7 @@ class CoffeeController {
     this.deleteById = this.deleteById.bind(this);
   }
 
-  public async create(req: Request, res: Response) {
+  public async create(req: Request, res: Response, next: NextFunction) {
     try {
       this.validator.validatePostCoffeePayload(req.body);
       const coffee = await this.service.create(req.body);
@@ -28,22 +27,11 @@ class CoffeeController {
         },
       });
     } catch (err) {
-      if (err instanceof AuthorizationError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else {
-        console.log(err);
-        res.status(500).json({
-          status: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong!'
-        });
-      }
+      next(err);
     }
   }
 
-  public async getAll(req: Request, res: Response) {
+  public async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const coffees = await this.service.findAll();
       res.status(200).json({
@@ -54,15 +42,11 @@ class CoffeeController {
         },
       });
     } catch (err) {
-      console.log(err);
-      res.status(500).json({
-        status: 'INTERNAL_SERVER_ERROR',
-        message: 'Something went wrong!'
-      });
+      next(err);
     }
   }
 
-  public async getById(req: Request, res: Response) {
+  public async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const coffee = await this.service.findOne(req.params.id);
       res.status(200).json({
@@ -73,22 +57,11 @@ class CoffeeController {
         },
       });
     } catch (err) {
-      if (err instanceof NotFoundError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else {
-        console.log(err);
-        res.status(500).json({
-          status: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong!'
-        });
-      }
+      next(err);
     }
   }
 
-  public async updateById(req: Request, res: Response) {
+  public async updateById(req: Request, res: Response, next: NextFunction) {
     try {
       this.validator.validatePutCoffeePayload(req.body);
       const coffee = await this.service.update(req.params.id, req.body);
@@ -100,27 +73,11 @@ class CoffeeController {
         },
       });
     } catch (err) {
-      if (err instanceof NotFoundError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else if (err instanceof AuthorizationError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else {
-        console.log(err);
-        res.status(500).json({
-          status: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong!'
-        });
-      }
+      next(err);
     }
   }
 
-  public async deleteById(req: Request, res: Response) {
+  public async deleteById(req: Request, res: Response, next: NextFunction) {
     try {
       await this.service.delete(req.params.id);
       res.status(200).json({
@@ -128,23 +85,7 @@ class CoffeeController {
         message: 'Coffee has been deleted!',
       });
     } catch (err) {
-      if (err instanceof NotFoundError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else if (err instanceof AuthorizationError) {
-        res.status(err.statusCode).json({
-          status: err.status,
-          message: err.message,
-        });
-      } else {
-        console.log(err);
-        res.status(500).json({
-          status: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong!'
-        });
-      }
+      next(err);
     }
   }
 }

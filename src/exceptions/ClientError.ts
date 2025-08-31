@@ -1,11 +1,7 @@
-export class ClientError extends Error {
-  statusCode: number;
-  status: string;
+import { AppError } from './AppError';
 
-  constructor(message: string, statusCode: number = 400, status: string = 'BAD_REQUEST') {
-    super(message);
-    this.name = 'ClientError';
-    this.statusCode = statusCode;
-    this.status = status;
+export class ClientError extends AppError {
+  constructor(message: string) {
+    super(message, 400, 'BAD_REQUEST');
   }
 }
