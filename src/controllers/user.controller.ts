@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { UserService } from '../services';
-import { NotFoundError, ClientError } from '../exceptions';
+import { NotFoundError, ClientError, AuthenticationError, AuthorizationError } from '../exceptions';
 import UserValidator from '../validators/user';
 
 class UserController {
@@ -18,7 +18,10 @@ class UserController {
 
   public async getUserDetails(req: Request, res: Response) {
     try {
-      const user = await this.service.findOne(req.body.email);
+      if (!req.userId) {
+        throw new AuthenticationError('Authentication required!');
+      }
+      const user = await this.service.findById(req.userId);
       delete user?.password;
       res.status(200).json({
         status: 'OK',
@@ -66,10 +69,13 @@ class UserController {
     try {
       this.validator.validatePutPayload(req.body);
       const {
-        email, password, fullname, address, phone
+        password, fullname, address, phone
       } = req.body;
+      if (!req.userId) {
+        throw new AuthenticationError('Authentication required!');
+      }
 
-      const user = await this.service.update(email, { password, fullname, address, phone });
+      const user = await this.service.update(req.userId, { password, fullname, address, phone });
       res.status(200).json({
         status: 'OK',
         message: 'User details have been updated!',
@@ -79,6 +85,11 @@ class UserController {
       });
     } catch(err) {
       if (err instanceof NotFoundError) {
+        res.status(err.statusCode).json({
+          status: err.status,
+          message: err.message,
+        });
+      } else if (err instanceof AuthorizationError) {
         res.status(err.statusCode).json({
           status: err.status,
           message: err.message,
@@ -100,7 +111,10 @@ class UserController {
 
   public async deleteUser(req: Request, res: Response) {
     try {
-      const user = await this.service.delete(req.body.email);
+      if (!req.userId) {
+        throw new AuthenticationError('Authentication required!');
+      }
+      const user = await this.service.delete(req.userId);
       res.status(200).json({
         status: 'OK',
         message: 'User have been deleted!',
@@ -110,6 +124,16 @@ class UserController {
       });
     } catch(err) {
       if (err instanceof NotFoundError) {
+        res.status(err.statusCode).json({
+          status: err.status,
+          message: err.message,
+        });
+      } else if (err instanceof AuthorizationError) {
+        res.status(err.statusCode).json({
+          status: err.status,
+          message: err.message,
+        });
+      } else if (err instanceof AuthenticationError) {
         res.status(err.statusCode).json({
           status: err.status,
           message: err.message,

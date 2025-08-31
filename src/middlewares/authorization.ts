@@ -1,54 +1,45 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyAccessToken, verifyRefreshToken } from '../utilities/token';
-import { AuthenticationError } from '../exceptions';
 import { UserService } from '../services';
+import { verifyAccessToken } from '../utilities/token';
+import { AuthenticationError } from '../exceptions';
 
 class AuthMiddleware {
   private userService: UserService;
 
   constructor(userService: UserService) {
     this.userService = userService;
+    this.authorize = this.authorize.bind(this);
+    this.isAdmin = this.isAdmin.bind(this);
   }
 
-  public async authorize(req: Request, res: Response, next: NextFunction) {
+  public async authorize (req: Request, res: Response, next: NextFunction) {
     try {
       const bearerToken = req.headers.authorization;
       if (!bearerToken) {
         throw new AuthenticationError('Access token is missing!');
       }
       const token = bearerToken.split('Bearer ')[1];
-      const tokenPayload = verifyAccessToken(token) as {email: string};
-
-      req.user = await this.userService.findOne(tokenPayload.email);
+      const tokenPayload = verifyAccessToken(token) as {userId: number};
+      req.userId = tokenPayload.userId;
       next();
     } catch (err) {
-      if (err instanceof AuthenticationError) {
-        res.status(err.statusCode).json({
-          message: err.message,
-          status: err.status,
-        });
-      }
+      next(err);
     }
   }
 
-  public async cookiesAuth(req: Request, res: Response, next: NextFunction) {
+  public async isAdmin (req: Request, res: Response, next: NextFunction) {
     try {
-      const cookie = req.headers.cookie;
-      if (!cookie) {
-        throw new AuthenticationError('Refresh token is missing!');
-      } 
-      const token = cookie.split('=')[1];
-      const user = verifyRefreshToken(token) as {user: object};
-      req.user = user;
+      const bearerToken = req.headers.authorization;
+      if (!bearerToken) {
+        throw new AuthenticationError('Access token is missing!');
+      }
+
+      const token = bearerToken.split('Bearer ')[1];
+      const tokenPayload = verifyAccessToken(token) as {userId: number};
+      await this.userService.verifyAdmin(tokenPayload.userId);
       next();
     } catch (err) {
-      if (err instanceof AuthenticationError) {
-        res.clearCookie('token');
-        res.status(401).json({
-          status: 'Unauthorized!',
-          message: err.message,
-        });
-      }
+      next(err);
     }
   }
 }

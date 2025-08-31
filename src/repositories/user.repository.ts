@@ -17,8 +17,17 @@ class UserRepository {
 
     const query = {
       text: 'insert into users(email, password, fullname, address, phone, role, created_at, updated_at) '
-      + 'values($1, $2, $3, $4, $5, $6, $7, $8) returning email, fullname, address, phone',
+      + 'values($1, $2, $3, $4, $5, $6, $7, $8) returning id, email, fullname, address, phone',
       values: [email, password, fullname, address, phone, role, createdAt, updatedAt],
+    };
+    const { rows } = await this.database.query(query);
+    return rows[0];
+  }
+
+  public async findById(id: number) {
+    const query = {
+      text: 'select id, email, password, fullname, address, phone from users where id = $1',
+      values: [id],
     };
     const { rows } = await this.database.query(query);
     return rows[0];
@@ -26,7 +35,7 @@ class UserRepository {
 
   public async findOne(email: string) {
     const query = {
-      text: 'select email, password, fullname, address, phone from users where email = $1',
+      text: 'select id, email, password, fullname, address, phone from users where email = $1',
       values: [email],
     };
     const { rows } = await this.database.query(query);
@@ -41,37 +50,37 @@ class UserRepository {
     return result;
   }
 
-  public async update(email: string, user: Partial<userDto>) {
+  public async update(id: number, user: Partial<userDto>) {
     const {
       password, fullname, address, phone
     } = user;
     const query = {
       text: 'update users set password = $1, fullname = $2, address = $3, phone = $4, updated_at = $5 '
-      + 'where email = $6 returning email, fullname, address, phone',
-      values: [password, fullname, address, phone, new Date(), email],
+      + 'where id = $6 returning email, fullname, address, phone',
+      values: [password, fullname, address, phone, new Date(), id],
     };
     const { rows } = await this.database.query(query);
     return rows[0];
   }
 
-  public async delete(email: string) {
+  public async delete(id: number) {
     const query = {
-      text: 'delete from users where email = $1',
-      values: [email],
+      text: 'delete from users where id = $1',
+      values: [id],
     };
     const { rowCount } = await this.database.query(query);
     return (rowCount ?? 0) > 0;
   }
 
-  public async verifyAdmin(email: string) {
+  public async verifyAdmin(id: number) {
     const query = {
-      text: 'select role from users where email = $1',
-      values: [email],
+      text: 'select role from users where id = $1',
+      values: [id],
     };
     const { rows } = await this.database.query(query);
     const user = rows[0];
 
-    if(user !== 'admin') {
+    if(user.role !== 'admin') {
       return false;
     }
     return true;

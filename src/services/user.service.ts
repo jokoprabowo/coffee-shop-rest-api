@@ -31,6 +31,14 @@ class UserService {
     return users;
   }
 
+  public async findById(id: number) {
+    const user = await this.repository.findById(id);
+    if(!user) {
+      throw new NotFoundError('User not found!');
+    }
+    return user;
+  }
+
   public async findOne(email: string) {
     const user = await this.repository.findOne(email);
     if(!user) {
@@ -39,27 +47,27 @@ class UserService {
     return user;
   }
 
-  public async update(email: string, data: Partial<userDto>) {
-    await this.findOne(email);
+  public async update(id: number, data: Partial<userDto>) {
+    await this.findById(id);
     if(data.password) {
       data.password = await encryptPassword(data.password);
     }
-    const user = await this.repository.update(email, data);
+    const user = await this.repository.update(id, data);
     return user;
   }
 
-  public async delete(email: string) {
-    const user = await this.repository.delete(email);
+  public async delete(id: number) {
+    const user = await this.repository.delete(id);
     if (!user) {
       throw new NotFoundError('User not found!');
     }
     return user;
   }
 
-  public async verifyAdmin(email: string) {
-    const user = await this.repository.verifyAdmin(email);
+  public async verifyAdmin(id: number) {
+    const user = await this.repository.verifyAdmin(id);
     if (!user) {
-      throw new AuthorizationError('You are not an admin!');
+      throw new AuthorizationError('You do not have permission to access this resource!');
     }
   }
 }

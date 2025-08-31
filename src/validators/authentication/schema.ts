@@ -42,6 +42,24 @@ export const registerPayloadSchema = Joi.object({
       'string.max': 'Password must not exceed 30 characters',
       'any.required': 'Password is required',
     }),
+  role: Joi.string()
+    .valid('admin', 'customer')
+    .optional()
+    .messages({
+      'any.only': 'Role must be either admin or customer',
+    }),
+  deviceInfo: Joi.string()
+    .max(255)
+    .optional()
+    .messages({
+      'string.max': 'Device info must not exceed 255 characters',
+    }),
+  ipAddress: Joi.string()
+    .ip({ version: ['ipv4', 'ipv6'] })
+    .optional()
+    .messages({
+      'string.ip': 'IP address must be a valid IPv4 or IPv6 address',
+    }),
 });
 
 export const loginPayloadSchema = Joi.object({
@@ -60,5 +78,17 @@ export const loginPayloadSchema = Joi.object({
       'string.pattern.base': 'Password must have 10 characters, at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character',
       'string.max': 'Password must not exceed 30 characters',
       'any.required': 'Password is required',
+    }),
+  deviceInfo: Joi.string()
+    .max(255)
+    .optional()
+    .messages({
+      'string.max': 'Device info must not exceed 255 characters',
+    }),
+  ipAddress: Joi.string()
+    .ip({ version: ['ipv4', 'ipv6'] })
+    .optional()
+    .messages({
+      'string.ip': 'IP address must be a valid IPv4 or IPv6 address',
     }),
 });

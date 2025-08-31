@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { CoffeeService } from '../services';
 import CoffeeValidator from '../validators/coffee';
-import { NotFoundError } from '../exceptions';
+import { NotFoundError, AuthorizationError } from '../exceptions';
 
 class CoffeeController {
   private service: CoffeeService;
@@ -28,11 +28,18 @@ class CoffeeController {
         },
       });
     } catch (err) {
-      console.log(err);
-      res.status(500).json({
-        status: 'INTERNAL_SERVER_ERROR',
-        message: 'Something went wrong!'
-      });
+      if (err instanceof AuthorizationError) {
+        res.status(err.statusCode).json({
+          status: err.status,
+          message: err.message,
+        });
+      } else {
+        console.log(err);
+        res.status(500).json({
+          status: 'INTERNAL_SERVER_ERROR',
+          message: 'Something went wrong!'
+        });
+      }
     }
   }
 
@@ -98,6 +105,11 @@ class CoffeeController {
           status: err.status,
           message: err.message,
         });
+      } else if (err instanceof AuthorizationError) {
+        res.status(err.statusCode).json({
+          status: err.status,
+          message: err.message,
+        });
       } else {
         console.log(err);
         res.status(500).json({
@@ -117,6 +129,11 @@ class CoffeeController {
       });
     } catch (err) {
       if (err instanceof NotFoundError) {
+        res.status(err.statusCode).json({
+          status: err.status,
+          message: err.message,
+        });
+      } else if (err instanceof AuthorizationError) {
         res.status(err.statusCode).json({
           status: err.status,
           message: err.message,
