@@ -19,7 +19,8 @@ export default tseslint.config(
     'prefer-const': ['error'],
     'semi': ['error', 'always'],
     'indent': ['error', 2],
-    'quotes': ['error', 'single']
+    'quotes': ['error', 'single'],
+    '@typescript-eslint/no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }]
   }
   }
 );
