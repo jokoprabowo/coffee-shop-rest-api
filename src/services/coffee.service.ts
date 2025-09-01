@@ -1,15 +1,15 @@
-import { coffeeDto } from '../dto';
+import { CoffeeDto } from '../dto';
 import { NotFoundError } from '../exceptions';
 import { CoffeeRepository } from '../repositories';
 
 class CoffeeService {
-  private repository: CoffeeRepository;
+  private readonly repository: CoffeeRepository;
 
   constructor(repository: CoffeeRepository) {
     this.repository = repository;
   }
 
-  public async create(data: coffeeDto) {
+  public async create(data: CoffeeDto) {
     const coffee = await this.repository.create(data);
     return coffee;
   }
@@ -27,7 +27,7 @@ class CoffeeService {
     return coffees;
   }
 
-  public async update(id: string, data: Partial<coffeeDto>) {
+  public async update(id: string, data: Partial<CoffeeDto>) {
     await this.findOne(id);
     const coffee = await this.repository.update(id, data);
     return coffee;

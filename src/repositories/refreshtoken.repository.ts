@@ -1,14 +1,14 @@
 import { Pool } from 'pg';
-import { refreshToken } from '../dto';
+import { RefreshToken } from '../dto';
 
 class RefreshTokenRepository {
-  private database: Pool;
+  private readonly database: Pool;
   
   constructor(database: Pool) {
     this.database = database;
   }
 
-  public async create(data: refreshToken) {
+  public async create(data: RefreshToken) {
     const {
       user_id, token, device_info, ip_address, expires_at
     } = data;

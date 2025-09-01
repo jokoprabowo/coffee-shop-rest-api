@@ -1,14 +1,14 @@
-import { userDto } from '../dto';
+import { UserDto } from '../dto';
 import { Pool } from 'pg';
 
 class UserRepository {
-  private database: Pool;
+  private readonly database: Pool;
 
   constructor(database: Pool) {
     this.database = database;
   }
 
-  public async create(user: userDto) {
+  public async create(user: UserDto) {
     const {
       email, password, fullname, address, phone, role
     } = user;
@@ -50,7 +50,7 @@ class UserRepository {
     return result;
   }
 
-  public async update(id: number, user: Partial<userDto>) {
+  public async update(id: number, user: Partial<UserDto>) {
     const {
       password, fullname, address, phone
     } = user;

@@ -22,6 +22,7 @@ class CoffeeController {
       const coffee = await this.service.create(req.body);
       res.status(201).json({
         status: 'CREATED',
+        message: 'Coffee has been created!',
         data: {
           coffee,
         },

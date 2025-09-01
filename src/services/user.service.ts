@@ -1,17 +1,17 @@
 import { UserRepository } from '../repositories';
-import { userDto } from '../dto';
+import { UserDto } from '../dto';
 import { AuthorizationError, ConflictError, NotFoundError } from '../exceptions';
 import { encryptPassword } from '../utilities/encrypt';
 import config from '../config';
 
 class UserService {
-  private repository: UserRepository;
+  private readonly repository: UserRepository;
 
   constructor(repository: UserRepository) {
     this.repository = repository;
   }
 
-  public async create(data: userDto) {
+  public async create(data: UserDto) {
     if (data.role === 'admin' && !config.WHITELIST_ADMIN_EMAILS?.includes(data.email)){
       throw new AuthorizationError('You are not allowed to register as an admin!');
     }
@@ -47,7 +47,7 @@ class UserService {
     return user;
   }
 
-  public async update(id: number, data: Partial<userDto>) {
+  public async update(id: number, data: Partial<UserDto>) {
     await this.findById(id);
     if(data.password) {
       data.password = await encryptPassword(data.password);

@@ -1,9 +1,9 @@
 import { ClientError } from '../../exceptions';
 import { putUserSchema } from './schema';
-import { userDto } from '../../dto';
+import { UserDto } from '../../dto';
 
 const UserValidator = {
-  validatePutPayload: (payload: userDto) => {
+  validatePutPayload: (payload: UserDto) => {
     const validationResult = putUserSchema.validate(payload, {
       abortEarly: false,
       allowUnknown: true,

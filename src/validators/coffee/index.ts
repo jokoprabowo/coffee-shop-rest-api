@@ -1,9 +1,9 @@
 import { ClientError } from '../../exceptions';
 import { postCoffeeSchema, putCoffeeSchema } from './schema';
-import { coffeeDto } from '../../dto';
+import { CoffeeDto } from '../../dto';
 
 const CoffeeValidator = {
-  validatePostCoffeePayload: (payload: coffeeDto) => {
+  validatePostCoffeePayload: (payload: CoffeeDto) => {
     const validationResult = postCoffeeSchema.validate(payload, {
       abortEarly: false,
       allowUnknown: true,
@@ -15,7 +15,7 @@ const CoffeeValidator = {
     }
   },
 
-  validatePutCoffeePayload: (payload: coffeeDto) => {
+  validatePutCoffeePayload: (payload: CoffeeDto) => {
     const validationResult = putCoffeeSchema.validate(payload, {
       abortEarly: false,
       allowUnknown: true,

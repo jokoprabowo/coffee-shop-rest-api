@@ -1,9 +1,9 @@
 import { ClientError } from '../../exceptions';
 import { registerPayloadSchema, loginPayloadSchema } from './schema';
-import { userDto, loginUserDto } from '../../dto';
+import { UserDto, LoginUserDto } from '../../dto';
 
 const AuthenticateValidator = {
-  validateRegisterPayload: (payload: userDto) => {
+  validateRegisterPayload: (payload: UserDto) => {
     const validationResult = registerPayloadSchema.validate(payload, {
       abortEarly: false,
       allowUnknown: true,
@@ -15,7 +15,7 @@ const AuthenticateValidator = {
     }
   },
   
-  validateLoginPayload: (payload: loginUserDto) => {
+  validateLoginPayload: (payload: LoginUserDto) => {
     const validationResult = loginPayloadSchema.validate(payload, {
       abortEarly: false,
       allowUnknown: true,

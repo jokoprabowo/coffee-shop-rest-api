@@ -4,7 +4,7 @@ import { verifyAccessToken } from '../utilities/token';
 import { AuthenticationError } from '../exceptions';
 
 class AuthMiddleware {
-  private userService: UserService;
+  private readonly userService: UserService;
 
   constructor(userService: UserService) {
     this.userService = userService;

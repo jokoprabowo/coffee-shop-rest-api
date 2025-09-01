@@ -1,21 +1,21 @@
-import { userDto, loginUserDto } from '../dto';
+import { UserDto, LoginUserDto } from '../dto';
 import UserService from './user.service';
 import { checkPassword } from '../utilities/encrypt';
 import { ClientError } from '../exceptions';
 
 class AuthService {
-  private service: UserService;
+  private readonly service: UserService;
 
   constructor(service: UserService) {
     this.service = service;
   }
 
-  public async register(data: userDto) {
+  public async register(data: UserDto) {
     const user = await this.service.create(data);
     return user;
   }
 
-  public async login(data: loginUserDto) {
+  public async login(data: LoginUserDto) {
     const user = await this.service.findOne(data.email);
     const isMatch = await checkPassword(data.password, user.password);
     if (!isMatch) {

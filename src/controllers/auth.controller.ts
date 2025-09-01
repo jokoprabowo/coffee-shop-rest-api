@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { AuthorizationError } from '../exceptions';
+import { AuthenticationError, AuthorizationError, ClientError } from '../exceptions';
 import AuthenticateValidator from '../validators/authentication';
 import { RefreshTokenService, AuthService } from '../services';
 import { generateAccessToken } from '../utilities/token';
@@ -86,11 +86,14 @@ class AuthController {
     try {
       const { refreshToken } = req.cookies;
       const {
-        userId, deviceInfo, ipAddress
+        deviceInfo, ipAddress
       } = req.body;
-      const verified = await this.token.verifyToken(req.body.userId, refreshToken);
+      if (!req.userId) {
+        throw new AuthenticationError('Authentication required!');
+      }
+      const verified = await this.token.verifyToken(req.userId, refreshToken);
       if (!verified) {
-        throw new AuthorizationError('Invalid refresh token!');
+        throw new ClientError('Invalid refresh token!');
       }
 
       if(verified.is_revoked) {
@@ -99,12 +102,12 @@ class AuthController {
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict',
         });
-        await this.token.revokeAllTokens(userId);
+        await this.token.revokeAllTokens(req.userId);
         throw new AuthorizationError('Refresh token has been revoked. Please login again!');
       }
 
-      await this.token.revokeToken(userId, refreshToken);
-      const newRefreshToken = await this.token.generateToken(userId, deviceInfo, ipAddress);
+      await this.token.revokeToken(req.userId, refreshToken);
+      const newRefreshToken = await this.token.generateToken(req.userId, deviceInfo, ipAddress);
       const accessToken = generateAccessToken(req.body.userId);
 
       res.cookie('refreshToken', newRefreshToken, {
@@ -127,8 +130,10 @@ class AuthController {
   public async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
-      const { userId } = req.body;
-      await this.token.revokeToken(userId, refreshToken);
+      if (!req.userId) {
+        throw new AuthenticationError('Authentication required!');
+      }
+      await this.token.revokeToken(req.userId, refreshToken);
       res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

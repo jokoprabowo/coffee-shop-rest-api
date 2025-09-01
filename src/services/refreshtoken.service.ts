@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import { NotFoundError } from '../exceptions';
 
 class RefreshTokenService {
-  private repository: RefreshTokenRepository;
+  private readonly repository: RefreshTokenRepository;
 
   constructor(repository: RefreshTokenRepository) {
     this.repository = repository;

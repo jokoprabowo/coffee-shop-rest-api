@@ -1,14 +1,14 @@
 import { Pool } from 'pg';
-import { coffeeDto } from '../dto';
+import { CoffeeDto } from '../dto';
 
 class CoffeeRepository {
-  private database: Pool;
+  private readonly database: Pool;
 
   constructor(database: Pool) {
     this.database = database;
   }
 
-  public async create(data: coffeeDto) {
+  public async create(data: CoffeeDto) {
     const {
       name, price, description, image,
     } = data;
@@ -42,7 +42,7 @@ class CoffeeRepository {
     return rows;
   }
 
-  public async update(id: string, data: Partial<coffeeDto>) {
+  public async update(id: string, data: Partial<CoffeeDto>) {
     const {
       name, price, description, image
     } = data;
