@@ -65,13 +65,10 @@ class CoffeeController {
   public async updateById(req: Request, res: Response, next: NextFunction) {
     try {
       this.validator.validatePutCoffeePayload(req.body);
-      const coffee = await this.service.update(req.params.id, req.body);
+      await this.service.update(req.params.id, req.body);
       res.status(200).json({
         status: 'OK',
         message: 'Coffee has been updated!',
-        data: {
-          coffee,
-        },
       });
     } catch (err) {
       next(err);

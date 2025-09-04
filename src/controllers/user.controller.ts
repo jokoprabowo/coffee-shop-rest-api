@@ -60,13 +60,10 @@ class UserController {
         throw new AuthenticationError('Authentication required!');
       }
 
-      const user = await this.service.update(req.userId, { password, fullname, address, phone });
+      await this.service.update(req.userId, { password, fullname, address, phone });
       res.status(200).json({
         status: 'OK',
         message: 'User details have been updated!',
-        data: {
-          user,
-        }
       });
     } catch(err) {
       next(err);
@@ -78,13 +75,10 @@ class UserController {
       if (!req.userId) {
         throw new AuthenticationError('Authentication required!');
       }
-      const user = await this.service.delete(req.userId);
+      await this.service.delete(req.userId);
       res.status(200).json({
         status: 'OK',
         message: 'User have been deleted!',
-        data: {
-          user,
-        }
       });
     } catch(err) {
       next(err);

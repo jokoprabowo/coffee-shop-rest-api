@@ -53,8 +53,8 @@ class CoffeeRepository {
       values: [name, price, description, image, updatedAt, id],
     };
 
-    const { rows } = await this.database.query(query);
-    return rows[0];
+    const { rowCount } = await this.database.query(query);
+    return (rowCount ?? 0) > 0;
   }
 
   public async delete(id: string) {
@@ -63,8 +63,8 @@ class CoffeeRepository {
       values: [id],
     };
 
-    const { rows } = await this.database.query(query);
-    return rows[0];
+    const { rowCount } = await this.database.query(query);
+    return (rowCount ?? 0) > 0;
   }
 }
 
