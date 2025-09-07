@@ -26,6 +26,10 @@ export const swaggerOptions: Options = {
       {
         name: 'Coffees',
         description: 'Coffees API'
+      },
+      {
+        name: 'Carts',
+        description: 'Carts API',
       }
     ],
     servers: [
