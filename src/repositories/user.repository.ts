@@ -59,8 +59,8 @@ class UserRepository {
       + 'where id = $6 returning email, fullname, address, phone',
       values: [password, fullname, address, phone, new Date(), id],
     };
-    const { rows } = await this.database.query(query);
-    return rows[0];
+    const { rowCount } = await this.database.query(query);
+    return (rowCount ?? 0) > 0;
   }
 
   public async delete(id: number) {
