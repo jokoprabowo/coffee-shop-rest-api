@@ -9,6 +9,11 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       references: 'users',
       onDelete: 'CASCADE',
     },
+    status: {
+      type: 'varchar(50)',
+      notNull: true,
+      default: 'open',
+    },
     created_at: {
       type: 'timestamp',
       notNull: true,
