@@ -12,9 +12,9 @@ const controller = new OrderController(service);
 const router = Router();
 
 router.post('/', middleware.authorize, controller.createOrder);
-router.get('/all', middleware.authorize, controller.getOrders);
-router.get('/detail', middleware.authorize, controller.getOrderDetails);
-router.put('/', middleware.authorize, controller.updateOrderStatus);
-router.delete('/', middleware.authorize, controller.deleteOrder);
+router.get('/', middleware.authorize, controller.getOrders);
+router.get('/:id', middleware.authorize, controller.getOrderDetails);
+router.put('/:id', middleware.authorize, controller.updateOrderStatus);
+router.delete('/:id', middleware.authorize, controller.deleteOrder);
 
 export default router;
