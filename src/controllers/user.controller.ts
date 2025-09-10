@@ -60,10 +60,13 @@ class UserController {
         throw new AuthenticationError('Authentication required!');
       }
 
-      await this.service.update(req.userId, { password, fullname, address, phone });
+      const user = await this.service.update(req.userId, { password, fullname, address, phone });
       res.status(200).json({
         status: 'OK',
         message: 'User details have been updated!',
+        data: {
+          user,
+        },
       });
     } catch(err) {
       next(err);

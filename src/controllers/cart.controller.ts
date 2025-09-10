@@ -21,7 +21,7 @@ class CartController {
       }
       const cartItems = await this.service.addToCart(req.userId, coffeeId, quantity);
       res.status(201).json({
-        status: 'SUCCESS',
+        status: 'CREATED',
         message: 'Cart item has been added!',
         data: {
           cartItems,
