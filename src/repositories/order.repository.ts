@@ -30,8 +30,9 @@ class OrderRepository{
 
   public async getOrderList(userId: number) {
     const query = {
-      text: 'select o.id, o.status, o.total, sum(oi.total_price) as total_price from orders '+
-      'join order_items oi on oi.order_id = o.id where user_id = $1 order by created_at desc',
+      text: 'select o.id, o.status, o.total, sum(oi.total_price) as total_price from orders o '+
+      'inner join order_items oi on oi.order_id = o.id where user_id = $1 group by o.id, o.status, o.total '+
+      'order by o.created_at desc',
       values: [userId],
     };
 
@@ -41,7 +42,8 @@ class OrderRepository{
 
   public async getOrderDetails(orderId: number) {
     const query = {
-      text: 'select coffee_id, quantity, unit_price, total_price where order_id = $1',
+      text: 'select c.name, oi.quantity, oi.unit_price, oi.total_price from order_items oi '+
+      'inner join coffees c on c.id = oi.coffee_id where order_id = $1',
       values: [orderId],
     };
 
@@ -51,8 +53,8 @@ class OrderRepository{
 
   public async updateStatus(orderId: number, status: string) {
     const query = {
-      text: 'update from orders set status = $1 where id = $2',
-      values: [status, orderId],
+      text: 'update orders set status = $1, updated_at = $2 where id = $3',
+      values: [status, new Date(), orderId],
     };
 
     const { rowCount } = await this.database.query(query);
