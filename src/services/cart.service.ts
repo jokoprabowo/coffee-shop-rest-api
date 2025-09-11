@@ -18,12 +18,16 @@ class CartService {
     cartId = cart.id;
 
     await this.repository.createItem(cartId, coffeeId, quantity);
-    const cartItems = await this.repository.getCartItems(userId);
+    const cartItems = await this.repository.getCartItems(cartId);
     return cartItems;
   }
 
   public async getCartItems(userId: number) {
-    const cartItems = await this.repository.getCartItems(userId);
+    const cart = await this.repository.isCartExist(userId);
+    if (!cart) {
+      return [];
+    }
+    const cartItems = await this.repository.getCartItems(cart.id);
     if (!cartItems) {
       return [];
     }

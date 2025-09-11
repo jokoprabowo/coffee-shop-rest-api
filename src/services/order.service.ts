@@ -11,13 +11,15 @@ class OrderService {
   }
 
   public async createOrder(userId: number) {
-    const cartItems = await this.cartRepository.getCartItems(userId);
-    if (!cartItems[0]){
+    const cart = await this.cartRepository.isCartExist(userId);
+    if (!cart){
       throw new NotFoundError('Cart is empty!');
     }
 
+    const cartItems= await this.cartRepository.getCartItems(cart.id);
     const total = cartItems.reduce((acc, item) => acc + item.quantity, 0);
     const order = await this.repository.createOrder(userId, total);
+    await this.cartRepository.updateStatus(cartItems[0].cart_id);
 
     for (const item of cartItems) {
       await this.repository.createOrderItem(
