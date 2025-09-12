@@ -17,7 +17,7 @@ class CoffeeRepository {
 
     const query = {
       text: 'insert into coffees(name, price, description, image, created_at, updated_at) '
-      + 'values ($1, $2, $3, $4, $5, $6) returning name, price, description, image',
+      + 'values ($1, $2, $3, $4, $5, $6) returning id, name, price, description, image',
       values: [name, price, description, image, createdAt, updatedAt],
     };
 
@@ -36,7 +36,7 @@ class CoffeeRepository {
 
   public async findAll() {
     const query = {
-      text: 'select name, price, description, image from coffees',
+      text: 'select id, name, price, description, image from coffees',
     };
     const { rows } = await this.database.query(query);
     return rows;

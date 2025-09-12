@@ -40,7 +40,7 @@ class AuthController {
         sameSite: 'strict',
       });
       res.status(201).json({
-        status: 'SUCCESS',
+        status: 'CREATED',
         message: 'User successfully created!',
         data: {
           user,
@@ -70,7 +70,7 @@ class AuthController {
         sameSite: 'strict'
       });
       res.status(200).json({
-        status: 'SUCCESS',
+        status: 'OK',
         message: 'Login successfull!',
         data: {
           user,
