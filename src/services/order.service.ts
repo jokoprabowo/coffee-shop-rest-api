@@ -44,6 +44,7 @@ class OrderService {
     if (!order) {
       throw new NotFoundError('Order not found!');
     }
+    return true;
   }
 
   public async deleteOrder(orderId: number) {
@@ -51,6 +52,7 @@ class OrderService {
     if (!order) {
       throw new NotFoundError('Order not found!');
     }
+    return true;
   }
 }
 
