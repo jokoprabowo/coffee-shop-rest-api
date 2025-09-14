@@ -10,7 +10,7 @@ class UserRepository {
 
   public async create(user: UserDto) {
     const {
-      email, password, fullname, address, phone, role
+      email, password, fullname, address, phone, role = 'customer',
     } = user;
     const createdAt = new Date();
     const updatedAt = createdAt;
@@ -46,8 +46,8 @@ class UserRepository {
     const query = {
       text: 'select email, fullname, address, phone from users',
     };
-    const result = await this.database.query(query);
-    return result;
+    const { rows } = await this.database.query(query);
+    return rows;
   }
 
   public async update(id: number, user: Partial<UserDto>) {
