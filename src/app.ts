@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import helmet from 'helmet';
 
-import { logger } from './middlewares/logger';
+import { logger } from './config/logger';
 import { corsOptions } from './config/corsOptions';
 import { errorHandler } from './middlewares/errorHandler';
 import { swaggerOptions } from './docs/swagger';
