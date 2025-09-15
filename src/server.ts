@@ -3,8 +3,6 @@ import config from './config';
 import { winlogger } from './config/winston';
 import pool from './config/db';
 
-// app.listen(config.PORT, () => console.log(`Server is running on port: http://localhost:${config.PORT}`));
-
 (async () => {
   try {
     app.listen(config.PORT, () => {
