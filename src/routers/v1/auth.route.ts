@@ -88,7 +88,7 @@ router.post('/login', controller.login);
  *          schema:
  *            $ref: '#/components/schemas/Register User'
  *    responses:
- *      200:
+ *      201:
  *        description: Successfully register new user account
  *        content:
  *          application/json:
