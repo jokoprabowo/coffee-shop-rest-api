@@ -45,7 +45,7 @@ class RefreshTokenRepository {
 
   public async findActiveToken(userId: number) {
     const query = {
-      text: 'select token, is_revoked from refresh_tokens where user_id = $1 and is_revoked = false and expires_at > now()',
+      text: 'select token, is_revoked from refresh_tokens where user_id = $1 and expires_at > now()',
       values: [userId],
     };
 
