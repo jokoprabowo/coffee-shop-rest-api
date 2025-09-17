@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../../../src/app';
 import pool from '../../../src/config/db';
 
-describe('Login endpoint.', () => {
+describe('Logout endpoint.', () => {
   let userId: number;
   let token: string;
   let cookie: string;
