@@ -213,6 +213,19 @@ router.get('/', middleware.authorize, controller.getOrders);
  *                  message:
  *                    type: string
  *                    example: Login required!
+ *        404:
+ *          description: Order not found
+ *          content:
+ *            application/json:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                    status:
+ *                      type: string
+ *                      example: NOT_FOUND
+ *                    message:
+ *                      type: string
+ *                      example: Order not found!
  */
 router.get('/:id', middleware.authorize, controller.getOrderDetails);
 
@@ -268,6 +281,19 @@ router.get('/:id', middleware.authorize, controller.getOrderDetails);
  *                  message:
  *                    type: string
  *                    example: Login required!
+ *        404:
+ *          description: Order not found
+ *          content:
+ *            application/json:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                    status:
+ *                      type: string
+ *                      example: NOT_FOUND
+ *                    message:
+ *                      type: string
+ *                      example: Order not found!
  */
 router.put('/:id', middleware.authorize, controller.updateOrderStatus);
 
@@ -313,6 +339,19 @@ router.put('/:id', middleware.authorize, controller.updateOrderStatus);
  *                  message:
  *                    type: string
  *                    example: Login required!
+ *        404:
+ *          description: Order not found
+ *          content:
+ *            application/json:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                    status:
+ *                      type: string
+ *                      example: NOT_FOUND
+ *                    message:
+ *                      type: string
+ *                      example: Order not found!
  */
 router.delete('/:id', middleware.authorize, controller.deleteOrder);
 

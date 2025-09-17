@@ -36,6 +36,19 @@ const router = Router();
  *                   type: array
  *                   items:
  *                      $ref: '#/components/schemas/User'
+ *       403:
+ *         description: Forbidden, you are not an admin.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: FORBIDDEN
+ *                 message:
+ *                   type: string
+ *                   example: You do not have permission to access this resource!
  */
 router.get('/all', middleware.isAdmin, controller.getAllUsers);
 

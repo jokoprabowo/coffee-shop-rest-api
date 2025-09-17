@@ -174,7 +174,7 @@ router.post('/register', controller.register);
  *                  example: 192.168.1.1
  *      responses:
  *        200:
- *          description: Successfully logout from user account
+ *          description: Successfully refresh the access token
  *          content:
  *            application/json:
  *              schema:
@@ -237,6 +237,19 @@ router.post('/refresh-token', middleware.authorize, controller.refreshToken);
  *                  message:
  *                    type: string
  *                    example: User logged out successfully
+ *        401:
+ *          description: Unauthenticated, login required!
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  status:
+ *                    type: string
+ *                    example: UNAUTHENTICATED
+ *                  message:
+ *                    type: string
+ *                    example: Authentication required!
  */
 router.delete('/logout', middleware.authorize, controller.logout);
 

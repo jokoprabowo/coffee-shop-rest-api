@@ -152,6 +152,19 @@ router.get('/', controller.getAll);
  *                    properties:
  *                      coffee:
  *                        $ref: '#/components/schemas/Coffee'
+ *        404:
+ *          description: Coffee data not found
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  status:
+ *                    type: string
+ *                    example: NOT_FOUND
+ *                  message:
+ *                    type: string
+ *                    example: Coffee not found!
  */
 router.get('/:id', controller.getById);
 
@@ -227,6 +240,19 @@ router.get('/:id', controller.getById);
  *                  message:
  *                    type: string
  *                    example: You do not have permission to access this resource!
+ *        404:
+ *          description: Coffee data not found
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  status:
+ *                    type: string
+ *                    example: NOT_FOUND
+ *                  message:
+ *                    type: string
+ *                    example: Coffee not found!
  */
 router.put('/:id', middleware.isAdmin, controller.updateById);
 

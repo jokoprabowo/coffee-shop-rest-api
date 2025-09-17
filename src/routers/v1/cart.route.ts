@@ -18,6 +18,9 @@ const middleware = new AuthMiddleware(new UserService(new UserRepository(pool)))
  *      CartItems:
  *        type: object
  *        properties:
+ *          cart_id:
+ *            type: integer
+ *            example: 1
  *          cart_item_id:
  *            type: integer
  *            example: 1
