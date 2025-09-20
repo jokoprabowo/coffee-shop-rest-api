@@ -1,5 +1,5 @@
 import { CoffeeDto } from '../dto';
-import { NotFoundError } from '../exceptions';
+import { ConflictError, NotFoundError } from '../exceptions';
 import { CoffeeRepository } from '../repositories';
 
 class CoffeeService {
@@ -10,6 +10,10 @@ class CoffeeService {
   }
 
   public async create(data: CoffeeDto) {
+    const isExist = await this.repository.findByName(data.name);
+    if (isExist) {
+      throw new ConflictError('Coffee data already exist!');
+    }
     const coffee = await this.repository.create(data);
     return coffee;
   }
