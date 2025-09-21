@@ -36,6 +36,9 @@ class OrderService {
 
   public async getOrderDetails(orderId: number) {
     const orderItems = await this.repository.getOrderDetails(orderId);
+    if (!orderItems[0]) {
+      throw new NotFoundError('Order not found!');
+    }
     return orderItems;
   }
 
