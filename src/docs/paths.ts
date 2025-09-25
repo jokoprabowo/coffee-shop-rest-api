@@ -71,7 +71,7 @@ export const paths = {
     post: {
       tags: ['Auth'],
       summary: 'Refresh access token',
-      security: [{ barerAuth: [] }],
+      security: [{ cookieAuth: [] }],
       requestBody: {
         required: false,
         content: {

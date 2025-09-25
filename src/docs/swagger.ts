@@ -58,8 +58,14 @@ export const swaggerOptions: Options = {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-          description: 'JWT token authorization for API'
-        }
+          description: 'JWT token authorization for API',
+        },
+        cookieAuth: {
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'refreshToken',
+          description: 'Cookie based authorization for refresh token',
+        },
       },
       schemas: schemas,
     },
