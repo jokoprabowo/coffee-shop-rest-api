@@ -5,13 +5,15 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --detectOpenHandles --forceExit",
-    "build": "tsc --build",
-    "start": "node dist/server.js",
+    "build": "tsc",
+    "start": "set NODE_ENV=production && node dist/server.js",
     "start:dev": "nodemon",
+    "start:docker": "set NODE_ENV=production && npm run migrate:up && node dist/server.js",
     "migrate": "node-pg-migrate -j ts",
+    "migrate:up": "DATABASE_URL=postgresql://postgres:V3471g@db:5432/coffeeshop node-pg-migrate -j ts up --no-confirm",
     "lint": "eslint src"
   },
-  "author": "",
+  "author": "Joko Prabowo",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",

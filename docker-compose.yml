@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:14
+    container_name: coffeeShopDb
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: .
+    container_name: coffeeShopApp
+    depends_on:
+      - db
+    command: sh -c "./wait-for-it.sh db:5432 -- npm run start:docker"
+    env_file:
+      - .env
+    ports:
+      - "${PORT}:3000"
+    volumes:
+      - /app/node_modules
+
+volumes:
+  pgdata:
