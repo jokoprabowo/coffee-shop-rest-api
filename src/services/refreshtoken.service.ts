@@ -27,6 +27,14 @@ class RefreshTokenService {
     return token;
   }
 
+  public async findUserIdByToken(token: string) {
+    const data = await this.repository.findUserIdByToken(token);
+    if (!data) {
+      throw new NotFoundError('Token not found!');
+    }
+    return data.user_id;
+  }
+
   public async verifyToken(userId: number, token: string) {
     const tokens = await this.repository.findActiveToken(userId);
 

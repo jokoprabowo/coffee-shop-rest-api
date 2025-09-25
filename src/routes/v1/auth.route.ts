@@ -14,7 +14,7 @@ const router = Router();
 
 router.post('/login', controller.login);
 router.post('/register', controller.register);
-router.post('/refresh-token', middleware.authorize, controller.refreshToken);
+router.post('/refresh-token', controller.refreshToken);
 router.delete('/logout', middleware.authorize, controller.logout);
 
 

@@ -88,10 +88,8 @@ class AuthController {
       const {
         deviceInfo, ipAddress
       } = req.body;
-      if (!req.userId) {
-        throw new AuthenticationError('Authentication required!');
-      }
-      const verified = await this.token.verifyToken(req.userId, refreshToken);
+      const userId = await this.token.findUserIdByToken(refreshToken);
+      const verified = await this.token.verifyToken(userId, refreshToken);
       if (!verified) {
         throw new ClientError('Invalid refresh token!');
       }
@@ -102,12 +100,12 @@ class AuthController {
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict',
         });
-        await this.token.revokeAllTokens(req.userId);
+        await this.token.revokeAllTokens(userId);
         throw new AuthorizationError('Refresh token has been revoked. Please login again!');
       }
 
-      await this.token.revokeToken(req.userId, refreshToken);
-      const newRefreshToken = await this.token.generateToken(req.userId, deviceInfo, ipAddress);
+      await this.token.revokeToken(userId, refreshToken);
+      const newRefreshToken = await this.token.generateToken(userId, deviceInfo, ipAddress);
       const accessToken = generateAccessToken(req.body.userId);
 
       res.cookie('refreshToken', newRefreshToken, {
