@@ -1,11 +1,11 @@
 import { UserRepository } from '../../src/repositories';
 import { UserService } from '../../src/services';
 import { userRole } from '../../src/dto';
-import { encryptPassword } from '../../src/utilities/encrypt';
+import { encryptInput } from '../../src/utilities/encrypt';
 import { AuthorizationError, ConflictError, NotFoundError } from '../../src/exceptions';
 
 jest.mock('../../src/utilities/encrypt', () => ({
-  encryptPassword: jest.fn(),
+  encryptInput: jest.fn(),
 }));
 describe('User service', () => {
   let mockRepository: jest.Mocked<UserRepository>;
@@ -33,7 +33,7 @@ describe('User service', () => {
     it('Should return user if create a user with unused user data', async () => {
       mockRepository.create.mockResolvedValue(mockUser);
       mockRepository.findOne.mockResolvedValue(null);
-      (encryptPassword as jest.Mock).mockReturnValue('hashedPass');
+      (encryptInput as jest.Mock).mockReturnValue('hashedPass');
 
       const result = await service.create({
         email: 'test@mail.com', password: 'testExample!123', fullname: 'Test Example', 
@@ -41,7 +41,7 @@ describe('User service', () => {
       });
 
       expect(mockRepository.findOne).toHaveBeenCalledWith('test@mail.com');
-      expect(encryptPassword).toHaveBeenCalledWith('testExample!123');
+      expect(encryptInput).toHaveBeenCalledWith('testExample!123');
       expect(mockRepository.create).toHaveBeenCalledWith(result);
       expect(result).toBe(mockUser);
     });

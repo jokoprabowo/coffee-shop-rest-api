@@ -1,11 +1,11 @@
 import { AuthService, UserService } from '../../src/services';
-import { checkPassword } from '../../src/utilities/encrypt';
+import { checkInput } from '../../src/utilities/encrypt';
 import { ClientError } from '../../src/exceptions';
 import bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');
 jest.mock('../../src/utilities/encrypt', () => ({
-  checkPassword: jest.fn(),
+  checkInput: jest.fn(),
 }));
 
 describe('Auth Service', () => {
@@ -52,18 +52,18 @@ describe('Auth Service', () => {
   describe('Login', () => {
     it('Should return user if login with correct input data', async () => {
       userService.findOne.mockResolvedValue(mockUser);
-      (checkPassword as jest.Mock).mockResolvedValue(true);
+      (checkInput as jest.Mock).mockResolvedValue(true);
 
       const result = await authService.login({ email: 'test@mail.com', password: 'testExample!123' });
 
       expect(userService.findOne).toHaveBeenCalledWith('test@mail.com');
-      expect(checkPassword).toHaveBeenCalledWith('testExample!123','hashedPass');
+      expect(checkInput).toHaveBeenCalledWith('testExample!123','hashedPass');
       expect(result).toBe(mockUser);
     });
 
     it('Should return ClientError if login with incorrect input data', async () => {
       userService.findOne.mockResolvedValue(mockUser);
-      (checkPassword as jest.Mock).mockResolvedValue( false);
+      (checkInput as jest.Mock).mockResolvedValue( false);
 
       await expect(
         authService.login({ email: 'test@mail.com', password: 'falsePassword!123' })
