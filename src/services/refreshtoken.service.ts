@@ -1,5 +1,5 @@
 import { RefreshTokenRepository } from '../repositories';
-import bcrypt from 'bcrypt';
+import { encryptInput, checkInput } from '../utilities/encrypt';
 import crypto from 'crypto';
 import { NotFoundError } from '../exceptions';
 
@@ -11,52 +11,46 @@ class RefreshTokenService {
   }
 
   public async generateToken(userId: number, deviceInfo?: string, ipAddress?: string) {
+    const selector = crypto.randomBytes(32).toString('hex');
     const token = crypto.randomBytes(32).toString('hex');
-    const hashedToken = await bcrypt.hash(token, 10);
+    const hashedToken = await encryptInput(token);
     const expires_at = new Date();
     expires_at.setDate(expires_at.getDate() + 7);
 
     await this.repository.create({
       user_id: userId,
+      selector,
       token: hashedToken,
       device_info: deviceInfo,
       ip_address: ipAddress,
       expires_at,
     });
     
-    return token;
+    return (selector+'.'+token);
   }
 
-  public async findUserIdByToken(token: string) {
-    const data = await this.repository.findUserIdByToken(token);
+  public async findUserIdBySelector(selector: string) {
+    const data = await this.repository.findUserIdBySelector(selector);
     if (!data) {
       throw new NotFoundError('Token not found!');
     }
     return data.user_id;
   }
 
-  public async verifyToken(userId: number, token: string) {
-    const tokens = await this.repository.findActiveToken(userId);
-
-    for (const item of tokens) {
-      const isMatch = await bcrypt.compare(token, item.token);
-      if (isMatch) {
-        return item;
-      }
+  public async verifyToken(selector: string, token: string) {
+    const data = await this.repository.findActiveToken(selector);
+    const isMatch = await checkInput(token, data.token);
+    if (!isMatch) {
+      return false;
     }
-    return false;
+    return data;
   }
 
-  public async revokeToken(userId: number, token: string) {
-    const tokens = await this.repository.findTokenByUserId(userId);
-    for (const item of tokens) {
-      const isMatch = await bcrypt.compare(token, item.token);
-      if (isMatch) {
-        await this.repository.revokeToken(item.token);
-        return true;
-      }
+  public async revokeToken(selector: string) {
+    const isSuccess = await this.repository.revokeToken(selector);
+    if (!isSuccess) {
+      throw new NotFoundError('Token not found!');
     }
-    throw new NotFoundError('Token not found!');
   }
 
   public async revokeAllTokens(userId: number) {

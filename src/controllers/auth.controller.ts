@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { AuthenticationError, AuthorizationError, ClientError } from '../exceptions';
+import { AuthorizationError, ClientError } from '../exceptions';
 import AuthenticateValidator from '../validators/authentication';
 import { RefreshTokenService, AuthService } from '../services';
 import { generateAccessToken } from '../utilities/token';
@@ -88,8 +88,9 @@ class AuthController {
       const {
         deviceInfo, ipAddress
       } = req.body;
-      const userId = await this.token.findUserIdByToken(refreshToken);
-      const verified = await this.token.verifyToken(userId, refreshToken);
+      const [selector, token] = refreshToken.split('.');
+      const userId = await this.token.findUserIdBySelector(selector);
+      const verified = await this.token.verifyToken(selector, token);
       if (!verified) {
         throw new ClientError('Invalid refresh token!');
       }
@@ -104,7 +105,7 @@ class AuthController {
         throw new AuthorizationError('Refresh token has been revoked. Please login again!');
       }
 
-      await this.token.revokeToken(userId, refreshToken);
+      await this.token.revokeToken(selector);
       const newRefreshToken = await this.token.generateToken(userId, deviceInfo, ipAddress);
       const accessToken = generateAccessToken(req.body.userId);
 
@@ -128,10 +129,8 @@ class AuthController {
   public async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
-      if (!req.userId) {
-        throw new AuthenticationError('Authentication required!');
-      }
-      await this.token.revokeToken(req.userId, refreshToken);
+      const selector = refreshToken.split('.')[0];
+      await this.token.revokeToken(selector);
       res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

@@ -9,6 +9,11 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       references: 'users',
       onDelete: 'CASCADE',
     },
+    selector: {
+      type: 'text',
+      notNull: true,
+      unique: true,
+    },
     token: {
       type: 'text',
       notNull: true,
