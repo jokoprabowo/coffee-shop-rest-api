@@ -47,10 +47,11 @@ class RefreshTokenService {
   }
 
   public async revokeToken(selector: string) {
-    const isSuccess = await this.repository.revokeToken(selector);
-    if (!isSuccess) {
+    const token = await this.repository.revokeToken(selector);
+    if (!token) {
       throw new NotFoundError('Token not found!');
     }
+    return token;
   }
 
   public async revokeAllTokens(userId: number) {
