@@ -21,7 +21,7 @@ class OrderController {
       }
       const order = await this.service.createOrder(req.userId);
 
-      res.status(201).json({
+      return res.status(201).json({
         status: 'CREATED',
         message: 'Order has been created!',
         data: {
@@ -39,7 +39,7 @@ class OrderController {
         throw new AuthenticationError('Login required!');
       }
       const orders = await this.service.getOrderList(req.userId);
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Orders have been retrieved!',
         data: {
@@ -54,7 +54,7 @@ class OrderController {
   public async getOrderDetails(req: Request, res: Response, next: NextFunction) {
     try {
       const orders = await this.service.getOrderDetails(Number(req.params.id));
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Order have been retrieved!',
         data: {
@@ -69,7 +69,7 @@ class OrderController {
   public async updateOrderStatus(req: Request, res: Response, next: NextFunction) {
     try {
       await this.service.updateStatus(Number(req.params.id), req.body.status);
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Order status have been updated!',
       });
@@ -81,7 +81,7 @@ class OrderController {
   public async deleteOrder(req: Request, res: Response, next: NextFunction) {
     try {
       await this.service.deleteOrder(Number(req.params.id));
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Order status have been deleted!',
       });

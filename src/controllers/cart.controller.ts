@@ -20,7 +20,7 @@ class CartController {
         throw new AuthenticationError('Login required!');
       }
       const cartItems = await this.service.addToCart(req.userId, coffeeId, quantity);
-      res.status(201).json({
+      return res.status(201).json({
         status: 'CREATED',
         message: 'Cart item has been added!',
         data: {
@@ -38,7 +38,7 @@ class CartController {
         throw new AuthenticationError('Login required!');
       }
       const cartItems = await this.service.getCartItems(req.userId);
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Cart items have been retrieved!',
         data: {
@@ -54,7 +54,7 @@ class CartController {
     try {
       const { cartItemId, quantity } = req.body;
       await this.service.updateItem(cartItemId, quantity);
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Cart items has been updated!',
       });
@@ -67,7 +67,7 @@ class CartController {
     try {
       const { cartItemId } = req.body;
       await this.service.deleteItem(cartItemId);
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Cart items has been deleted!',
       });

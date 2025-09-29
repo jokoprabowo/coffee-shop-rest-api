@@ -39,7 +39,7 @@ class AuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
       });
-      res.status(201).json({
+      return res.status(201).json({
         status: 'CREATED',
         message: 'User successfully created!',
         data: {
@@ -69,7 +69,7 @@ class AuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict'
       });
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Login successfull!',
         data: {
@@ -114,7 +114,7 @@ class AuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
       });
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Access token refreshed!',
         data: {
@@ -136,7 +136,7 @@ class AuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
       });
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Logout successfull!',
       });
