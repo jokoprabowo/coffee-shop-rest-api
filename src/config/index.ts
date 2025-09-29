@@ -5,11 +5,7 @@ dotenv.config();
 const config = {
   PORT: process.env.PORT,
   NODE_ENV: process.env.NODE_ENV,
-  DB_HOST: process.env.DB_HOST,
-  DB_PORT: process.env.DB_PORT,
-  DB_USER: process.env.DB_USER,
-  DB_PASSWORD: process.env.DB_PASSWORD,
-  DB_NAME: process.env.DB_NAME,
+  DATABASE_URL: process.env.DATABASE_URL,
   WHITELIST_ORIGINS: process.env.WHITELIST_ORIGINS?.split(','),
   LOG_LEVEL: process.env.LOG_LEVEL,
   JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
