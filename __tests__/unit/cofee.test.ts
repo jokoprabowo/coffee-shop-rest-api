@@ -1,4 +1,4 @@
-import { NotFoundError } from '../../src/exceptions';
+import { ConflictError, NotFoundError } from '../../src/exceptions';
 import { CoffeeRepository } from '../../src/repositories';
 import { CoffeeService } from '../../src/services';
 
@@ -16,6 +16,7 @@ describe('Coffee service', () => {
       create: jest.fn(),
       findAll: jest.fn(),
       findOne: jest.fn(),
+      findByName: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
     } as unknown as jest.Mocked<CoffeeRepository>;
@@ -24,14 +25,24 @@ describe('Coffee service', () => {
   });
 
   describe('Create coffee', () => {
-    it('Should return coffee', async () => {
+    it('Should return coffee if successfully create coffee.', async () => {
+      mockRepo.findByName.mockResolvedValue(null);
       mockRepo.create.mockResolvedValue(mockCoffee);
 
       const result = await service.create(mockCoffee);
       
+      expect(mockRepo.findByName).toHaveBeenCalledWith('Americano');
       expect(mockRepo.create).toHaveBeenCalledTimes(1);
       expect(mockRepo.create).toHaveBeenCalledWith(mockCoffee);
       expect(result).toBe(mockCoffee);
+    });
+
+    it('Should return conflict error if provided coffee name is exist.', async () => {
+      mockRepo.findByName.mockResolvedValue(mockCoffee);
+
+      await expect(
+        service.create(mockCoffee)
+      ).rejects.toThrow(new ConflictError('Coffee data already exist!'));
     });
   });
 

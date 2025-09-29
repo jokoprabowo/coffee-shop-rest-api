@@ -32,28 +32,9 @@ describe('Refresh token endpoint.', () => {
       .set('Authorization', `Bearer ${token}`)
       .set('Cookie', cookie);
     
+    console.log(cookie);
     expect(response.statusCode).toBe(200);
     expect(response.body.data).toHaveProperty('accessToken');
-  });
-
-  it('Should return a 400 status code if refresh token is wrong.', async () => {
-    const fakeCookie = [
-      'refreshToken=e631edba4b7ebc6afad6bb9e330dfc4bd1d9ef6ba0b0f39c7c271be01d987uy; Path=/; HttpOnly; SameSite=Strict'
-    ];
-    const response = await request(app).post('/api/v1/auth/refresh-token')
-      .set('Authorization', `Bearer ${token}`)
-      .set('Cookie', fakeCookie);
-
-    expect(response.statusCode).toBe(400);
-    expect(response.body.status).toBe('BAD_REQUEST');
-  });
-
-  it('Should return a 401 status code if access token is missing.', async () => {
-    const response = await request(app).post('/api/v1/auth/refresh-token')
-      .set('Cookie', cookie);
-
-    expect(response.statusCode).toBe(401);
-    expect(response.body.status).toBe('UNAUTHENTICATED');
   });
 
   it('Should return a 403 status code if refresh token is revoked.', async () => {
@@ -67,5 +48,17 @@ describe('Refresh token endpoint.', () => {
 
     expect(response.statusCode).toBe(403);
     expect(response.body.status).toBe('FORBIDDEN');
+  });
+
+  it('Should return a 404 status code if selector in refresh token is wrong.', async () => {
+    const data = cookie[0].split('=')[1].split(';')[0];
+    const changeToken = data.substring(0,66)+'x'+data.substring(67);
+    const fakeCookie = ['refreshToken='+changeToken+';'];
+
+    const response = await request(app).post('/api/v1/auth/refresh-token')
+      .set('Cookie', fakeCookie);
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body.status).toBe('BAD_REQUEST');
   });
 });

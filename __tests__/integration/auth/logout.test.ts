@@ -4,7 +4,6 @@ import pool from '../../../src/config/db';
 
 describe('Logout endpoint.', () => {
   let userId: number;
-  let token: string;
   let cookie: string;
 
   beforeAll(async () => {
@@ -18,7 +17,6 @@ describe('Logout endpoint.', () => {
       });
 
     userId = res.body.data.user.id;
-    token = res.body.data.accessToken;
     cookie = res.headers['set-cookie'];
   });
 
@@ -29,18 +27,9 @@ describe('Logout endpoint.', () => {
 
   it('Should return a 200 status code and successfully logout.', async () => {
     const response = await request(app).delete('/api/v1/auth/logout')
-      .set('Authorization', `Bearer ${token}`)
       .set('Cookie', cookie);
     
     expect(response.statusCode).toBe(200);
     expect(response.body.status).toBe('OK');
-  });
-
-  it('Should return a 400 status code if access token is missing.', async () => {
-    const response = await request(app).delete('/api/v1/auth/logout')
-      .set('Cookie', cookie);
-
-    expect(response.statusCode).toBe(401);
-    expect(response.body.status).toBe('UNAUTHENTICATED');
   });
 });
