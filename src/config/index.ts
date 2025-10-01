@@ -7,7 +7,6 @@ const config = {
   NODE_ENV: process.env.NODE_ENV,
   DATABASE_URL: process.env.DATABASE_URL,
   WHITELIST_ORIGINS: process.env.WHITELIST_ORIGINS?.split(','),
-  LOG_LEVEL: process.env.LOG_LEVEL,
   JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
   ACCESS_TOKEN_EXPIRY: process.env.ACCESS_TOKEN_EXPIRY as ms.StringValue,
   WHITELIST_ADMIN_EMAILS: process.env.WHITELIST_ADMIN_EMAILS?.split(','),
