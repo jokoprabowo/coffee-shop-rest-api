@@ -30,8 +30,8 @@ The Coffee Shop REST API is a backend service designed to manage a coffee shopâ€
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/express-ts-backend.git
-cd express-ts-backend
+git clone https://github.com/jokoprabowo/coffee-shop-rest-api
+cd coffee-shop-rest-api
 ```
 
 ### 2. Install dependencies
@@ -50,7 +50,7 @@ PORT=3000
 DB_USER=username
 DB_PASSWORD=password
 DB_NAME=dbname
-DATABASE_URL=postgresql://user:password@db:5432/dbname
+DATABASE_URL=postgresql://user:password@host:5432/dbname
 JWT_ACCESS_SECRET=your-secret
 ACCESS_TOKEN_EXPIRY=30m
 WHITELIST_ORIGINS=http://localhost:3000
@@ -107,10 +107,16 @@ Run all tests:
 npm run test
 ```
 
-Run tests with coverage:
+Run a specific test file:
 
 ```bash
-npm run test integration/users
+npm run test path
+```
+
+example:
+
+```bash
+npm run test integration/auth/login.test.ts
 ```
 
 ---
