@@ -38,7 +38,7 @@ describe('Registration endpoint', () => {
     const response = await request(app).post('/api/v1/auth/register')
       .send({
         email: 'testmail',
-        password: 'test123',
+        password: 'Example!test123',
         fullname: 'Test Example',
         phone: '081234567890',
         address: 'Test street, Example, 00000'
