@@ -1,5 +1,12 @@
 import { Options } from 'swagger-jsdoc';
 import config from '../config';
+import { schemas } from './schemas';
+import { paths } from './paths';
+
+const apisPath: string[] =
+  process.env.NODE_ENV === 'production'
+    ? ['./dist/routes/**/*.js', './dist/dto/*.js']
+    : ['./src/routes/**/*.ts', './src/dto/*.ts'];
 
 export const swaggerOptions: Options = {
   definition: {
@@ -37,19 +44,34 @@ export const swaggerOptions: Options = {
         url: `http://localhost:${config.PORT}`,
         description: 'Development server',
       },
+      {
+        url: `http://backend:${config.PORT}`,
+        description: 'Production server',
+      },
     ],
     consumes: ['application/json'],
     produces: ['application/json'],
+    paths: paths,
     components: {
       securitySchemes: {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-          description: 'JWT token authorization for API'
-        }
-      }
-    }
+          description: 'JWT token authorization for API',
+        },
+        cookieAuth: {
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'refreshToken',
+          description: 'Cookie based authorization for refresh token',
+        },
+      },
+      schemas: schemas,
+    },
   },
-  apis: ['./src/routers/v1/*.ts', './src/dto/*.ts'],
+  apis: apisPath,
+  x: { type: '', description: '', example: '' },
 };
+
+

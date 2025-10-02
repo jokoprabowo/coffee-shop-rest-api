@@ -2,11 +2,8 @@ import { Pool } from 'pg';
 import config from '.';
 
 const pool = new Pool({
-  host: config.DB_HOST,
-  port: Number(config.DB_PORT),
-  user: config.DB_USER,
-  password: config.DB_PASSWORD,
-  database: config.DB_NAME,
+  connectionString: config.DATABASE_URL,
+  ssl: config.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });
 
 pool.on('error', (err) => {

@@ -1,7 +1,7 @@
 import { UserRepository } from '../repositories';
 import { UserDto } from '../dto';
 import { AuthorizationError, ConflictError, NotFoundError } from '../exceptions';
-import { encryptPassword } from '../utilities/encrypt';
+import { encryptInput } from '../utilities/encrypt';
 import config from '../config';
 
 class UserService {
@@ -21,7 +21,7 @@ class UserService {
       throw new ConflictError('Email already in used!');
     }
 
-    data.password = await encryptPassword(data.password);
+    data.password = await encryptInput(data.password);
     const user = await this.repository.create(data);
     return user;
   }
@@ -50,7 +50,7 @@ class UserService {
   public async update(id: number, data: Partial<UserDto>) {
     await this.findById(id);
     if(data.password) {
-      data.password = await encryptPassword(data.password);
+      data.password = await encryptInput(data.password);
     }
     const user = await this.repository.update(id, data);
     return user;

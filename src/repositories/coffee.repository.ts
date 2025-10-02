@@ -34,6 +34,15 @@ class CoffeeRepository {
     return rows[0];
   }
 
+  public async findByName(name: string) {
+    const query = {
+      text: 'select name, price, description, image from coffees where name = $1',
+      values: [name],
+    };
+    const { rows } = await this.database.query(query);
+    return rows[0];
+  }
+
   public async findAll() {
     const query = {
       text: 'select id, name, price, description, image from coffees',
@@ -43,18 +52,17 @@ class CoffeeRepository {
   }
 
   public async update(id: string, data: Partial<CoffeeDto>) {
-    const {
-      name, price, description, image
-    } = data;
-    const updatedAt = new Date();
+    const entries = Object.entries(data).filter(([_, v]) => v !== undefined);
+    const fields = entries.map(([key], i) => `${key}=$${i + 1}`).join(', ');
+    const values = entries.map(([_, value]) => value);
     const query = {
-      text: 'update coffees set name = $1, price = $2, description = $3, image = $4, '
-      + 'updated_at = $5 where id = $6 returning name, price, description, image',
-      values: [name, price, description, image, updatedAt, id],
+      text: `update coffees set ${fields}, updated_at = $${entries.length + 1} where id = $${entries.length + 2} `+
+      'returning name, price, description, image',
+      values: [...values, new Date(), id],
     };
 
-    const { rowCount } = await this.database.query(query);
-    return (rowCount ?? 0) > 0;
+    const { rows } = await this.database.query(query);
+    return rows[0];
   }
 
   public async delete(id: string) {

@@ -20,7 +20,7 @@ class CoffeeController {
     try {
       this.validator.validatePostCoffeePayload(req.body);
       const coffee = await this.service.create(req.body);
-      res.status(201).json({
+      return res.status(201).json({
         status: 'CREATED',
         message: 'Coffee has been created!',
         data: {
@@ -35,7 +35,7 @@ class CoffeeController {
   public async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const coffees = await this.service.findAll();
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Coffees have been retrieved!',
         data: {
@@ -50,7 +50,7 @@ class CoffeeController {
   public async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const coffee = await this.service.findOne(req.params.id);
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Coffee has been retrieved!',
         data: {
@@ -65,10 +65,13 @@ class CoffeeController {
   public async updateById(req: Request, res: Response, next: NextFunction) {
     try {
       this.validator.validatePutCoffeePayload(req.body);
-      await this.service.update(req.params.id, req.body);
-      res.status(200).json({
+      const coffee = await this.service.update(req.params.id, req.body);
+      return res.status(200).json({
         status: 'OK',
         message: 'Coffee has been updated!',
+        data: {
+          coffee,
+        }
       });
     } catch (err) {
       next(err);
@@ -78,7 +81,7 @@ class CoffeeController {
   public async deleteById(req: Request, res: Response, next: NextFunction) {
     try {
       await this.service.delete(req.params.id);
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Coffee has been deleted!',
       });

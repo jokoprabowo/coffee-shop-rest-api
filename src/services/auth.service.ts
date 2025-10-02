@@ -1,6 +1,6 @@
 import { UserDto, LoginUserDto } from '../dto';
 import UserService from './user.service';
-import { checkPassword } from '../utilities/encrypt';
+import { checkInput } from '../utilities/encrypt';
 import { ClientError } from '../exceptions';
 
 class AuthService {
@@ -17,7 +17,7 @@ class AuthService {
 
   public async login(data: LoginUserDto) {
     const user = await this.service.findOne(data.email);
-    const isMatch = await checkPassword(data.password, user.password);
+    const isMatch = await checkInput(data.password, user.password);
     if (!isMatch) {
       throw new ClientError('Password invalid!');
     }

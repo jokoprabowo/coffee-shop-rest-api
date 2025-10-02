@@ -36,6 +36,9 @@ class OrderService {
 
   public async getOrderDetails(orderId: number) {
     const orderItems = await this.repository.getOrderDetails(orderId);
+    if (!orderItems[0]) {
+      throw new NotFoundError('Order not found!');
+    }
     return orderItems;
   }
 
@@ -44,6 +47,7 @@ class OrderService {
     if (!order) {
       throw new NotFoundError('Order not found!');
     }
+    return true;
   }
 
   public async deleteOrder(orderId: number) {
@@ -51,6 +55,7 @@ class OrderService {
     if (!order) {
       throw new NotFoundError('Order not found!');
     }
+    return true;
   }
 }
 

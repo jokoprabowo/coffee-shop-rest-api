@@ -2,21 +2,21 @@ import bcrypt from 'bcrypt';
 
 const SALT = 10;
 
-export const  encryptPassword = async (password: string): Promise<string> => {
+export const  encryptInput = async (input: string): Promise<string> => {
   return new Promise((resolve, reject) => {
-    bcrypt.hash(password, SALT, (err, encryptedPassword) => {
+    bcrypt.hash(input, SALT, (err, encryptedInput) => {
       if (err) {
         reject(err);
         return;
       }
-      resolve(encryptedPassword);
+      resolve(encryptedInput);
     });
   });
 };
 
-export const checkPassword = async (password: string, encryptedPasswordPassword: string): Promise<boolean> => {
+export const checkInput = async (input: string, encryptedInput: string): Promise<boolean> => {
   return new Promise((resolve, reject) => {
-    bcrypt.compare(password, encryptedPasswordPassword, (err, isMatch) => {
+    bcrypt.compare(input, encryptedInput, (err, isMatch) => {
       if (err) {
         reject(err);
         return;

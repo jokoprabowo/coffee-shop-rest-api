@@ -23,7 +23,7 @@ class UserController {
       }
       const user = await this.service.findById(req.userId);
       delete user?.password;
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'User details have been retrieved!',
         data: {
@@ -38,7 +38,7 @@ class UserController {
   public async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
       const users = await this.service.findAll();
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'Users data have been retrieved!',
         data: {
@@ -61,7 +61,7 @@ class UserController {
       }
 
       const user = await this.service.update(req.userId, { password, fullname, address, phone });
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
         message: 'User details have been updated!',
         data: {
@@ -79,9 +79,9 @@ class UserController {
         throw new AuthenticationError('Authentication required!');
       }
       await this.service.delete(req.userId);
-      res.status(200).json({
+      return res.status(200).json({
         status: 'OK',
-        message: 'User have been deleted!',
+        message: 'User has been deleted!',
       });
     } catch(err) {
       next(err);

@@ -10,7 +10,7 @@ class UserRepository {
 
   public async create(user: UserDto) {
     const {
-      email, password, fullname, address, phone, role
+      email, password, fullname, address, phone, role = 'customer',
     } = user;
     const createdAt = new Date();
     const updatedAt = createdAt;
@@ -46,18 +46,18 @@ class UserRepository {
     const query = {
       text: 'select email, fullname, address, phone from users',
     };
-    const result = await this.database.query(query);
-    return result;
+    const { rows } = await this.database.query(query);
+    return rows;
   }
 
   public async update(id: number, user: Partial<UserDto>) {
-    const {
-      password, fullname, address, phone
-    } = user;
+    const entries = Object.entries(user).filter(([_, v]) => v !== undefined);
+    const fields = entries.map(([key], i) => `${key}=$${i + 1}`).join(', ');
+    const values = entries.map(([_, value]) => value);
     const query = {
-      text: 'update users set password = $1, fullname = $2, address = $3, phone = $4, updated_at = $5 '
-      + 'where id = $6 returning email, fullname, address, phone',
-      values: [password, fullname, address, phone, new Date(), id],
+      text: `update users set ${fields}, updated_at = $${entries.length + 1} where id = $${entries.length + 2} `+
+      'returning email, fullname, address, phone',
+      values: [...values, new Date(), id],
     };
     const { rows } = await this.database.query(query);
     return rows[0];
