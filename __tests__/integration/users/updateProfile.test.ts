@@ -27,7 +27,7 @@ describe('Update profile endpoint.', () => {
   });
 
   it('Should return a 200 status code if access code and all provided update data are correct.', async () => {
-    const response = await request(app).put('/api/v1/user/update')
+    const response = await request(app).put('/api/v1/users/update')
       .send({
         phone: '089876543210',
         address: 'Example street, Test, 00000'
@@ -39,7 +39,7 @@ describe('Update profile endpoint.', () => {
   });
 
   it('Should return a 400 status code if provided update data are invalid.', async () => {
-    const response = await request(app).put('/api/v1/user/update')
+    const response = await request(app).put('/api/v1/users/update')
       .send({
         phone: '000000000000',
         address: 'Test'
@@ -50,7 +50,7 @@ describe('Update profile endpoint.', () => {
   });
 
   it('Should return a 401 status code if provided update data are invalid.', async () => {
-    const response = await request(app).put('/api/v1/user/update')
+    const response = await request(app).put('/api/v1/users/update')
       .send({
         phone: '089876543210',
         address: 'Example street, Test, 00000'
@@ -62,7 +62,7 @@ describe('Update profile endpoint.', () => {
 
   it('Should return a 404 status code if provided update data are invalid.', async () => {
     const fakeToken = generateAccessToken(-1);
-    const response = await request(app).put('/api/v1/user/update')
+    const response = await request(app).put('/api/v1/users/update')
       .send({
         phone: '089876543210',
         address: 'Example street, Test, 00000'

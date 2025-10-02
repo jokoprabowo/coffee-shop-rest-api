@@ -8,9 +8,9 @@ import OrderRouter from './order.route';
 const router = Router();
 
 router.use('/auth', authRouter);
-router.use('/user', userRouter);
-router.use('/coffee', coffeeRouter);
-router.use('/cart', CartRouter);
-router.use('/order', OrderRouter);
+router.use('/users', userRouter);
+router.use('/coffees', coffeeRouter);
+router.use('/carts', CartRouter);
+router.use('/orders', OrderRouter);
 
 export default router;

@@ -19,11 +19,11 @@ describe('Get all orders endpoint.', () => {
     token = res.body.data.accessToken;
     userId = res.body.data.user.id;
 
-    await request(app).post('/api/v1/cart')
+    await request(app).post('/api/v1/carts')
       .set('Authorization', `Bearer ${token}`)
       .send({ coffeeId: 1, quantity: 1, });
 
-    await request(app).post('/api/v1/order')
+    await request(app).post('/api/v1/orders')
       .set('Authorization', `Bearer ${token}`);
   });
 
@@ -33,7 +33,7 @@ describe('Get all orders endpoint.', () => {
   });
 
   it('Should return a 200 status code if all order histories successfully retrieved.', async () => {
-    const response = await request(app).get('/api/v1/order')
+    const response = await request(app).get('/api/v1/orders')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(200);
@@ -42,7 +42,7 @@ describe('Get all orders endpoint.', () => {
   });
 
   it('Should return a 401 status code if access token is missing.', async () => {
-    const response = await request(app).get('/api/v1/order');
+    const response = await request(app).get('/api/v1/orders');
 
     expect(response.statusCode).toBe(401);
     expect(response.body.status).toBe('UNAUTHENTICATED');

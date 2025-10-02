@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../../../src/app';
 import pool from '../../../src/config/db';
 
-describe('Delete coffee endpoint', () => {
+describe('Update coffee endpoint', () => {
   let userId: number;
   let coffeeId: number;
   let token: string;
@@ -20,9 +20,7 @@ describe('Delete coffee endpoint', () => {
     
     userId = res.body.data.user.id;
     token = res.body.data.accessToken;
-  });
 
-  beforeEach(async () => {
     const { rows } = await pool.query('insert into coffees(name, price, description, image) '+
       'values ($1, $2, $3, $4) returning id', [
       'Americano',
@@ -34,35 +32,43 @@ describe('Delete coffee endpoint', () => {
     coffeeId = rows[0].id;
   });
 
-  afterEach(async () => {
-    if (coffeeId){
-      await pool.query('delete from coffees where id = $1', [coffeeId]);
-    }
-  });
-
   afterAll(async () => {
+    await pool.query('delete from coffees where id = $1', [coffeeId]);
     await pool.query('delete from users where id = $1', [userId]);
     await pool.end();
   });
 
-  it('Should return a 200 status code and coffee successfully deleted.', async () => {
-    const response = await request(app).delete(`/api/v1/coffee/${coffeeId}`)
-      .set('Authorization', `Bearer ${token}`);
+  it('Should return a 200 status code and coffee successfully updated.', async () => {
+    const response = await request(app).put(`/api/v1/coffees/${coffeeId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ price: 11000 });
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.status).toBe('OK');
+    expect(response.body.data).toHaveProperty('coffee');
+    expect(response.body.data.coffee.price).toBe(11000);
+  });
+
+  it('Should return a 400 status code if provided coffee data is invalid.', async () => {
+    const response = await request(app).put(`/api/v1/coffees/${coffeeId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ price: 'ABCDEFG' });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body.status).toBe('BAD_REQUEST');
   });
 
   it('Should return a 401 status code if access token is missing.', async () => {
-    const response = await request(app).delete(`/api/v1/coffee/${coffeeId}`);
+    const response = await request(app).put(`/api/v1/coffees/${coffeeId}`)
+      .send({ price: 'ABCDEFG' });
 
     expect(response.statusCode).toBe(401);
     expect(response.body.status).toBe('UNAUTHENTICATED');
   });
 
   it('Should return a 404 status code if provided coffee id is not exist.', async () => {
-    const response = await request(app).delete('/api/v1/coffee/-1')
-      .set('Authorization', `Bearer ${token}`);
+    const response = await request(app).put('/api/v1/coffees/-1')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ price: 11000 });
 
     expect(response.statusCode).toBe(404);
     expect(response.body.status).toBe('NOT_FOUND');
@@ -83,8 +89,9 @@ describe('Delete coffee endpoint', () => {
     userId = user.body.data.user.id;
     token = user.body.data.accessToken;
 
-    const response = await request(app).delete(`/api/v1/coffee/${coffeeId}`)
-      .set('Authorization', `Bearer ${token}`);
+    const response = await request(app).put(`/api/v1/coffees/${coffeeId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ price: 11000 });
 
     expect(response.statusCode).toBe(403);
     expect(response.body.status).toBe('FORBIDDEN');

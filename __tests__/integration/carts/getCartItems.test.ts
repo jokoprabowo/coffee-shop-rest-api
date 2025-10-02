@@ -26,7 +26,7 @@ describe('Get cart item endpoint.', () => {
   });
 
   it('Should return a 200 status code and list of cart items', async () => {
-    const response = await request(app).get('/api/v1/cart')
+    const response = await request(app).get('/api/v1/carts')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(200);
@@ -35,7 +35,7 @@ describe('Get cart item endpoint.', () => {
   });
 
   it('Should return a 401 status code if access token is missing', async () => {
-    const response = await request(app).get('/api/v1/cart');
+    const response = await request(app).get('/api/v1/carts');
 
     expect(response.statusCode).toBe(401);
     expect(response.body.status).toBe('UNAUTHENTICATED');

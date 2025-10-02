@@ -2,9 +2,13 @@ import request from 'supertest';
 import app from '../../../src/app';
 import pool from '../../../src/config/db';
 
-describe('Get user details endpoint.', () => {
+describe('Add to cart endpoint.', () => {
   let userId: number;
   let token: string;
+
+  const mockCartItem = {
+    coffeeId: 1, quantity: 1,
+  };
 
   beforeAll(async () => {
     const res = await request(app).post('/api/v1/auth/register')
@@ -25,16 +29,19 @@ describe('Get user details endpoint.', () => {
     await pool.end();
   });
 
-  it('Should return a 200 status code and user data.', async () => {
-    const response = await request(app).get('/api/v1/user/profile')
-      .set('Authorization', `Bearer ${token}`);
+  it('Should return a 201 status code and list of cart item.', async () => {
+    const response = await request(app).post('/api/v1/carts')
+      .set('Authorization', `Bearer ${token}`)
+      .send(mockCartItem);
 
-    expect(response.statusCode).toBe(200);
-    expect(response.body.data).toHaveProperty('user');
+    expect(response.statusCode).toBe(201);
+    expect(response.body.data).toHaveProperty('cartItems');
+    expect(response.body.data.cartItems[0].quantity).toBe(1);
   });
 
   it('Should return a 401 status code if access token is missing.', async () => {
-    const response = await request(app).get('/api/v1/user/profile');
+    const response = await request(app).post('/api/v1/carts')
+      .send(mockCartItem);
 
     expect(response.statusCode).toBe(401);
     expect(response.body.status).toBe('UNAUTHENTICATED');

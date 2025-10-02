@@ -28,7 +28,7 @@ describe('Get all users endpoint.', () => {
     userId = res.body.data.user.id;
     token = res.body.data.accessToken;
 
-    const response = await request(app).get('/api/v1/user/all')
+    const response = await request(app).get('/api/v1/users/all')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(200);
@@ -48,7 +48,7 @@ describe('Get all users endpoint.', () => {
     userId = res.body.data.user.id;
     token = res.body.data.accessToken;
     
-    const response = await request(app).get('/api/v1/user/all')
+    const response = await request(app).get('/api/v1/users/all')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(403);

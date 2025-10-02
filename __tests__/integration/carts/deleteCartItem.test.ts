@@ -2,10 +2,10 @@ import request from 'supertest';
 import app from '../../../src/app';
 import pool from '../../../src/config/db';
 
-describe('Get order details endpoint.', () => {
+describe('Delete cart item endpoint.', () => {
   let userId: number;
   let token: string;
-  let orderId: number;
+  let cartItemId: number;
 
   beforeAll(async () => {
     const res = await request(app).post('/api/v1/auth/register')
@@ -20,14 +20,11 @@ describe('Get order details endpoint.', () => {
     token = res.body.data.accessToken;
     userId = res.body.data.user.id;
 
-    await request(app).post('/api/v1/cart')
+    const cart = await request(app).post('/api/v1/carts')
       .set('Authorization', `Bearer ${token}`)
       .send({ coffeeId: 1, quantity: 1, });
 
-    const order = await request(app).post('/api/v1/order')
-      .set('Authorization', `Bearer ${token}`);
-    
-    orderId = order.body.data.order.id;
+    cartItemId = cart.body.data.cartItems[0].cart_item_id;
   });
 
   afterAll(async () => {
@@ -35,26 +32,27 @@ describe('Get order details endpoint.', () => {
     await pool.end();
   });
 
-  it('Should return a 200 status code if the order details successfully retrieved.', async () => {
-    const response = await request(app).get(`/api/v1/order/${orderId}`)
-      .set('Authorization', `Bearer ${token}`);
+  it('Should return a 200 status code.', async () => {
+    const response = await request(app).delete('/api/v1/carts')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ cartItemId: cartItemId });
 
     expect(response.statusCode).toBe(200);
     expect(response.body.status).toBe('OK');
-    expect(response.body.data).toHaveProperty('orders');
-    expect(Array.isArray(response.body.data.orders)).toBe(true);
   });
 
   it('Should return a 401 status code if access token is missing.', async () => {
-    const response = await request(app).get(`/api/v1/order/${orderId}`);
+    const response = await request(app).delete('/api/v1/carts')
+      .send({ cartItemId: cartItemId });
 
     expect(response.statusCode).toBe(401);
     expect(response.body.status).toBe('UNAUTHENTICATED');
   });
 
-  it('Should return a 404 status code if the cart with provided id is not exist.', async () => {
-    const response = await request(app).get('/api/v1/order/0')
-      .set('Authorization', `Bearer ${token}`);
+  it('Should return a 404 status code if cart item with provided id is not exist.', async () => {
+    const response = await request(app).delete('/api/v1/carts')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ cartItemId: -1 });
 
     expect(response.statusCode).toBe(404);
     expect(response.body.status).toBe('NOT_FOUND');

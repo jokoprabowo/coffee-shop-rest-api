@@ -8,7 +8,7 @@ describe('Create coffee endpoint', () => {
   let coffeeId: string;
 
   const mockCoffee = {
-    name: 'Americano', price: 10000, description: 'A classic coffee drink made by diluting a shot (or two) '+
+    name: 'Luwak coffee', price: 10000, description: 'A classic coffee drink made by diluting a shot (or two) '+
     'of espresso with hot water.', image: 'https://example.com/americano.png'
   };
 
@@ -39,7 +39,7 @@ describe('Create coffee endpoint', () => {
     userId = res.body.data.user.id;
     token = res.body.data.accessToken;
 
-    const response = await request(app).post('/api/v1/coffee')
+    const response = await request(app).post('/api/v1/coffees')
       .set('Authorization', `Bearer ${token}`)
       .send(mockCoffee); 
 
@@ -66,16 +66,16 @@ describe('Create coffee endpoint', () => {
     userId = res.body.data.user.id;
     token = res.body.data.accessToken;
 
-    const response = await request(app).post('/api/v1/coffee')
+    const response = await request(app).post('/api/v1/coffees')
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'Americano' }); 
+      .send({ name: 'Luwak coffee' }); 
 
     expect(response.statusCode).toBe(400);
     expect(response.body.status).toBe('BAD_REQUEST');
   });
 
   it('Should return a 401 status code if access token is missing.', async () => {
-    const response = await request(app).post('/api/v1/coffee')
+    const response = await request(app).post('/api/v1/coffees')
       .send(mockCoffee); 
 
     expect(response.statusCode).toBe(401);
@@ -95,7 +95,7 @@ describe('Create coffee endpoint', () => {
     userId = res.body.data.user.id;
     token = res.body.data.accessToken;
 
-    const response = await request(app).post('/api/v1/coffee')
+    const response = await request(app).post('/api/v1/coffees')
       .set('Authorization', `Bearer ${token}`)
       .send(mockCoffee);
 
@@ -117,11 +117,11 @@ describe('Create coffee endpoint', () => {
     userId = res.body.data.user.id;
     token = res.body.data.accessToken;
 
-    const coffee = await request(app).post('/api/v1/coffee')
+    const coffee = await request(app).post('/api/v1/coffees')
       .set('Authorization', `Bearer ${token}`)
       .send(mockCoffee); 
 
-    const response = await request(app).post('/api/v1/coffee')
+    const response = await request(app).post('/api/v1/coffees')
       .set('Authorization', `Bearer ${token}`)
       .send(mockCoffee); 
 
