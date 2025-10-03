@@ -1,0 +1,92 @@
+import { Request, Response, NextFunction } from 'express';
+import { UserService } from '../services';
+import { AuthenticationError } from '../exceptions';
+import UserValidator from '../validators/user';
+
+class UserController {
+  private readonly service: UserService;
+  private readonly validator: typeof UserValidator;
+
+  constructor(service: UserService, validator: typeof UserValidator) {
+    this.service = service;
+    this.validator = validator;
+    this.getUserDetails = this.getUserDetails.bind(this);
+    this.getAllUsers = this.getAllUsers.bind(this);
+    this.updateUser = this.updateUser.bind(this);
+    this.deleteUser = this.deleteUser.bind(this);
+  }
+
+  public async getUserDetails(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.userId) {
+        throw new AuthenticationError('Authentication required!');
+      }
+      const user = await this.service.findById(req.userId);
+      delete user?.password;
+      return res.status(200).json({
+        status: 'OK',
+        message: 'User details have been retrieved!',
+        data: {
+          user,
+        }
+      });
+    } catch(err) {
+      next(err);
+    }
+  }
+
+  public async getAllUsers(req: Request, res: Response, next: NextFunction) {
+    try {
+      const users = await this.service.findAll();
+      return res.status(200).json({
+        status: 'OK',
+        message: 'Users data have been retrieved!',
+        data: {
+          users,
+        }
+      });
+    } catch(err) {
+      next(err);
+    }
+  }
+
+  public async updateUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      this.validator.validatePutPayload(req.body);
+      const {
+        password, fullname, address, phone
+      } = req.body;
+      if (!req.userId) {
+        throw new AuthenticationError('Authentication required!');
+      }
+
+      const user = await this.service.update(req.userId, { password, fullname, address, phone });
+      return res.status(200).json({
+        status: 'OK',
+        message: 'User details have been updated!',
+        data: {
+          user,
+        },
+      });
+    } catch(err) {
+      next(err);
+    }
+  }
+
+  public async deleteUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.userId) {
+        throw new AuthenticationError('Authentication required!');
+      }
+      await this.service.delete(req.userId);
+      return res.status(200).json({
+        status: 'OK',
+        message: 'User has been deleted!',
+      });
+    } catch(err) {
+      next(err);
+    }
+  }
+}
+
+export default UserController;
