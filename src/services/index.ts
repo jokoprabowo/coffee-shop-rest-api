@@ -4,6 +4,7 @@ import AuthService from './auth.service';
 import RefreshTokenService from './refreshtoken.service';
 import CartService from './cart.service';
 import OrderService from './order.service';
+import CacheService from './cache.service';
 
 export {
   CoffeeService,
@@ -12,4 +13,5 @@ export {
   RefreshTokenService,
   CartService,
   OrderService,
+  CacheService,
 };

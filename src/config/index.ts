@@ -10,7 +10,9 @@ const config = {
   JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
   ACCESS_TOKEN_EXPIRY: process.env.ACCESS_TOKEN_EXPIRY as ms.StringValue,
   WHITELIST_ADMIN_EMAILS: process.env.WHITELIST_ADMIN_EMAILS?.split(','),
-  REDIS_SERVER: process.env.REDIS_SERVER,
+  REDIS_HOST: process.env.REDIS_HOST,
+  REDIS_PORT: process.env.REDIS_PORT,
+  REDIS_PASSWORD: process.env.REDIS_PASSWORD,
 };
 
 export default config;
