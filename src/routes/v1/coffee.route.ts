@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import pool from '../../config/db';
 import { CoffeeRepository, UserRepository } from '../../repositories';
-import { CoffeeService, UserService } from '../../services';
+import { CoffeeService, UserService, CacheService } from '../../services';
 import CoffeeValidator from '../../validators/coffee';
 import { CoffeeController } from '../../controllers';
 import AuthMiddleware from '../../middlewares/AuthMiddleware';
 
 const repository = new CoffeeRepository(pool);
-const service = new CoffeeService(repository);
+const service = new CoffeeService(repository, new CacheService());
 const controller = new CoffeeController(service, CoffeeValidator);
 const middleware = new AuthMiddleware(new UserService(new UserRepository(pool)));
 const router = Router();

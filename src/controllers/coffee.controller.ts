@@ -34,12 +34,13 @@ class CoffeeController {
 
   public async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const coffees = await this.service.findAll();
+      const result = await this.service.findAll();
+      res.set('X-Data-Source', result.source);
       return res.status(200).json({
         status: 'OK',
         message: 'Coffees have been retrieved!',
         data: {
-          coffees,
+          coffees: result.coffees,
         },
       });
     } catch (err) {

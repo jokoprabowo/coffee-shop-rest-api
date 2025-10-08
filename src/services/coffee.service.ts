@@ -1,12 +1,15 @@
 import { CoffeeDto } from '../dto';
 import { ConflictError, NotFoundError } from '../exceptions';
 import { CoffeeRepository } from '../repositories';
+import { CacheService } from './';
 
 class CoffeeService {
   private readonly repository: CoffeeRepository;
+  private readonly cache: CacheService;
 
-  constructor(repository: CoffeeRepository) {
+  constructor(repository: CoffeeRepository, cache: CacheService) {
     this.repository = repository;
+    this.cache = cache;
   }
 
   public async create(data: CoffeeDto) {
@@ -15,6 +18,7 @@ class CoffeeService {
       throw new ConflictError('Coffee data already exist!');
     }
     const coffee = await this.repository.create(data);
+    await this.cache.del('coffees');
     return coffee;
   }
 
@@ -27,19 +31,34 @@ class CoffeeService {
   }
 
   public async findAll() {
-    const coffees = await this.repository.findAll();
-    return coffees;
+    let coffees;
+    const data = await this.cache.get('coffees');
+    if (data) {
+      coffees = JSON.parse(data);
+      return {
+        coffees,
+        source: 'cache',
+      };
+    }
+    coffees = await this.repository.findAll();
+    await this.cache.set('coffees', JSON.stringify(coffees));
+    return {
+      coffees,
+      source: 'database',
+    };
   }
 
   public async update(id: string, data: Partial<CoffeeDto>) {
     await this.findOne(id);
     const coffee = await this.repository.update(id, data);
+    await this.cache.del('coffees');
     return coffee;
   }
 
   public async delete(id: string) {
     await this.findOne(id);
     const coffee = await this.repository.delete(id);
+    await this.cache.del('coffees');
     return coffee;
   }
 }
