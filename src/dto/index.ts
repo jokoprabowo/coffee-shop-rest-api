@@ -1,6 +1,7 @@
 import { CoffeeDto } from './coffee.dto';
 import { userRole, UserDto, LoginUserDto } from './user.dto';
 import { RefreshToken } from './refreshtoken.dto';
+import { CartItemDTO } from './cart.dto';
 
 export {
   CoffeeDto,
@@ -8,4 +9,5 @@ export {
   userRole,
   LoginUserDto,
   RefreshToken,
+  CartItemDTO,
 };
