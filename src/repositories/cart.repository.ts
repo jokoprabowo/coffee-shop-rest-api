@@ -27,7 +27,7 @@ class CartRepository {
     return rows[0];
   }
 
-  public async createItem(cartId: string, coffeeId: number, quantity: number) {
+  public async createItem(cartId: number, coffeeId: number, quantity: number) {
     const query = {
       text: 'insert into cart_items(cart_id, coffee_id, quantity) values ($1, $2, $3)',
       values: [cartId, coffeeId, quantity],

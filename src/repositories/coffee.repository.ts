@@ -25,7 +25,7 @@ class CoffeeRepository {
     return rows[0];
   }
 
-  public async findOne(id: string) {
+  public async findOne(id: number) {
     const query = {
       text: 'select name, price, description, image from coffees where id = $1',
       values: [id],
@@ -51,7 +51,7 @@ class CoffeeRepository {
     return rows;
   }
 
-  public async update(id: string, data: Partial<CoffeeDto>) {
+  public async update(id: number, data: Partial<CoffeeDto>) {
     const entries = Object.entries(data).filter(([_, v]) => v !== undefined);
     const fields = entries.map(([key], i) => `${key}=$${i + 1}`).join(', ');
     const values = entries.map(([_, value]) => value);
@@ -65,7 +65,7 @@ class CoffeeRepository {
     return rows[0];
   }
 
-  public async delete(id: string) {
+  public async delete(id: number) {
     const query = {
       text: 'delete from coffees where id = $1',
       values: [id],
