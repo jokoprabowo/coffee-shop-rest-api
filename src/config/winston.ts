@@ -61,4 +61,4 @@ const buildLogger = () => {
   });
 };
 
-export const winlogger = buildLogger();
+export const logger = buildLogger();
