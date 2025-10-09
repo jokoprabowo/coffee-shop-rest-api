@@ -2,13 +2,19 @@ import { Router } from 'express';
 import pool from '../../config/db';
 import AuthMiddleware from '../../middlewares/AuthMiddleware';
 import { UserRepository, CartRepository, OrderRepository } from '../../repositories';
-import { UserService, OrderService } from '../../services';
+import { UserService, OrderService, CacheService } from '../../services';
 import { OrderController } from '../../controllers';
 
-const middleware = new AuthMiddleware(new UserService(new UserRepository(pool)));
-const repository = new OrderRepository(pool);
-const service = new OrderService(repository, new CartRepository(pool));
-const controller = new OrderController(service);
+const userRepository = new UserRepository(pool);
+const cartRepository = new CartRepository(pool);
+const orderRepository = new OrderRepository(pool);
+
+const cacheService = new CacheService();
+const userService = new UserService(userRepository);
+const orderService = new OrderService(orderRepository, cartRepository, cacheService);
+const controller = new OrderController(orderService);
+
+const middleware = new AuthMiddleware(userService);
 const router = Router();
 
 router.post('/', middleware.authorize, controller.createOrder);

@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { OrderDTO, OrderItemDTO } from '../dto';
 
 class OrderRepository{
   private readonly database: Pool;
@@ -7,7 +8,7 @@ class OrderRepository{
     this.database = database;
   }
 
-  public async createOrder(userId: number, total: number) {
+  public async createOrder(userId: number, total: number): Promise<OrderDTO> {
     const query = {
       text: 'insert into orders (user_id, total) values ($1, $2) returning id',
       values: [userId, total],
@@ -17,7 +18,9 @@ class OrderRepository{
     return rows[0];
   }
 
-  public async createOrderItem(orderId: number, coffeeId: number, quantity: number, unitPrice: number, totalPrice: number) {
+  public async createOrderItem(
+    orderId: number, coffeeId: number, quantity: number, unitPrice: number, totalPrice: number
+  ): Promise<OrderItemDTO> {
     const query = {
       text: 'insert into order_items (order_id, coffee_id, quantity, unit_price, total_price) '+
       'values ($1, $2, $3, $4, $5)',
@@ -28,7 +31,7 @@ class OrderRepository{
     return rows[0];
   }
 
-  public async getOrderList(userId: number) {
+  public async getOrderList(userId: number): Promise<OrderDTO[]> {
     const query = {
       text: 'select o.id, o.status, o.total, sum(oi.total_price) as total_price from orders o '+
       'inner join order_items oi on oi.order_id = o.id where user_id = $1 group by o.id, o.status, o.total '+
@@ -40,7 +43,7 @@ class OrderRepository{
     return rows;
   }
 
-  public async getOrderDetails(orderId: number) {
+  public async getOrderDetails(orderId: number): Promise<OrderItemDTO[]> {
     const query = {
       text: 'select c.name, oi.quantity, oi.unit_price, oi.total_price from order_items oi '+
       'inner join coffees c on c.id = oi.coffee_id where order_id = $1',
@@ -51,7 +54,7 @@ class OrderRepository{
     return rows;
   }
 
-  public async updateStatus(orderId: number, status: string) {
+  public async updateStatus(orderId: number, status: string): Promise<boolean> {
     const query = {
       text: 'update orders set status = $1, updated_at = $2 where id = $3',
       values: [status, new Date(), orderId],
@@ -61,7 +64,7 @@ class OrderRepository{
     return (rowCount ?? 0) > 0;
   }
 
-  public async deleteOrder(orderId: number) {
+  public async deleteOrder(orderId: number): Promise<boolean> {
     const query = {
       text: 'delete from orders where id = $1',
       values: [orderId],
