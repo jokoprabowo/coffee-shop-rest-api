@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { AuthorizationError, ClientError } from '../exceptions';
+import { AuthorizationError } from '../exceptions';
 import AuthenticateValidator from '../validators/authentication';
 import { RefreshTokenService, AuthService } from '../services';
 import { generateAccessToken } from '../utilities/token';
@@ -19,7 +19,7 @@ class AuthController {
     this.logout = this.logout.bind(this);
   }
 
-  public async register(req: Request, res: Response, next: NextFunction) {
+  public async register(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       this.validator.validateRegisterPayload(req.body);
       const {
@@ -39,7 +39,7 @@ class AuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
       });
-      return res.status(201).json({
+      res.status(201).json({
         status: 'CREATED',
         message: 'User successfully created!',
         data: {
@@ -47,12 +47,13 @@ class AuthController {
           accessToken,
         }
       });
+      return;
     } catch (err) {
       next(err);
     }
   }
 
-  public async login(req: Request, res: Response, next: NextFunction) {
+  public async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       this.validator.validateLoginPayload(req.body);
       const {
@@ -69,7 +70,7 @@ class AuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict'
       });
-      return res.status(200).json({
+      res.status(200).json({
         status: 'OK',
         message: 'Login successfull!',
         data: {
@@ -77,12 +78,13 @@ class AuthController {
           accessToken,
         }
       });
+      return;
     } catch(err) {
       next(err);
     }
   }
 
-  public async refreshToken(req: Request, res: Response, next: NextFunction) {
+  public async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { refreshToken } = req.cookies;
       const {
@@ -91,10 +93,6 @@ class AuthController {
       const [selector, token] = refreshToken.split('.');
       const userId = await this.token.findUserIdBySelector(selector);
       const verified = await this.token.verifyToken(selector, token);
-      if (!verified) {
-        throw new ClientError('Invalid refresh token!');
-      }
-
       if(verified.is_revoked) {
         res.clearCookie('refreshToken', {
           httpOnly: true,
@@ -114,19 +112,20 @@ class AuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
       });
-      return res.status(200).json({
+      res.status(200).json({
         status: 'OK',
         message: 'Access token refreshed!',
         data: {
           accessToken,
         },
       });
+      return;
     } catch (err) {
       next(err);
     }
   }
 
-  public async logout(req: Request, res: Response, next: NextFunction) {
+  public async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { refreshToken } = req.cookies;
       const selector = refreshToken.split('.')[0];
@@ -136,10 +135,11 @@ class AuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
       });
-      return res.status(200).json({
+      res.status(200).json({
         status: 'OK',
         message: 'Logout successfull!',
       });
+      return;
     } catch (err) {
       next(err);
     }

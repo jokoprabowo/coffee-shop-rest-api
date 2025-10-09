@@ -12,7 +12,7 @@ class AuthMiddleware {
     this.isAdmin = this.isAdmin.bind(this);
   }
 
-  public async authorize (req: Request, res: Response, next: NextFunction) {
+  public async authorize (req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const bearerToken = req.headers.authorization;
       if (!bearerToken) {
@@ -27,7 +27,7 @@ class AuthMiddleware {
     }
   }
 
-  public async isAdmin (req: Request, res: Response, next: NextFunction) {
+  public async isAdmin (req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const bearerToken = req.headers.authorization;
       if (!bearerToken) {

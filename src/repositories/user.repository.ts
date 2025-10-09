@@ -8,7 +8,7 @@ class UserRepository {
     this.database = database;
   }
 
-  public async create(user: UserDto) {
+  public async create(user: Omit<UserDto, 'id'>): Promise<UserDto> {
     const {
       email, password, fullname, address, phone, role = 'customer',
     } = user;
@@ -24,7 +24,7 @@ class UserRepository {
     return rows[0];
   }
 
-  public async findById(id: number) {
+  public async findById(id: number): Promise<UserDto> {
     const query = {
       text: 'select id, email, password, fullname, address, phone from users where id = $1',
       values: [id],
@@ -33,7 +33,7 @@ class UserRepository {
     return rows[0];
   }
 
-  public async findOne(email: string) {
+  public async findOne(email: string): Promise<UserDto> {
     const query = {
       text: 'select id, email, password, fullname, address, phone from users where email = $1',
       values: [email],
@@ -42,7 +42,7 @@ class UserRepository {
     return rows[0];
   }
 
-  public async findAll() {
+  public async findAll(): Promise<UserDto[]> {
     const query = {
       text: 'select email, fullname, address, phone from users',
     };
@@ -50,7 +50,7 @@ class UserRepository {
     return rows;
   }
 
-  public async update(id: number, user: Partial<UserDto>) {
+  public async update(id: number, user: Partial<UserDto>): Promise<UserDto> {
     const entries = Object.entries(user).filter(([_, v]) => v !== undefined);
     const fields = entries.map(([key], i) => `${key}=$${i + 1}`).join(', ');
     const values = entries.map(([_, value]) => value);
@@ -63,7 +63,7 @@ class UserRepository {
     return rows[0];
   }
 
-  public async delete(id: number) {
+  public async delete(id: number): Promise<boolean> {
     const query = {
       text: 'delete from users where id = $1',
       values: [id],
@@ -72,7 +72,7 @@ class UserRepository {
     return (rowCount ?? 0) > 0;
   }
 
-  public async verifyAdmin(id: number) {
+  public async verifyAdmin(id: number): Promise<boolean> {
     const query = {
       text: 'select role from users where id = $1',
       values: [id],

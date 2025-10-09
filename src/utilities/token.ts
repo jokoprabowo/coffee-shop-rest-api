@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../config';
 
 export const generateAccessToken = (userId: number): string => {
@@ -8,7 +8,7 @@ export const generateAccessToken = (userId: number): string => {
   });
 };
 
-export const verifyAccessToken = (token: string) => {
+export const verifyAccessToken = (token: string): JwtPayload|string => {
   try {
     return jwt.verify(token, config.JWT_ACCESS_SECRET!);
   } catch (err) {

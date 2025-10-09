@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import config from '.';
 
-const pool = new Pool({
+const pool: Pool = new Pool({
   connectionString: config.DATABASE_URL,
   ssl: config.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });

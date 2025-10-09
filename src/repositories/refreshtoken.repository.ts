@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { RefreshToken } from '../dto';
+import { RefreshTokenDTO } from '../dto';
 
 class RefreshTokenRepository {
   private readonly database: Pool;
@@ -8,7 +8,7 @@ class RefreshTokenRepository {
     this.database = database;
   }
 
-  public async create(data: RefreshToken) {
+  public async create(data: RefreshTokenDTO): Promise<RefreshTokenDTO> {
     const {
       user_id, selector, token, device_info, ip_address, expires_at
     } = data;
@@ -23,7 +23,7 @@ class RefreshTokenRepository {
     return rows[0];
   }
 
-  public async findUserIdBySelector(selector: string) {
+  public async findUserIdBySelector(selector: string): Promise<Pick<RefreshTokenDTO, 'user_id'>> {
     const query = {
       text: 'select user_id from refresh_tokens where selector = $1',
       values: [selector],
@@ -33,7 +33,7 @@ class RefreshTokenRepository {
     return rows[0];
   }
 
-  public async findActiveToken(selector: string) {
+  public async findActiveToken(selector: string): Promise<Pick<RefreshTokenDTO, 'token' | 'is_revoked'>> {
     const query = {
       text: 'select token, is_revoked from refresh_tokens where selector = $1 and expires_at > now()',
       values: [selector],
@@ -43,7 +43,7 @@ class RefreshTokenRepository {
     return rows[0];
   }
 
-  public async revokeToken(selector: string) {
+  public async revokeToken(selector: string): Promise<boolean> {
     const query = {
       text: 'update refresh_tokens set is_revoked = true where selector = $1',
       values: [selector],
@@ -56,7 +56,7 @@ class RefreshTokenRepository {
     return true;
   }
 
-  public async revokeAllTokens(userId: number) {
+  public async revokeAllTokens(userId: number): Promise<boolean> {
     const query = {
       text: 'update refresh_tokens set is_revoked = true where user_id = $1',
       values: [userId],

@@ -11,7 +11,7 @@ class UserService {
     this.repository = repository;
   }
 
-  public async create(data: UserDto) {
+  public async create(data: Omit<UserDto, 'id'>): Promise<UserDto> {
     if (data.role === 'admin' && !config.WHITELIST_ADMIN_EMAILS?.includes(data.email)){
       throw new AuthorizationError('You are not allowed to register as an admin!');
     }
@@ -26,12 +26,13 @@ class UserService {
     return user;
   }
 
-  public async findAll() {
+  public async findAll(): Promise<UserDto[]> {
     const users = await this.repository.findAll();
     return users;
   }
 
-  public async findById(id: number) {
+  public async findById(id: number):
+  Promise<Omit<UserDto, 'password'> & Partial<Pick<UserDto, 'password'>>> {
     const user = await this.repository.findById(id);
     if(!user) {
       throw new NotFoundError('User not found!');
@@ -39,7 +40,7 @@ class UserService {
     return user;
   }
 
-  public async findOne(email: string) {
+  public async findOne(email: string): Promise<UserDto> {
     const user = await this.repository.findOne(email);
     if(!user) {
       throw new NotFoundError('User not found!');
@@ -47,7 +48,7 @@ class UserService {
     return user;
   }
 
-  public async update(id: number, data: Partial<UserDto>) {
+  public async update(id: number, data: Partial<UserDto>): Promise<UserDto> {
     await this.findById(id);
     if(data.password) {
       data.password = await encryptInput(data.password);
@@ -56,7 +57,7 @@ class UserService {
     return user;
   }
 
-  public async delete(id: number) {
+  public async delete(id: number): Promise<boolean> {
     const user = await this.repository.delete(id);
     if (!user) {
       throw new NotFoundError('User not found!');
@@ -64,7 +65,7 @@ class UserService {
     return user;
   }
 
-  public async verifyAdmin(id: number) {
+  public async verifyAdmin(id: number): Promise<void> {
     const user = await this.repository.verifyAdmin(id);
     if (!user) {
       throw new AuthorizationError('You do not have permission to access this resource!');
