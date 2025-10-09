@@ -4,6 +4,7 @@ export enum userRole {
 }
 
 export interface UserDto {
+  id: number,
   email: string,
   password: string,
   fullname: string,
