@@ -10,7 +10,7 @@ export interface CartItemDTO {
 };
 
 export interface CartDTO {
-  id?: number,
+  id: number,
   user_id: number,
   status: string,
   created_at?: string,
