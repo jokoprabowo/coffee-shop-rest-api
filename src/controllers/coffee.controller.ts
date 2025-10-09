@@ -16,76 +16,81 @@ class CoffeeController {
     this.deleteById = this.deleteById.bind(this);
   }
 
-  public async create(req: Request, res: Response, next: NextFunction) {
+  public async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       this.validator.validatePostCoffeePayload(req.body);
       const coffee = await this.service.create(req.body);
-      return res.status(201).json({
+      res.status(201).json({
         status: 'CREATED',
         message: 'Coffee has been created!',
         data: {
           coffee,
         },
       });
+      return;
     } catch (err) {
       next(err);
     }
   }
 
-  public async getAll(req: Request, res: Response, next: NextFunction) {
+  public async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const result = await this.service.findAll();
       res.set('X-Data-Source', result.source);
-      return res.status(200).json({
+      res.status(200).json({
         status: 'OK',
         message: 'Coffees have been retrieved!',
         data: {
           coffees: result.coffees,
         },
       });
+      return;
     } catch (err) {
       next(err);
     }
   }
 
-  public async getById(req: Request, res: Response, next: NextFunction) {
+  public async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const coffee = await this.service.findOne(req.params.id);
-      return res.status(200).json({
+      const coffee = await this.service.findOne(Number(req.params.id));
+      res.status(200).json({
         status: 'OK',
         message: 'Coffee has been retrieved!',
         data: {
           coffee,
         },
       });
+      return;
     } catch (err) {
       next(err);
     }
   }
 
-  public async updateById(req: Request, res: Response, next: NextFunction) {
+  public async updateById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       this.validator.validatePutCoffeePayload(req.body);
-      const coffee = await this.service.update(req.params.id, req.body);
-      return res.status(200).json({
+      const coffee = await this.service.update(Number(req.params.id), req.body);
+      res.status(200).json({
         status: 'OK',
         message: 'Coffee has been updated!',
         data: {
           coffee,
         }
       });
+      return;
     } catch (err) {
       next(err);
     }
   }
 
-  public async deleteById(req: Request, res: Response, next: NextFunction) {
+  public async deleteById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      await this.service.delete(req.params.id);
-      return res.status(200).json({
+      await this.service.delete(Number(req.params.id));
+      res.status(200).json({
         status: 'OK',
         message: 'Coffee has been deleted!',
       });
+      return;
     } catch (err) {
       next(err);
     }

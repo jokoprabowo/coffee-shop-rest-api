@@ -8,7 +8,7 @@ class CoffeeRepository {
     this.database = database;
   }
 
-  public async create(data: CoffeeDto) {
+  public async create(data: CoffeeDto): Promise<CoffeeDto> {
     const {
       name, price, description, image,
     } = data;
@@ -25,25 +25,25 @@ class CoffeeRepository {
     return rows[0];
   }
 
-  public async findOne(id: number) {
+  public async findOne(id: number): Promise<CoffeeDto> {
     const query = {
-      text: 'select name, price, description, image from coffees where id = $1',
+      text: 'select id, name, price, description, image from coffees where id = $1',
       values: [id],
     };
     const { rows } = await this.database.query(query);
     return rows[0];
   }
 
-  public async findByName(name: string) {
+  public async findByName(name: string): Promise<CoffeeDto> {
     const query = {
-      text: 'select name, price, description, image from coffees where name = $1',
+      text: 'select id, name, price, description, image from coffees where name = $1',
       values: [name],
     };
     const { rows } = await this.database.query(query);
     return rows[0];
   }
 
-  public async findAll() {
+  public async findAll(): Promise<CoffeeDto[]> {
     const query = {
       text: 'select id, name, price, description, image from coffees',
     };
@@ -51,7 +51,7 @@ class CoffeeRepository {
     return rows;
   }
 
-  public async update(id: number, data: Partial<CoffeeDto>) {
+  public async update(id: number, data: Partial<CoffeeDto>): Promise<CoffeeDto> {
     const entries = Object.entries(data).filter(([_, v]) => v !== undefined);
     const fields = entries.map(([key], i) => `${key}=$${i + 1}`).join(', ');
     const values = entries.map(([_, value]) => value);
@@ -65,7 +65,7 @@ class CoffeeRepository {
     return rows[0];
   }
 
-  public async delete(id: number) {
+  public async delete(id: number): Promise<boolean> {
     const query = {
       text: 'delete from coffees where id = $1',
       values: [id],
