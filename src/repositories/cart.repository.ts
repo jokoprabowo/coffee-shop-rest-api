@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { CartDTO, CartItemDTO } from '../dto/cart.dto';
 
 class CartRepository {
   private readonly database: Pool;
@@ -7,7 +8,7 @@ class CartRepository {
     this.database = database;
   }
 
-  public async create(userId: number) {
+  public async create(userId: number): Promise<CartDTO> {
     const query = {
       text: 'insert into carts(user_id) values ($1) returning id',
       values: [userId],
@@ -17,7 +18,7 @@ class CartRepository {
     return rows[0];
   }
 
-  public async isCartExist(userId: number) {
+  public async isCartExist(userId: number): Promise<CartDTO> {
     const query = {
       text: 'select id from carts where user_id = $1 and status = \'open\'',
       values: [userId],
@@ -27,7 +28,7 @@ class CartRepository {
     return rows[0];
   }
 
-  public async createItem(cartId: number, coffeeId: number, quantity: number) {
+  public async createItem(cartId: number, coffeeId: number, quantity: number): Promise<CartItemDTO> {
     const query = {
       text: 'insert into cart_items(cart_id, coffee_id, quantity) values ($1, $2, $3)',
       values: [cartId, coffeeId, quantity],
@@ -37,7 +38,7 @@ class CartRepository {
     return rows[0];
   }
 
-  public async getCartItems(cartId: number) {
+  public async getCartItems(cartId: number): Promise<CartItemDTO[]> {
     const query = {
       text: 'select c.id as cart_id, ci.id as cart_item_id, ci.coffee_id, co.name, co.price, '+
       'ci.quantity, (co.price * ci.quantity) as total_price '+
@@ -51,7 +52,7 @@ class CartRepository {
     return rows;
   }
 
-  public async updateStatus(cartId: number) {
+  public async updateStatus(cartId: number): Promise<boolean> {
     const query = {
       text: 'update carts set status = \'checked_out\' where id = $1',
       values: [cartId],
@@ -61,7 +62,7 @@ class CartRepository {
     return (rowCount ?? 0) > 0;
   }
 
-  public async updateItem(cartItemId: number, quantity: number) {
+  public async updateItem(cartItemId: number, quantity: number): Promise<boolean> {
     const query = {
       text: 'update cart_items set quantity = $1, updated_at = $2 where id = $3',
       values: [quantity, new Date(), cartItemId],
@@ -71,7 +72,7 @@ class CartRepository {
     return (rowCount ?? 0) > 0;
   }
 
-  public async deleteItem(cartItemId: number) {
+  public async deleteItem(cartItemId: number): Promise<boolean> {
     const query = {
       text: 'delete from cart_items where id = $1',
       values: [cartItemId],

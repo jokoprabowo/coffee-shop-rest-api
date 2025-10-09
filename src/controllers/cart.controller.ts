@@ -37,12 +37,13 @@ class CartController {
       if(!req.userId) {
         throw new AuthenticationError('Login required!');
       }
-      const cartItems = await this.service.getCartItems(req.userId);
+      const result = await this.service.getCartItems(req.userId);
+      res.set('X-Data-Source', result.source);
       return res.status(200).json({
         status: 'OK',
         message: 'Cart items have been retrieved!',
         data: {
-          cartItems,
+          cartItems: result.cartItems,
         },
       });
     } catch (err) {
@@ -52,8 +53,11 @@ class CartController {
 
   public async updateItem(req: Request, res: Response, next: NextFunction) {
     try {
+      if(!req.userId) {
+        throw new AuthenticationError('Login required!');
+      }
       const { cartItemId, quantity } = req.body;
-      await this.service.updateItem(cartItemId, quantity);
+      await this.service.updateItem(req.userId, cartItemId, quantity);
       return res.status(200).json({
         status: 'OK',
         message: 'Cart items has been updated!',
@@ -65,8 +69,11 @@ class CartController {
 
   public async deleteItem(req: Request, res: Response, next: NextFunction) {
     try {
+      if(!req.userId) {
+        throw new AuthenticationError('Login required!');
+      }
       const { cartItemId } = req.body;
-      await this.service.deleteItem(cartItemId);
+      await this.service.deleteItem(req.userId, cartItemId);
       return res.status(200).json({
         status: 'OK',
         message: 'Cart items has been deleted!',
