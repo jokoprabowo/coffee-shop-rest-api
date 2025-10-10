@@ -17,7 +17,7 @@ class RefreshTokenService {
     const hashedToken = await encryptInput(token);
     const expireDate = new Date();
     expireDate.setDate(expireDate.getDate() + 7);
-    const expires_at = expireDate.toString();
+    const expires_at = expireDate.toISOString();
 
     await this.repository.create({
       user_id: userId,

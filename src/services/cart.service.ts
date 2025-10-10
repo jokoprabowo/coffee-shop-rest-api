@@ -34,7 +34,7 @@ class CartService {
       if (data) {
         data.quantity += quantity;
         data.total_price = coffee.price * data.quantity;
-        data.updated_at = new Date().toString();
+        data.updated_at = new Date().toISOString();
         await this.cacheService.set(`cart:${userId}`, JSON.stringify(cartItems));
         return cartItems;
       }
@@ -46,8 +46,8 @@ class CartService {
         price: coffee.price,
         quantity,
         total_price: (coffee.price * quantity),
-        created_at: new Date().toString(),
-        updated_at: new Date().toString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
       cartItems.push(cartItem);
       await this.cacheService.set(`cart:${userId}`, JSON.stringify(cartItems));
@@ -61,8 +61,8 @@ class CartService {
       price: coffee.price,
       quantity,
       total_price: (coffee.price * quantity),
-      created_at: new Date().toString(),
-      updated_at: new Date().toString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
     const cartItems = [cartItem];
     await this.cacheService.set(`cart:${userId}`, JSON.stringify(cartItems));
@@ -93,7 +93,7 @@ class CartService {
       const cartItem = cartItems.find(item => item.cart_item_id === cartItemId);
       if (cartItem) {
         cartItem.quantity = quantity;
-        cartItem.updated_at = new Date().toString();
+        cartItem.updated_at = new Date().toISOString();
         await this.cacheService.set(`cart:${userId}`, JSON.stringify(cartItems));
         return true;
       } else {

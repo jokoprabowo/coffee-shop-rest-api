@@ -43,7 +43,7 @@ describe('Cart service', () => {
     it('Should return cart', async () => {
       const cacheMockCartItem = {
         cart_item_id: 'cartItemId', coffee_id:1, name: 'Americano', price: 12000, quantity: 1, total_price: 12000,
-        created_at: new Date().toString(), updated_at: new Date().toString(),
+        created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
       };
       mockCoffeeRepo.findOne.mockResolvedValue(mockCoffee);
       (crypto.randomBytes as jest.Mock).mockReturnValueOnce({ toString: () => 'cartItemId' });
