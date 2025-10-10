@@ -1,16 +1,17 @@
 import { NotFoundError } from '../../src/exceptions';
 import { OrderRepository, CartRepository } from '../../src/repositories';
-import { OrderService } from '../../src/services';
+import { OrderService, CacheService } from '../../src/services';
 
 describe('Order service', () => {
   let mockCartRepo: jest.Mocked<CartRepository>;
   let mockOrderRepo: jest.Mocked<OrderRepository>;
+  let mockCache: jest.Mocked<CacheService>;
   let service: OrderService;
 
   const mockCart = { id: 1, user_id: 1, status: 'open' };
-  const mockCartItem = { id: 1, cart_id:1, coffee_id:1, quantity: 1 };
+  const mockCartItem = { cart_item_id: 'cartItemId', coffee_id:1, name: 'Americano', price: 12000, quantity: 1, total_price: 12000 };
   const mockOrder = { id: 1, user_id: 1, status: 'pending', total: 1 };
-  const mockOrderItem = { id: 1, order_id: 1, coffee_id: 1, quantity: 1, unit_price: 15000, total_price: 15000 };
+  const mockOrderItem = { id: 1, order_id: 1, coffee_id: 1, name: 'Americano', quantity: 1, unit_price: 15000, total_price: 15000 };
 
   beforeEach(() => {
     mockCartRepo = {
@@ -28,11 +29,16 @@ describe('Order service', () => {
       deleteOrder: jest.fn(),
     } as unknown as jest.Mocked<OrderRepository>;
 
-    service = new OrderService(mockOrderRepo, mockCartRepo);
+    mockCache = {
+      get: jest.fn(),
+      set: jest.fn(),
+    } as unknown as jest.Mocked<CacheService>;
+
+    service = new OrderService(mockOrderRepo, mockCartRepo, mockCache);
   });
 
   describe('Create order', () => {
-    it('Should return order if there is at least an item in the cart', async () => {
+    it('Should return order if there is at least an item in the cart on database', async () => {
       mockCartRepo.isCartExist.mockResolvedValue(mockCart);
       mockCartRepo.getCartItems.mockResolvedValue([mockCartItem]);
       mockOrderRepo.createOrder.mockResolvedValue(mockOrder);
@@ -45,8 +51,22 @@ describe('Order service', () => {
       expect(result).toBe(mockOrder);
     });
 
+    it('Should return order if there is at least an item in the cart on cache', async () => {
+      mockCache.get.mockResolvedValue(JSON.stringify([mockCartItem]));
+      const mockParse = jest.spyOn(JSON, 'parse').mockImplementation(() => ([mockCartItem]));
+      mockOrderRepo.createOrder.mockResolvedValue(mockOrder);
+
+      const result = await service.createOrder(1);
+
+      expect(mockCache.get).toHaveBeenCalledWith('cart:1');
+      expect(mockOrderRepo.createOrder).toHaveBeenCalledWith(1,1);
+      expect(result).toBe(mockOrder);
+      mockParse.mockRestore();
+    });
+
     it('Should return not found error if there is no item in the cart', async () => {
-      mockCartRepo.isCartExist.mockResolvedValue(false);
+      mockCache.get.mockResolvedValue(null);
+      mockCartRepo.isCartExist.mockResolvedValue(null);
 
       await expect(
         service.createOrder(1)

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { NotFoundError } from '../../src/exceptions';
+import { ClientError, NotFoundError } from '../../src/exceptions';
 import { RefreshTokenRepository } from '../../src/repositories';
 import { RefreshTokenService } from '../../src/services';
 import { encryptInput, checkInput } from '../../src/utilities/encrypt';
@@ -75,15 +75,13 @@ describe('Refresh token service', () => {
       expect(checkInput).toHaveBeenCalledWith('tokenTest', 'hashedToken');
       expect(result).toBe(mockToken);
     });
-    it('Should return false if token is invalid', async () => {
+    it('Should return client error if token is invalid', async () => {
       mockRepo.findActiveToken.mockResolvedValue(mockToken);
       (checkInput as jest.Mock).mockReturnValue(false);
 
-      const result = await service.verifyToken('selectorTest', 'tokenTest');
-
-      expect(mockRepo.findActiveToken).toHaveBeenCalledWith('selectorTest');
-      expect(checkInput).toHaveBeenCalledWith('tokenTest', 'hashedToken');
-      expect(result).toBe(false);
+      await expect(
+        service.verifyToken('selectorTest', 'tokenTest')
+      ).rejects.toThrow( new ClientError('Invalid refresh token!'));
 
     });
   });

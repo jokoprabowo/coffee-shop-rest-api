@@ -14,7 +14,7 @@ describe('Auth Service', () => {
 
   const mockUser = {
     id: 1, email: 'test@mail.com', password: 'hashedPass', fullname: 'Test Example', 
-    phone: '081234567890', address: 'Test street, Example, 00000', role: 'customer'
+    phone: '081234567890', address: 'Test street, Example, 00000'
   };
 
   beforeEach(() => {

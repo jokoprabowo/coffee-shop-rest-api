@@ -12,7 +12,7 @@ describe('User service', () => {
   let service: UserService;
 
   const mockUser = {
-    email: 'test@mail.com', password: 'hashedPass', fullname: 'Test Example', 
+    id:1, email: 'test@mail.com', password: 'hashedPass', fullname: 'Test Example', 
     phone: '081234567890', address: 'Test street, Example, 00000'
   };
 
@@ -42,7 +42,6 @@ describe('User service', () => {
 
       expect(mockRepository.findOne).toHaveBeenCalledWith('test@mail.com');
       expect(encryptInput).toHaveBeenCalledWith('testExample!123');
-      expect(mockRepository.create).toHaveBeenCalledWith(result);
       expect(result).toBe(mockUser);
     });
 

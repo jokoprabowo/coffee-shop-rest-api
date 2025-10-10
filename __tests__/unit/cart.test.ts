@@ -1,13 +1,20 @@
+import crypto from 'crypto';
 import { NotFoundError } from '../../src/exceptions';
-import { CartRepository } from '../../src/repositories';
-import { CartService } from '../../src/services';
+import { CartRepository, CoffeeRepository } from '../../src/repositories';
+import { CartService, CacheService } from '../../src/services';
 
+
+jest.mock('crypto', () => ({
+  randomBytes: jest.fn(),
+}));
 describe('Cart service', () => {
   let mockRepo: jest.Mocked<CartRepository>;
+  let mockCoffeeRepo: jest.Mocked<CoffeeRepository>;
+  let mockCache: jest.Mocked<CacheService>;
   let service: CartService;
 
-  const mockCart = { id: 1, user_id: 1, status: 'open' };
-  const mockCartItem = { id: 1, cart_id:1, coffee_id:1, quantity: 1 };
+  const mockCoffee = { id: 1, name: 'Americano', price: 12000, description: 'bitter coffee', image: 'https://example.com/americano.webdl' };
+  const mockCartItem = { cart_item_id: 'cartItemId', coffee_id:1, name: 'Americano', price: 12000, quantity: 1, total_price: 12000 };
 
   beforeEach(() => {
     mockRepo = {
@@ -20,36 +27,57 @@ describe('Cart service', () => {
       deleteItem: jest.fn(),
     } as unknown as jest.Mocked<CartRepository>;
 
-    service = new CartService(mockRepo);
+    mockCache = {
+      get: jest.fn(),
+      set: jest.fn(),
+    } as unknown as jest.Mocked<CacheService>;
+
+    mockCoffeeRepo = {
+      findOne: jest.fn(),
+    } as unknown as jest.Mocked<CoffeeRepository>;
+
+    service = new CartService(mockRepo, mockCache, mockCoffeeRepo);
   });
 
   describe('Create cart', () => {
     it('Should return cart', async () => {
-      mockRepo.isCartExist.mockResolvedValue(false);
-      mockRepo.create.mockResolvedValue(mockCart);
-      mockRepo.createItem.mockResolvedValue(mockCartItem);
-      mockRepo.getCartItems.mockResolvedValue([mockCartItem]);
+      const cacheMockCartItem = {
+        cart_item_id: 'cartItemId', coffee_id:1, name: 'Americano', price: 12000, quantity: 1, total_price: 12000,
+        created_at: new Date().toString(), updated_at: new Date().toString(),
+      };
+      mockCoffeeRepo.findOne.mockResolvedValue(mockCoffee);
+      (crypto.randomBytes as jest.Mock).mockReturnValueOnce({ toString: () => 'cartItemId' });
+      mockCache.get.mockResolvedValue(null);
 
       const result = await service.addToCart(1, 1, 1);
-
-      expect(mockRepo.isCartExist).toHaveBeenCalledWith(1);
-      expect(mockRepo.create).toHaveBeenCalledWith(1);
-      expect(mockRepo.createItem).toHaveBeenCalledWith(1, 1, 1);
-      expect(mockRepo.getCartItems).toHaveBeenCalledWith(1);
-      expect(result).toEqual([mockCartItem]);
+      
+      expect(mockCoffeeRepo.findOne).toHaveBeenCalledWith(1);
+      expect(mockCache.get).toHaveBeenCalledTimes(1);
+      expect(mockCache.set).toHaveBeenCalledWith('cart:1', JSON.stringify([cacheMockCartItem]));
+      expect(result).toEqual([cacheMockCartItem]);
     });
   });
 
   describe('Get cart items', () => {
-    it('Should return cart items', async () => {
-      mockRepo.isCartExist.mockResolvedValue(mockCart);
+    it('Should return cart items by cache', async () => {
+      mockCache.get.mockResolvedValue(JSON.stringify([mockCartItem]));
+      const mockParse = jest.spyOn(JSON, 'parse').mockImplementation(() => ([mockCartItem]));
+
+      const result = await service.getCartItems(1);
+
+      expect(mockCache.get).toHaveBeenCalledWith('cart:1');
+      expect(result).toEqual({ cartItems: [mockCartItem], source: 'cache' });
+      mockParse.mockRestore();
+    });
+
+    it('Should return cart items by database', async () => {
+      mockCache.get.mockResolvedValue(null);
       mockRepo.getCartItems.mockResolvedValue([mockCartItem]);
 
       const result = await service.getCartItems(1);
 
-      expect(mockRepo.isCartExist).toHaveBeenCalledWith(1);
-      expect(mockRepo.getCartItems).toHaveBeenCalledWith(1);
-      expect(result).toEqual([mockCartItem]);
+      expect(mockCache.get).toHaveBeenCalledWith('cart:1');
+      expect(result).toEqual({ cartItems: [mockCartItem], source: 'database' });
     });
   });
 
@@ -57,7 +85,7 @@ describe('Cart service', () => {
     it('Should return true if cart item from input id exist', async () => {
       mockRepo.updateItem.mockResolvedValue(true);
 
-      const result = await service.updateItem(1, 1);
+      const result = await service.updateItem(1, 1, 1);
 
       expect(mockRepo.updateItem).toHaveBeenCalledWith(1, 1);
       expect(result).toBe(true);
@@ -67,7 +95,7 @@ describe('Cart service', () => {
       mockRepo.updateItem.mockResolvedValue(false);
 
       await expect(
-        service.updateItem(1, 1)
+        service.updateItem(1, 1, 1)
       ).rejects.toThrow(new NotFoundError('Cart item not found!'));
     });
   });
@@ -76,7 +104,7 @@ describe('Cart service', () => {
     it('Should return true if cart item from input id exist', async () => {
       mockRepo.deleteItem.mockResolvedValue(true);
 
-      const result = await service.deleteItem(1);
+      const result = await service.deleteItem(1, 1);
 
       expect(mockRepo.deleteItem).toHaveBeenCalledWith(1);
       expect(result).toBe(true);
@@ -86,7 +114,7 @@ describe('Cart service', () => {
       mockRepo.deleteItem.mockResolvedValue(false);
 
       await expect(
-        service.deleteItem(1)
+        service.deleteItem(1, 1)
       ).rejects.toThrow(new NotFoundError('Cart item not found!'));
     });
   });

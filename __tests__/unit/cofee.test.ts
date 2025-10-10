@@ -1,13 +1,14 @@
 import { ConflictError, NotFoundError } from '../../src/exceptions';
 import { CoffeeRepository } from '../../src/repositories';
-import { CoffeeService } from '../../src/services';
+import { CoffeeService, CacheService } from '../../src/services';
 
 describe('Coffee service', () => {
   let mockRepo: jest.Mocked<CoffeeRepository>;
+  let mockCacheService: jest.Mocked<CacheService>;
   let service: CoffeeService;
 
   const mockCoffee = {
-    id: 1, name: 'Americano', price: '12000', description: 'Coffee made by mixing espresso with hot water.',
+    id: 1, name: 'Americano', price: 12000, description: 'Coffee made by mixing espresso with hot water.',
     image: 'https://www.example.com/americano.png',
   };
 
@@ -21,13 +22,24 @@ describe('Coffee service', () => {
       delete: jest.fn(),
     } as unknown as jest.Mocked<CoffeeRepository>;
 
-    service = new CoffeeService(mockRepo);
+    mockCacheService = {
+      set: jest.fn(),
+      get: jest.fn(),
+      del: jest.fn(),
+    } as unknown as jest.Mocked<CacheService>;
+
+    service = new CoffeeService(mockRepo, mockCacheService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('Create coffee', () => {
     it('Should return coffee if successfully create coffee.', async () => {
       mockRepo.findByName.mockResolvedValue(null);
       mockRepo.create.mockResolvedValue(mockCoffee);
+      mockCacheService.del.mockResolvedValue();
 
       const result = await service.create(mockCoffee);
       
@@ -47,13 +59,23 @@ describe('Coffee service', () => {
   });
 
   describe('Get all coffees', () => {
-    it('Should return all coffee data', async () => {
+    it('Should return all coffee data from database', async () => {
+      mockCacheService.get.mockResolvedValue(null);
       mockRepo.findAll.mockResolvedValue([mockCoffee]);
 
       const result = await service.findAll();
 
       expect(mockRepo.findAll).toHaveBeenCalledTimes(1);
-      expect(result).toEqual([mockCoffee]);
+      expect(result.coffees).toEqual([mockCoffee]);
+    });
+
+    it('Should return all coffee data from cache', async () => {
+      mockCacheService.get.mockResolvedValue(JSON.stringify([mockCoffee]));
+
+      const result = await service.findAll();
+
+      expect(mockCacheService.get).toHaveBeenCalledWith('coffees');
+      expect(result.coffees).toEqual([mockCoffee]);
     });
   });
 
@@ -61,10 +83,10 @@ describe('Coffee service', () => {
     it('Should return coffee data with correct id', async () => {
       mockRepo.findOne.mockResolvedValue(mockCoffee);
 
-      const result = await service.findOne('1');
+      const result = await service.findOne(1);
 
       expect(mockRepo.findOne).toHaveBeenCalledTimes(1);
-      expect(mockRepo.findOne).toHaveBeenCalledWith('1');
+      expect(mockRepo.findOne).toHaveBeenCalledWith(1);
       expect(result).toEqual(mockCoffee);
     });
 
@@ -72,7 +94,7 @@ describe('Coffee service', () => {
       mockRepo.findOne.mockResolvedValue(null);
 
       await expect(
-        service.findOne('1')
+        service.findOne(1)
       ).rejects.toThrow(new NotFoundError('Coffee not found!'));
     });
   });
@@ -81,13 +103,12 @@ describe('Coffee service', () => {
     it('Should return coffee if update with correct id and update data', async () => {
       mockRepo.findOne.mockResolvedValue(mockCoffee);
       mockRepo.update.mockResolvedValue(mockCoffee);
+      mockCacheService.del.mockResolvedValue();
 
-      const result = await service.update('1', mockCoffee);
+      const result = await service.update(1, mockCoffee);
 
-      expect(mockRepo.findOne).toHaveBeenCalledTimes(1);
-      expect(mockRepo.findOne).toHaveBeenCalledWith('1');
       expect(mockRepo.update).toHaveBeenCalledTimes(1);
-      expect(mockRepo.update).toHaveBeenCalledWith('1', mockCoffee);
+      expect(mockRepo.update).toHaveBeenCalledWith(1, mockCoffee);
       expect(result).toEqual(mockCoffee);
     });
 
@@ -95,7 +116,7 @@ describe('Coffee service', () => {
       mockRepo.findOne.mockResolvedValue(null);
 
       await expect(
-        service.update('1', mockCoffee)
+        service.update(1, mockCoffee)
       ).rejects.toThrow(new NotFoundError('Coffee not found!'));
     });
   });
@@ -104,13 +125,12 @@ describe('Coffee service', () => {
     it('Should return true if delete with correct id', async () => {
       mockRepo.findOne.mockResolvedValue(mockCoffee);
       mockRepo.delete.mockResolvedValue(true);
+      mockCacheService.del.mockResolvedValue();
 
-      const result = await service.delete('1');
+      const result = await service.delete(1);
 
-      expect(mockRepo.findOne).toHaveBeenCalledTimes(1);
-      expect(mockRepo.findOne).toHaveBeenCalledWith('1');
       expect(mockRepo.delete).toHaveBeenCalledTimes(1);
-      expect(mockRepo.delete).toHaveBeenCalledWith('1');
+      expect(mockRepo.delete).toHaveBeenCalledWith(1);
       expect(result).toEqual(true);
     });
 
@@ -118,7 +138,7 @@ describe('Coffee service', () => {
       mockRepo.findOne.mockResolvedValue(null);
 
       await expect(
-        service.delete('1')
+        service.delete(1)
       ).rejects.toThrow(new NotFoundError('Coffee not found!'));
     });
   });
