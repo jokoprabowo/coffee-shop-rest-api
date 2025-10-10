@@ -24,7 +24,7 @@ class UserRepository {
     return rows[0];
   }
 
-  public async findById(id: number): Promise<UserDto> {
+  public async findById(id: number): Promise<UserDto|null> {
     const query = {
       text: 'select id, email, password, fullname, address, phone from users where id = $1',
       values: [id],
@@ -33,7 +33,7 @@ class UserRepository {
     return rows[0];
   }
 
-  public async findOne(email: string): Promise<UserDto> {
+  public async findOne(email: string): Promise<UserDto|null> {
     const query = {
       text: 'select id, email, password, fullname, address, phone from users where email = $1',
       values: [email],

@@ -22,6 +22,9 @@ class CartService {
 
   public async addToCart(userId: number, coffeeId: number, quantity: number): Promise<CartItemDTO[]> {
     const coffee = await this.coffeeRepository.findOne(coffeeId);
+    if (!coffee) {
+      throw new NotFoundError('Coffee not found!');
+    }
     const cartItemId = crypto.randomBytes(32).toString('hex');
 
     const cart = await this.cacheService.get(`cart:${userId}`);

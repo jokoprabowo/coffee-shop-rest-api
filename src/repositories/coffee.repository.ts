@@ -25,7 +25,7 @@ class CoffeeRepository {
     return rows[0];
   }
 
-  public async findOne(id: number): Promise<CoffeeDto> {
+  public async findOne(id: number): Promise<CoffeeDto | null> {
     const query = {
       text: 'select id, name, price, description, image from coffees where id = $1',
       values: [id],
@@ -34,7 +34,7 @@ class CoffeeRepository {
     return rows[0];
   }
 
-  public async findByName(name: string): Promise<CoffeeDto> {
+  public async findByName(name: string): Promise<CoffeeDto | null> {
     const query = {
       text: 'select id, name, price, description, image from coffees where name = $1',
       values: [name],
@@ -51,7 +51,7 @@ class CoffeeRepository {
     return rows;
   }
 
-  public async update(id: number, data: Partial<CoffeeDto>): Promise<CoffeeDto> {
+  public async update(id: number, data: Partial<CoffeeDto>): Promise<CoffeeDto | null> {
     const entries = Object.entries(data).filter(([_, v]) => v !== undefined);
     const fields = entries.map(([key], i) => `${key}=$${i + 1}`).join(', ');
     const values = entries.map(([_, value]) => value);

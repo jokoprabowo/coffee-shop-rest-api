@@ -23,7 +23,7 @@ class RefreshTokenRepository {
     return rows[0];
   }
 
-  public async findUserIdBySelector(selector: string): Promise<Pick<RefreshTokenDTO, 'user_id'>> {
+  public async findUserIdBySelector(selector: string): Promise<Pick<RefreshTokenDTO, 'user_id'> | null> {
     const query = {
       text: 'select user_id from refresh_tokens where selector = $1',
       values: [selector],

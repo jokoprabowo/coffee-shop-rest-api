@@ -54,15 +54,19 @@ class CoffeeService {
   }
 
   public async update(id: number, data: Partial<CoffeeDto>): Promise<CoffeeDto> {
-    await this.findOne(id);
     const coffee = await this.repository.update(id, data);
+    if (!coffee) {
+      throw new NotFoundError('Coffee not found!');
+    }
     await this.cache.del('coffees');
     return coffee;
   }
 
   public async delete(id: number): Promise<boolean> {
-    await this.findOne(id);
     const coffee = await this.repository.delete(id);
+    if (!coffee) {
+      throw new NotFoundError('Coffee not found!');
+    }
     await this.cache.del('coffees');
     return coffee;
   }

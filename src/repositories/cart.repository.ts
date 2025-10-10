@@ -18,7 +18,7 @@ class CartRepository {
     return rows[0];
   }
 
-  public async isCartExist(userId: number): Promise<CartDTO> {
+  public async isCartExist(userId: number): Promise<CartDTO | null> {
     const query = {
       text: 'select id from carts where user_id = $1 and status = \'open\'',
       values: [userId],

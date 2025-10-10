@@ -15,8 +15,9 @@ class RefreshTokenService {
     const selector = crypto.randomBytes(32).toString('hex');
     const token = crypto.randomBytes(32).toString('hex');
     const hashedToken = await encryptInput(token);
-    const expires_at = new Date();
-    expires_at.setDate(expires_at.getDate() + 7);
+    const expireDate = new Date();
+    expireDate.setDate(expireDate.getDate() + 7);
+    const expires_at = expireDate.toString();
 
     await this.repository.create({
       user_id: userId,

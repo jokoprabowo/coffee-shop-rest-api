@@ -21,6 +21,9 @@ class OrderService {
       cartItems = JSON.parse(cartCache);
     } else {
       const cart = await this.cartRepository.isCartExist(userId);
+      if (!cart) {
+        throw new NotFoundError('Cart is empty!');
+      }
       cartItems = await this.cartRepository.getCartItems(cart.id);
       await this.cartRepository.updateStatus(cart.id);
     }
