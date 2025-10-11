@@ -35,7 +35,7 @@ class OrderService {
         order.id, item.coffee_id, item.quantity, item.price, item.total_price
       );
     }
-    
+    await this.cacheService.del(`cart:${userId}`);
     return order;
   }
 
