@@ -13,6 +13,7 @@ const config = {
   REDIS_HOST: process.env.REDIS_HOST,
   REDIS_PORT: process.env.REDIS_PORT,
   REDIS_PASSWORD: process.env.REDIS_PASSWORD,
+  RABBITMQ_URL: process.env.RABBITMQ_URL,
 };
 
 export default config;

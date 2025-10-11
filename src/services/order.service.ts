@@ -1,5 +1,5 @@
 import { CartRepository, OrderRepository } from '../repositories';
-import { CacheService } from '../services';
+import { CacheService, ProducerService } from '../services';
 import { NotFoundError } from '../exceptions';
 import { CartItemDTO, OrderDTO, OrderItemDTO } from '../dto';
 
@@ -7,11 +7,13 @@ class OrderService {
   private readonly repository: OrderRepository;
   private readonly cartRepository: CartRepository;
   private readonly cacheService: CacheService;
+  private readonly rabbitMQ:  typeof ProducerService;
 
-  constructor(repository: OrderRepository, cartRepository: CartRepository, cacheService: CacheService) {
+  constructor(repository: OrderRepository, cartRepository: CartRepository, cacheService: CacheService, rabbitMQ:  typeof ProducerService) {
     this.repository = repository;
     this.cartRepository = cartRepository;
     this.cacheService = cacheService;
+    this.rabbitMQ = rabbitMQ;
   }
 
   public async createOrder(userId: number): Promise<OrderDTO> {
@@ -36,6 +38,7 @@ class OrderService {
       );
     }
     await this.cacheService.del(`cart:${userId}`);
+    await this.rabbitMQ.sendMessage(`checkout:${userId}`, cartItems);
     return order;
   }
 

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import pool from '../../config/db';
 import AuthMiddleware from '../../middlewares/AuthMiddleware';
 import { UserRepository, CartRepository, OrderRepository } from '../../repositories';
-import { UserService, OrderService, CacheService } from '../../services';
+import { UserService, OrderService, CacheService, ProducerService } from '../../services';
 import { OrderController } from '../../controllers';
 
 const userRepository = new UserRepository(pool);
@@ -11,7 +11,7 @@ const orderRepository = new OrderRepository(pool);
 
 const cacheService = new CacheService();
 const userService = new UserService(userRepository);
-const orderService = new OrderService(orderRepository, cartRepository, cacheService);
+const orderService = new OrderService(orderRepository, cartRepository, cacheService, ProducerService);
 const controller = new OrderController(orderService);
 
 const middleware = new AuthMiddleware(userService);

@@ -5,6 +5,7 @@ import RefreshTokenService from './refreshtoken.service';
 import CartService from './cart.service';
 import OrderService from './order.service';
 import CacheService from './cache.service';
+import { ProducerService } from './produser.service';
 
 export {
   CoffeeService,
@@ -14,4 +15,5 @@ export {
   CartService,
   OrderService,
   CacheService,
+  ProducerService,
 };
