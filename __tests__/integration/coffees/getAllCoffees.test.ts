@@ -5,19 +5,8 @@ import pool from '../../../src/config/db';
 describe('Get all coffees endpoint', () => {
   let userId: number;
   let token: string;
-  let coffeeId: number;
 
   beforeAll(async () => {
-    const { rows } = await pool.query('insert into coffees(name, price, description, image) '+
-      'values ($1, $2, $3, $4) returning id', [
-      'Americano',
-      10000,
-      'A classic coffee drink made by diluting a shot (or two) of espresso with hot water.',
-      'https://example.com/americano.png',
-    ]);
-    
-    coffeeId = rows[0].id;
-
     const res = await request(app).post('/api/v1/auth/register')
       .send({
         email: 'testExample@gmail.com',
@@ -33,8 +22,6 @@ describe('Get all coffees endpoint', () => {
 
   afterAll(async () => {
     await pool.query('delete from users where id = $1', [userId]);
-    await pool.query('delete from coffees where id = $1', [coffeeId]);
-    await pool.end();
   });
 
   it('Should return a 200 status code and list of coffees', async () => {

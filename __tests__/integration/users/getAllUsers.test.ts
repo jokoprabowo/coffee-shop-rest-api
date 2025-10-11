@@ -10,10 +10,6 @@ describe('Get all users endpoint.', () => {
     await pool.query('delete from users where id = $1', [userId]);
   });
 
-  afterAll(async () => {
-    await pool.end();
-  });
-
   it('Should return a 200 status code if you are an admin.', async () => {
     const res = await request(app).post('/api/v1/auth/register')
       .send({

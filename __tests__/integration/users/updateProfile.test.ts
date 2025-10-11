@@ -23,7 +23,6 @@ describe('Update profile endpoint.', () => {
 
   afterAll(async () => {
     await pool.query('delete from users where id = $1', [userId]);
-    await pool.end();
   });
 
   it('Should return a 200 status code if access code and all provided update data are correct.', async () => {

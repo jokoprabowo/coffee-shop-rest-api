@@ -34,7 +34,6 @@ describe('Get coffee details endpoint', () => {
   afterAll(async () => {
     await pool.query('delete from users where id = $1', [userId]);
     await pool.query('delete from coffees where id = $1', [coffeeId]);
-    await pool.end();
   });
 
   it('Should return a 200 status code and coffee details', async () => {

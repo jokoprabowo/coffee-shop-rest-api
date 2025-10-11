@@ -19,7 +19,6 @@ describe('Login endpoint.', () => {
 
   afterAll(async () => {
     await pool.query('delete from users where id = $1', [userId]);
-    await pool.end();
   });
   
   it('Should return a 200 status code, user and and accees token if user login successfully.', async () => {

@@ -11,10 +11,6 @@ describe('Registration endpoint', () => {
     }
   });
 
-  afterAll(async () => {
-    await pool.end();
-  });
-
   it('Should return a 201 status code and user registered successfully', async () => {
     const response = await request(app).post('/api/v1/auth/register')
       .send({

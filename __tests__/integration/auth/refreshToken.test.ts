@@ -4,7 +4,6 @@ import pool from '../../../src/config/db';
 
 describe('Refresh token endpoint.', () => {
   let userId: number;
-  let token: string;
   let cookie: string;
 
   beforeAll(async () => {
@@ -18,32 +17,26 @@ describe('Refresh token endpoint.', () => {
       });
 
     userId = res.body.data.user.id;
-    token = res.body.data.accessToken;
     cookie = res.headers['set-cookie'];
   });
 
   afterAll(async () => {
     await pool.query('delete from users where id = $1', [userId]);
-    await pool.end();
   });
 
   it('Should return a 200 status code and get new access token.', async () => {
     const response = await request(app).post('/api/v1/auth/refresh-token')
-      .set('Authorization', `Bearer ${token}`)
       .set('Cookie', cookie);
     
-    console.log(cookie);
     expect(response.statusCode).toBe(200);
     expect(response.body.data).toHaveProperty('accessToken');
   });
 
   it('Should return a 403 status code if refresh token is revoked.', async () => {
     await request(app).delete('/api/v1/auth/logout')
-      .set('Authorization', `Bearer ${token}`)
       .set('Cookie', cookie);
 
     const response = await request(app).post('/api/v1/auth/refresh-token')
-      .set('Authorization', `Bearer ${token}`)
       .set('Cookie', cookie);
 
     expect(response.statusCode).toBe(403);

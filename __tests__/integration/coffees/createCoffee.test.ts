@@ -21,10 +21,6 @@ describe('Create coffee endpoint', () => {
     }
   });
 
-  afterAll(async () => {
-    await pool.end();
-  });
-
   it('Should return a 200 status code if user role is an admin.', async () => {
     const res = await request(app).post('/api/v1/auth/register')
       .send({
@@ -42,8 +38,6 @@ describe('Create coffee endpoint', () => {
     const response = await request(app).post('/api/v1/coffees')
       .set('Authorization', `Bearer ${token}`)
       .send(mockCoffee); 
-
-    console.log(response.body);
     
     coffeeId = response.body.data.coffee.id;
 

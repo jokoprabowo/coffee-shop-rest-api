@@ -1,11 +1,12 @@
 import { NotFoundError } from '../../src/exceptions';
 import { OrderRepository, CartRepository } from '../../src/repositories';
-import { OrderService, CacheService } from '../../src/services';
+import { OrderService, CacheService, ProducerService } from '../../src/services';
 
 describe('Order service', () => {
   let mockCartRepo: jest.Mocked<CartRepository>;
   let mockOrderRepo: jest.Mocked<OrderRepository>;
   let mockCache: jest.Mocked<CacheService>;
+  let mockMQ: jest.Mocked<typeof ProducerService>;
   let service: OrderService;
 
   const mockCart = { id: 1, user_id: 1, status: 'open' };
@@ -32,9 +33,14 @@ describe('Order service', () => {
     mockCache = {
       get: jest.fn(),
       set: jest.fn(),
+      del: jest.fn(),
     } as unknown as jest.Mocked<CacheService>;
 
-    service = new OrderService(mockOrderRepo, mockCartRepo, mockCache);
+    mockMQ = {
+      sendMessage: jest.fn(),
+    } as unknown as jest.Mocked<typeof ProducerService>;
+
+    service = new OrderService(mockOrderRepo, mockCartRepo, mockCache, mockMQ);
   });
 
   describe('Create order', () => {
@@ -47,6 +53,8 @@ describe('Order service', () => {
 
       expect(mockCartRepo.isCartExist).toHaveBeenCalledWith(1);
       expect(mockCartRepo.getCartItems).toHaveBeenCalledWith(1);
+      expect(mockCache.del).toHaveBeenCalledWith('cart:1');
+      expect(mockMQ.sendMessage).toHaveBeenCalledWith('checkout:1', [mockCartItem]);
       expect(mockOrderRepo.createOrder).toHaveBeenCalledWith(1,1);
       expect(result).toBe(mockOrder);
     });
@@ -59,6 +67,8 @@ describe('Order service', () => {
       const result = await service.createOrder(1);
 
       expect(mockCache.get).toHaveBeenCalledWith('cart:1');
+      expect(mockCache.del).toHaveBeenCalledWith('cart:1');
+      expect(mockMQ.sendMessage).toHaveBeenCalledWith('checkout:1', [mockCartItem]);
       expect(mockOrderRepo.createOrder).toHaveBeenCalledWith(1,1);
       expect(result).toBe(mockOrder);
       mockParse.mockRestore();
