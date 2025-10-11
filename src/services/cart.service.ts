@@ -113,6 +113,10 @@ class CartService {
     const cart = await this.cacheService.get(`cart:${userId}`);
     if (cart) {
       const cartItems: CartItemDTO[] = JSON.parse(cart);
+      const isMatch = cartItems.find(item => item.cart_item_id === cartItemId);
+      if (!isMatch) {
+        throw new NotFoundError('Cart item not found!');
+      }
       const updatedCartItems = cartItems.filter(item => item.cart_item_id !== cartItemId);
       await this.cacheService.set(`cart:${userId}`, JSON.stringify(updatedCartItems));
       return true;
