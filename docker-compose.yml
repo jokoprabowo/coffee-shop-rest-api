@@ -2,7 +2,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: api/Dockerfile
+      dockerfile: services/api/Dockerfile
     container_name: coffeeShopApp
     environment:
       - NODE_ENV=production
@@ -10,20 +10,38 @@ services:
       - db
       - rabbitmq
       - redis
-    command: sh -c "sleep 5 && ./wait-for-it.sh db:5432 -- ./wait-for-it.sh rabbitmq:5672 -- npm run start:docker"
+    command: sh -c "sleep 5 && ./wait-for-it.sh db:5432 -- ./wait-for-it.sh rabbitmq:5672 -- npm run start"
     env_file:
       - .env.production
     ports:
       - "3000:3000"
-    volumes:
-      - /app/node_modules
+    # volumes:
+    #   - /app/node_modules
+    networks:
+      - backend
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: services/consumer/Dockerfile
+    container_name: coffeeShopCron
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - db
+      - redis
+    command: sh -c "sleep 5 && ./wait-for-it.sh db:5432 -- npm run start:scheduler"
+    env_file:
+      - .env.production
+    # volumes:
+    #   - /app/node_modules
     networks:
       - backend
 
   consumer:
     build:
       context: .
-      dockerfile: consumer/Dockerfile
+      dockerfile: services/consumer/Dockerfile
     container_name: coffeeShopConsumer
     environment:
       - NODE_ENV=production
@@ -33,29 +51,11 @@ services:
     command: sh -c "sleep 5 && ./wait-for-it.sh db:5432 -- ./wait-for-it.sh rabbitmq:5672 -- npm run start:consumer"
     env_file:
       - .env.production
-    volumes:
-      - /app/node_modules
+    # volumes:
+    #   - /app/node_modules
     networks:
       - backend
 
-  cron:
-    build:
-      context: .
-      dockerfile: consumer/Dockerfile
-    container_name: coffeeShopCron
-    environment:
-      - NODE_ENV=production
-    depends_on:
-      - db
-      - redis
-    command: sh -c "sleep 5 && ./wait-for-it.sh db:5432 -- npm run start:cron"
-    env_file:
-      - .env.production
-    volumes:
-      - /app/node_modules
-    networks:
-      - backend
-  
   db:
     image: postgres:14
     container_name: coffeeShopDb
@@ -73,14 +73,16 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
-    environment:
-      - RABBITMQ_DEFAULT_USER=rabbitmq
-      - RABBITMQ_DEFAULT_PASS=password
     ports:
       - "5672:5672"
       - "15672:15672"
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   
   redis:
     image: redis:7-alpine
