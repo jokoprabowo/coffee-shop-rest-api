@@ -1,6 +1,6 @@
 import request from 'supertest';
 import app from '../../../src/app';
-import pool from '../../../src/config/db';
+import { pool } from '@project/shared';
 
 describe('Refresh token endpoint.', () => {
   let userId: number;

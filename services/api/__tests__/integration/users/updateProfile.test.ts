@@ -1,6 +1,6 @@
 import request from 'supertest';
 import app from '../../../src/app';
-import pool from '../../../src/config/db';
+import { pool } from '@project/shared';
 import { generateAccessToken } from '../../../src/utilities/token';
 
 describe('Update profile endpoint.', () => {
