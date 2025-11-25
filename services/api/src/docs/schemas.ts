@@ -88,7 +88,10 @@ export const schemas = {
     type: 'object',
     properties: {
       cart_id: { type: 'integer', description: 'Id of the cart', example: 1 },
-      cart_item_id: { type: 'integer', description: 'Id of the cart item', example: 1 },
+      cart_item_id: { oneOf: [
+        { type: 'integer', description: 'Id of the cart item', example: 1 },
+        { type: 'string', description: 'Id of the cart item', example: '4c5c5eebc4cc7bef1bd22ebb64c6a8297381523ebd9c3ec2c556d64899c82649' },
+      ] },
       name: { type: 'string', description: 'The coffee name', example: 'Americano' },
       price: { type: 'integer', description: 'Price of the coffee', example: 12000 },
       quantity: { type: 'integer', description: 'Quantity of the coffee', example: 1 },

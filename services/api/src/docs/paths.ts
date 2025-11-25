@@ -308,7 +308,10 @@ export const paths = {
             schema: {
               type: 'object',
               properties: {
-                cart_item_id: { type: 'integer', example: 1 },
+                cart_item_id: { oneOf: [
+                  { type: 'integer', example: 1 },
+                  { type: 'string', example: '4c5c5eebc4cc7bef1bd22ebb64c6a8297381523ebd9c3ec2c556d64899c82649' },
+                ] },
                 quantity: { type: 'integer', example: 1 },
               },
             },
@@ -334,7 +337,10 @@ export const paths = {
             schema: {
               type: 'object',
               properties: {
-                cart_item_id: { type: 'integer', example: 1 },
+                cart_item_id: { oneOf: [
+                  { type: 'integer', example: 1 },
+                  { type: 'string', example: '4c5c5eebc4cc7bef1bd22ebb64c6a8297381523ebd9c3ec2c556d64899c82649' },
+                ] },
               },
             },
           },
