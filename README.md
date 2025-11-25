@@ -1,6 +1,23 @@
 # ☕ Coffee Shop REST API
 
-The Coffee Shop REST API is a backend service designed to manage a coffee shop’s operations, built with **Express.js**, **TypeScript**, **PostgreSQL**, and **Docker**. It provides endpoints to handle customers, menu items, orders, carts, and authentication, enabling smooth integration with frontend or mobile applications.
+The Coffee Shop REST API is a backend service designed to manage a coffee shop’s operations, built with **Express.js**, **TypeScript**, **PostgreSQL**, **Redis**, and **RabbitMQ**. It provides endpoints to handle customers, menu items, orders, carts, and authentication, enabling smooth integration with frontend or mobile applications, and fully containerized using **Docker**.
+
+This project is structured as a **monorepo** and managed using **Turborepo** for optimized builds, caching, and workspace organization.
+
+---
+
+## 🧩 Monorepo Architecture (Turborepo)
+
+This repository uses Turborepo to manage multiple backend-related packages and services in a single monorepo.
+Some benefits include:
+
+* **Shared code** (types, utilities, configs) across services
+
+* **Remote & local caching** for faster build and development
+
+* **Pipeline orchestration** for linting, building, testing
+
+* **Workspace organization** for multi-service backend structure
 
 ---
 
@@ -12,6 +29,8 @@ The Coffee Shop REST API is a backend service designed to manage a coffee shop�
 * **Order Management**: Place and track customer orders based on their carts
 * **Database Migrations & Seeding** for development and production environments
 * **Dockerized Setup** for easy deployment and scalability
+* **Message Queue**: RabbitMQ
+* **Caching**: Redis
 
 ---
 
@@ -21,6 +40,9 @@ The Coffee Shop REST API is a backend service designed to manage a coffee shop�
 * **Database**: PostgreSQL
 * **Authentication**: JWT-based system with refresh token
 * **Testing**: Jest, Supertest
+* **Message Queue**: RabbitMQ
+* **Caching**: Redis,
+* **Monorepo management**: Turborepo
 * **Containerization**: Docker, Docker Compose
 
 ---
@@ -42,25 +64,89 @@ npm install
 
 ### 3. Setup environment variables
 
-Copy `.env.example` to `.env` and configure it:
+This project uses two environment files to separate local development configuration from Docker production configuration.
+
+### 📌 Environment Files
+| File                   | Purpose                                                               |
+| ---------------------- | --------------------------------------------------------------------- |
+| **`.env.development`** | Used when running the project **locally** (without Docker).           |
+| **`.env.production`**  | Used when running the project **inside Docker** via `docker-compose`. |
+You must create both files in the project root
+
+
+### 🧪 `.env.development` (Local Development)
+
+Use local service addresses when you run the backend without Docker:
 
 ```env
-NODE_ENV=development
 PORT=3000
-DB_USER=username
-DB_PASSWORD=password
-DB_NAME=dbname
-DATABASE_URL=postgresql://user:password@host:5432/dbname
-JWT_ACCESS_SECRET=your-secret
+
+# Database
+DATABASE_URL=postgresql://username:password@localhost:5432/dbname
+
+# Authentication
+JWT_ACCESS_SECRET=your_secret_key
 ACCESS_TOKEN_EXPIRY=30m
 WHITELIST_ORIGINS=http://localhost:3000
-WHITELIST_ADMIN_EMAILS=youradminemail@email.com
+WHITELIST_ADMIN_EMAILS=jokoprabowo4550@gmail.com
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# RabbitMQ
+RABBITMQ_URL=amqp://localhost:5672
 ```
 
+---
+
+### 🏭 `.env.production` (Docker Environment)
+
+These values are used automatically by docker-compose, where services communicate using Docker internal hostnames:
+
+```env
+PORT=3000
+
+# Database
+DATABASE_URL=postgresql://postgres:password@db:5432/coffeeshop
+
+# Authentication
+JWT_ACCESS_SECRET=your_secret_key
+ACCESS_TOKEN_EXPIRY=30m
+WHITELIST_ORIGINS=http://localhost:3000
+WHITELIST_ADMIN_EMAILS=jokoprabowo4550@gmail.com
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# RabbitMQ
+RABBITMQ_URL=amqp://rabbitmq:5672
+```
+
+---
+
 ### 4. Run locally (without Docker)
+---
+**⚠️ Important Warning**
+To run the project locally, several external services must be running on your machine:
+
+1. PostgreSQL (database)
+
+2. Redis (cache / token store)
+
+3. RabbitMQ (message broker)
+
+If any of these are not running, the API will fail to start.
+
+---
+**Build and start development mode**
 
 ```bash
-npm run start:dev
+npm run build
+npm run dev
 ```
 
 Server will be available at: `http://localhost:3000`
@@ -69,16 +155,22 @@ Server will be available at: `http://localhost:3000`
 
 ## 🐳 Running with Docker
 
-Build and start services:
+**Build and start services:**
 
 ```bash
 docker-compose up --build
 ```
 
-* API: `http://localhost:3000`
-* Database: `localhost:5432`
+Runs the following containers:
 
-To stop:
+* API (Express + TypeScript)
+* Consumer
+* Scheduler
+* PostgreSQL
+* Redis
+* RabbitMQ
+
+**To stop:**
 
 ```bash
 docker-compose down
@@ -121,17 +213,6 @@ npm run test integration/auth/login.test.ts
 
 ---
 
-## 🚀 Deployment
+## 📄 License
 
-Production build:
-
-```bash
-npm run build
-npm start
-```
-
-Or with Docker:
-
-```bash
-docker-compose up --build -d
-```
+This project is licensed under the MIT License.

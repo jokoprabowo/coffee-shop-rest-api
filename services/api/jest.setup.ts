@@ -1,5 +1,4 @@
-import redis from './src/config/redis';
-import pool from './src/config/db';
+import { redis, pool } from '@project/shared';
 
 jest.setTimeout(30000);
 
