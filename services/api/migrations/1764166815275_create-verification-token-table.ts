@@ -17,9 +17,19 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       notNull: true,
       unique: true,
     },
-    expires_at: {
+    expired_at: {
       type: 'timestamp',
       notNull: false,
+    },
+    is_used: {
+      type: 'boolean',
+      notNull: true,
+      default: false,
+    },
+    created_at: {
+      type: 'timestamp',
+      notNull: true,
+      default: pgm.func('current_timestamp'),
     },
   });
   pgm.createIndex('verification_tokens', 'user_id');
