@@ -9,7 +9,8 @@
     "dev": "cross-env NODE_ENV=development nodemon",
     "start:docker": "cross-env NODE_ENV=production npm run migrate:up && node dist/server.js",
     "migrate": "node-pg-migrate -j ts",
-    "migrate:up": "node-pg-migrate -j ts up --no-confirm"
+    "migrate:up": "npx dotenv -e ../../.env.development -- npx node-pg-migrate up",
+    "migrate:down": "npx dotenv -e ../../.env.development -- npx node-pg-migrate down 9"
   },
   "keywords": [
     "node",
