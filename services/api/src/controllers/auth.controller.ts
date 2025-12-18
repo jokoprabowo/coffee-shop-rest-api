@@ -3,6 +3,7 @@ import { AuthorizationError } from '../exceptions';
 import AuthenticateValidator from '../validators/authentication';
 import { RefreshTokenService, AuthService } from '../services';
 import { generateAccessToken } from '../utilities/token';
+import config from '../config';
 
 class AuthController {
   private readonly service: AuthService;
@@ -15,6 +16,7 @@ class AuthController {
     this.token = token;
     this.register = this.register.bind(this);
     this.login = this.login.bind(this);
+    this.verifyEmail = this.verifyEmail.bind(this);
     this.refreshToken = this.refreshToken.bind(this);
     this.logout = this.logout.bind(this);
   }
@@ -23,28 +25,21 @@ class AuthController {
     try {
       this.validator.validateRegisterPayload(req.body);
       const {
-        fullname, address, phone, email, password, role, deviceInfo, ipAddress
+        fullname, address, phone, email, password, role
       } = req.body;
 
       const user = await this.service.register({
         fullname, address, phone, email, password, role
       });
-
-      const refreshToken = await this.token.generateToken(user.id, deviceInfo, ipAddress);
-      const accessToken = generateAccessToken(user.id);
       delete user.password;
+      const verificationToken = await this.service.createVerificationToken(user.id);
 
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-      });
       res.status(201).json({
         status: 'CREATED',
-        message: 'User successfully created!',
+        message: 'Account successfully created! Please verify your email to activate your account.',
         data: {
           user,
-          accessToken,
+          ...(config.NODE_ENV !== 'production' && { verificationToken }),
         }
       });
       return;
@@ -60,10 +55,23 @@ class AuthController {
         email, password, deviceInfo, ipAddress
       } = req.body;
       const user = await this.service.login({ email, password });
+      delete user.password;
+
+      if (!user.is_verified) {
+        const verificationToken = await this.service.createVerificationToken(user.id);
+        res.status(403).json({
+          status: 'FORBIDDEN',
+          message: 'Email is not verified! A new verification email has been sent to your email address.',
+          data: {
+            user,
+            ...(config.NODE_ENV !== 'production' && { verificationToken }),
+          }
+        });
+        return;
+      }
 
       const refreshToken = await this.token.generateToken(user.id, deviceInfo, ipAddress);
       const accessToken = generateAccessToken(user.id);
-      delete user.password;
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
@@ -84,6 +92,19 @@ class AuthController {
     }
   }
 
+  public async verifyEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const token = req.query.token as string;
+      await this.service.verifyToken(token);
+      res.status(200).json({
+        status: 'OK',
+        message: 'Email successfully verified!',
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { refreshToken } = req.cookies;
@@ -100,7 +121,7 @@ class AuthController {
           sameSite: 'strict',
         });
         await this.token.revokeAllTokens(userId);
-        throw new AuthorizationError('Refresh token has been revoked. Please login again!');
+        throw new AuthorizationError('Refresh token has revoked. Please login again!');
       }
 
       await this.token.revokeToken(selector);
