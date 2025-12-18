@@ -2,10 +2,7 @@ import { MigrationBuilder } from 'node-pg-migrate';
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable('verification_tokens', {
-    id: {
-      type: 'id',
-      primaryKey: true,
-    },
+    id: 'id',
     user_id: {
       type: 'integer',
       notNull: true,

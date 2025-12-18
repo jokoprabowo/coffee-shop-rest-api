@@ -19,6 +19,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(
     `delete from coffees where name in 
-    ('Americano', 'Espresso', 'Cappuccino', 'Latte' 'Mocha', 'Flat White', 'Macchiato', 'Cortado', 'Affogato', 'Cold Brew');`
+    ('Americano', 'Espresso', 'Cappuccino', 'Latte', 'Mocha', 'Flat White', 'Macchiato', 'Cortado', 'Affogato', 'Cold Brew');`
   );
 }
