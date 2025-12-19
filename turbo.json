@@ -17,6 +17,14 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "migrate:up": {
+      "cache": false,
+      "env": ["DATABASE_URL"]
+    },
+    "migrate:down": {
+      "cache": false,
+      "env": ["DATABASE_URL"]
     }
   }
 }

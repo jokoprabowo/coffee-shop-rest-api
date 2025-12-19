@@ -14,13 +14,16 @@
     "dev": "turbo run dev --parallel",
     "start": "turbo run start",
     "lint": "eslint .",
-    "test": "turbo run test --filter=@project/api -- --watch"
+    "test": "turbo run test --filter=@project/api -- --watch",
+    "migrate:up": "turbo run migrate:up --filter=@project/api",
+    "migrate:down": "turbo run migrate:down --filter=@project/api"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.1",
     "globals": "^16.5.0",
     "jiti": "^2.6.1",
