@@ -19,7 +19,7 @@ export default defineConfig([
       'object-curly-spacing': ['error', 'always'],
       'prefer-const': ['error'],
       'semi': ['error', 'always'],
-      'indent': ['error', 2],
+      'indent': ['error', 2, { 'SwitchCase': 1 }],
       'quotes': ['error', 'single'],
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
