@@ -1,5 +1,5 @@
 import config, { mailer } from '../config';
-import { verificationEmailTemplate } from '../template';
+import { verificationEmailTemplate } from '../templates';
 
 class EmailService {
   private readonly mailer: typeof mailer;
