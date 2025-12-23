@@ -3,16 +3,16 @@ import { UserDto, LoginUserDto } from '../dto';
 import { UserService, ProducerService } from './';
 import { checkInput } from '../utilities/encrypt';
 import { ClientError } from '../exceptions';
-import { VerificationRepository } from '../repositories';
+import { UserTokenRepository } from '../repositories';
 
 class AuthService {
   private readonly service: UserService;
-  private readonly verificationRepository: VerificationRepository;
+  private readonly userTokenRepository: UserTokenRepository;
   private readonly rabbitMQ:  typeof ProducerService;
 
-  constructor(service: UserService, verificationRepository: VerificationRepository, rabbitMQ: typeof ProducerService) {
+  constructor(service: UserService, userTokenRepository: UserTokenRepository, rabbitMQ: typeof ProducerService) {
     this.service = service;
-    this.verificationRepository = verificationRepository;
+    this.userTokenRepository = userTokenRepository;
     this.rabbitMQ = rabbitMQ;
   }
 
@@ -36,9 +36,10 @@ class AuthService {
   public async createVerificationToken(userId: number): Promise<string> {
     const token = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-    await this.verificationRepository.create({
+    await this.userTokenRepository.create({
       user_id: userId,
       token: hashedToken,
+      type: 'email_verification',
       expired_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
     });
 
@@ -53,12 +54,12 @@ class AuthService {
 
   public async verifyToken(token: string): Promise<boolean> {
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-    const record = await this.verificationRepository.findByToken(hashedToken);
+    const record = await this.userTokenRepository.findByToken(hashedToken);
     if (!record) {
       throw new ClientError('Invalid or expired verification token');
     }
     await this.service.update(record.user_id, { is_verified: true });
-    await this.verificationRepository.deleteByUserId(record.user_id);
+    await this.userTokenRepository.deleteByUserId(record.user_id);
     return true;
   }
 }
