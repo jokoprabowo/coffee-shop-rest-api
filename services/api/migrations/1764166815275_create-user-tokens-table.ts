@@ -1,13 +1,17 @@
 import { MigrationBuilder } from 'node-pg-migrate';
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
-  pgm.createTable('verification_tokens', {
+  pgm.createTable('user_tokens', {
     id: 'id',
     user_id: {
       type: 'integer',
       notNull: true,
       references: 'users',
       onDelete: 'CASCADE',
+    },
+    type: {
+      type: 'text',
+      notNull: true,
     },
     token: {
       type: 'text',
@@ -18,10 +22,10 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       type: 'timestamp',
       notNull: false,
     },
-    is_used: {
-      type: 'boolean',
+    used_at: {
+      type: 'timestamp',
       notNull: true,
-      default: false,
+      default: pgm.func('current_timestamp'),
     },
     created_at: {
       type: 'timestamp',
@@ -29,10 +33,10 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       default: pgm.func('current_timestamp'),
     },
   });
-  pgm.createIndex('verification_tokens', 'user_id');
-  pgm.createIndex('verification_tokens', 'token');
+  pgm.createIndex('user_tokens', 'user_id');
+  pgm.createIndex('user_tokens', 'token');
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.dropTable('verification_tokens');
+  pgm.dropTable('user_tokens');
 }
