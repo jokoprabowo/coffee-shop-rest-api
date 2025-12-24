@@ -22,7 +22,7 @@ class UserTokenRepository {
 
   public async findByToken(token: string): Promise<UserTokenDTO | null> {
     const query = {
-      text: 'select user_id, token, expired_at from user_tokens where token = $1 '+
+      text: 'select user_id, token, type, expired_at from user_tokens where token = $1 '+
       'and created_at > now() - interval \'15 minutes\'',
       values: [token],
     };
@@ -33,7 +33,7 @@ class UserTokenRepository {
 
   public async updateUsedAt(token: string): Promise<boolean> {
     const query = {
-      text: 'update user_tokens set used_at = now() where token = $1',
+      text: 'update user_tokens set used_at = now() where token = $1 and used_at is null and expired_at > now()',
       values: [token],
     };
 
