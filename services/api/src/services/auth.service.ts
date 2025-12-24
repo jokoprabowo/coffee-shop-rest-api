@@ -33,6 +33,10 @@ class AuthService {
     return user;
   }
 
+  public async updateUsedAt(token: string): Promise<boolean> {
+    return this.userTokenRepository.updateUsedAt(token);
+  }
+
   public async createVerificationToken(userId: number): Promise<string> {
     const token = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
@@ -59,7 +63,7 @@ class AuthService {
       throw new ClientError('Invalid or expired verification token');
     }
     await this.service.update(record.user_id, { is_verified: true });
-    await this.userTokenRepository.deleteByUserId(record.user_id);
+    await this.updateUsedAt(hashedToken);
     return true;
   }
 }
