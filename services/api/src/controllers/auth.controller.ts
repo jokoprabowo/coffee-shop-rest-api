@@ -32,7 +32,7 @@ class AuthController {
         fullname, address, phone, email, password, role
       });
       delete user.password;
-      const verificationToken = await this.service.createVerificationToken(user.id);
+      const verificationToken = await this.service.createUserToken(user.id, 'email_verification');
 
       res.status(201).json({
         status: 'CREATED',
@@ -58,7 +58,7 @@ class AuthController {
       delete user.password;
 
       if (!user.is_verified) {
-        const verificationToken = await this.service.createVerificationToken(user.id);
+        const verificationToken = await this.service.createUserToken(user.id, 'email_verification');
         res.status(403).json({
           status: 'FORBIDDEN',
           message: 'Email is not verified! A new verification email has been sent to your email address.',
@@ -88,6 +88,37 @@ class AuthController {
       });
       return;
     } catch(err) {
+      next(err);
+    }
+  }
+
+  public async forgotPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { email } = req.body;
+      const user = await this.service.findByEmail(email);
+      const resetToken = await this.service.createUserToken(user.id, 'password_reset');
+
+      res.status(200).json({
+        status: 'OK',
+        message: 'Password reset link sent to your email.',
+        ...(config.NODE_ENV !== 'production' && { data: { resetToken } }),
+      });
+      return;
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const token = req.query.token as string;
+      const { newPassword } = req.body;
+      await this.service.resetPassword(token, newPassword);
+      res.status(200).json({
+        status: 'OK',
+        message: 'Password successfully reset!',
+      });
+    } catch (err) {
       next(err);
     }
   }
