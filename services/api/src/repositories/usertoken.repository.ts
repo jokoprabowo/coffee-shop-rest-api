@@ -31,6 +31,16 @@ class UserTokenRepository {
     return rows[0];
   }
 
+  public async updateUsedAt(token: string): Promise<boolean> {
+    const query = {
+      text: 'update user_tokens set used_at = now() where token = $1',
+      values: [token],
+    };
+
+    const { rowCount } = await this.database.query(query);
+    return (rowCount ?? 0) > 0;
+  }
+
   public async deleteByUserId(userId: number): Promise<boolean> {
     const query = {
       text: 'delete from user_tokens where user_id = $1',
