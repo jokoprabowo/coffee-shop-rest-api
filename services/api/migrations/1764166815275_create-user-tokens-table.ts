@@ -18,7 +18,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       notNull: true,
       unique: true,
     },
-    expired_at: {
+    expires_at: {
       type: 'timestamp',
       notNull: false,
     },
