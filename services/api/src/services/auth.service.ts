@@ -48,17 +48,22 @@ class AuthService {
   public async createUserToken(userId: number, type: string): Promise<string> {
     const token = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
     await this.userTokenRepository.create({
       user_id: userId,
       token: hashedToken,
       type,
-      expired_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+      expires_at: expiresAt,
     });
 
-    const email = await this.service.findById(userId).then(u => u.email);
+    const user = await this.service.findById(userId);
+    const email = user.email;
+    const fullname = user.fullname;
     const data = {
       email,
+      fullname,
       token,
+      expiresAt,
     };
     await this.rabbitMQ.sendMessage(type, data);
     return token;
