@@ -16,7 +16,8 @@ class Listener{
     this.channel = channel;
 
     this.listenOrder = this.listenOrder.bind(this);
-    this.listenEmail = this.listenEmail.bind(this);
+    this.listenVerificationEmail = this.listenVerificationEmail.bind(this);
+    this.listenResetPassword = this.listenResetPassword.bind(this);
   }
 
   public async listenOrder(message: ConsumeMessage | null): Promise<void> {
@@ -41,11 +42,21 @@ class Listener{
     });
   }
 
-  public async listenEmail(message: ConsumeMessage | null): Promise<void> {
+  public async listenVerificationEmail(message: ConsumeMessage | null): Promise<void> {
     return this.structure(message, async (msg) => {
-      const { email, token } = JSON.parse(msg.content.toString());
+      const { email, fullname, token, expiresAt } = JSON.parse(msg.content.toString());
       
-      await this.emailService.sendVerificationEmail(email, token);
+      await this.emailService.sendVerificationEmail(email, fullname, token, expiresAt);
+
+      this.channel.ack(msg);
+    });
+  }
+
+  public async listenResetPassword(message: ConsumeMessage | null): Promise<void> {
+    return this.structure(message, async (msg) => {
+      const { email, fullname, token, expiresAt } = JSON.parse(msg.content.toString());
+      
+      await this.emailService.sendResetPassword(email, fullname, token, expiresAt);
 
       this.channel.ack(msg);
     });
