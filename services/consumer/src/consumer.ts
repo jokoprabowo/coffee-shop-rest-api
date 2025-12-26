@@ -12,7 +12,7 @@ const init = async (): Promise<void> => {
     const channel = await connectRabbitMQ();
     const listener = new Listener(userService, cartService, emailService, channel);
 
-    const queues = ['checkout', 'email_verification'];
+    const queues = ['checkout', 'email_verification', 'password_reset'];
 
     for (const queue of queues) {
       await channel.assertQueue(queue, {
@@ -25,7 +25,10 @@ const init = async (): Promise<void> => {
             return listener.listenOrder(msg);
           
           case 'email_verification':
-            return listener.listenEmail(msg);
+            return listener.listenVerificationEmail(msg);
+
+          case 'password_reset':
+            return listener.listenResetPassword(msg);
           
           default:
             logger.warn('No handler for queue:', queue);
