@@ -16,6 +16,8 @@ class AuthController {
     this.token = token;
     this.register = this.register.bind(this);
     this.login = this.login.bind(this);
+    this.forgotPassword = this.forgotPassword.bind(this);
+    this.resetPassword = this.resetPassword.bind(this);
     this.verifyEmail = this.verifyEmail.bind(this);
     this.refreshToken = this.refreshToken.bind(this);
     this.logout = this.logout.bind(this);
