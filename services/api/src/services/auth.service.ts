@@ -56,6 +56,9 @@ class AuthService {
       expires_at: expiresAt,
     });
 
+    const date = new Date(expiresAt);
+    const UTCString = date.toUTCString();
+
     const user = await this.service.findById(userId);
     const email = user.email;
     const fullname = user.fullname;
@@ -63,7 +66,7 @@ class AuthService {
       email,
       fullname,
       token,
-      expiresAt,
+      expiresAt: UTCString,
     };
     await this.rabbitMQ.sendMessage(type, data);
     return token;
