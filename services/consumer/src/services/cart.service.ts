@@ -2,11 +2,7 @@ import { CartDTO, CartItemDTO } from '../dto/cart.dto';
 import { CartRepository } from '../repositories';
 
 class CartService {
-  private readonly repository: CartRepository;
-
-  constructor(repository: CartRepository) {
-    this.repository = repository;
-  }
+  constructor(private readonly repository: CartRepository) {}
 
   public async addToCart(cartId:number, coffeeId: number, quantity: number): Promise<CartItemDTO> {
     const cartItem = await this.repository.insertIntoCartItem(cartId, coffeeId, quantity);

@@ -1,11 +1,7 @@
 import { Pool } from 'pg';
 
 class OrderRepository {
-  private readonly database: Pool;
-
-  constructor(database: Pool) {
-    this.database = database;
-  }
+  constructor(private readonly database: Pool) {}
 
   public async deleteUnpaidOrder(): Promise<boolean> {
     const query = {

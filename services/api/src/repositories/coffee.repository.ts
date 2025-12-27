@@ -2,11 +2,7 @@ import { Pool } from 'pg';
 import { CoffeeDto } from '../dto';
 
 class CoffeeRepository {
-  private readonly database: Pool;
-
-  constructor(database: Pool) {
-    this.database = database;
-  }
+  constructor(private readonly database: Pool) {}
 
   public async create(data: CoffeeDto): Promise<CoffeeDto> {
     const {

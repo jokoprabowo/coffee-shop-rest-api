@@ -5,11 +5,7 @@ import { encryptInput } from '../utilities/encrypt';
 import config from '../config';
 
 class UserService {
-  private readonly repository: UserRepository;
-
-  constructor(repository: UserRepository) {
-    this.repository = repository;
-  }
+  constructor(private readonly repository: UserRepository) {}
 
   public async create(data: Omit<UserDto, 'id'>): Promise<UserDto> {
     if (data.role === 'admin' && !config.WHITELIST_ADMIN_EMAILS?.includes(data.email)){

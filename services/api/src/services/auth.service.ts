@@ -6,18 +6,14 @@ import { ClientError, NotFoundError } from '../exceptions';
 import { UserTokenRepository } from '../repositories';
 
 class AuthService {
-  private readonly service: UserService;
-  private readonly userTokenRepository: UserTokenRepository;
-  private readonly rabbitMQ:  typeof ProducerService;
-
-  constructor(service: UserService, userTokenRepository: UserTokenRepository, rabbitMQ: typeof ProducerService) {
-    this.service = service;
-    this.userTokenRepository = userTokenRepository;
-    this.rabbitMQ = rabbitMQ;
-  }
+  constructor(
+    private readonly service: UserService,
+    private readonly userTokenRepository: UserTokenRepository,
+    private readonly rabbitMQ:  typeof ProducerService,
+  ) {}
 
   public async register(data: Omit<UserDto, 'id'>): 
-  Promise<Omit<UserDto, 'password'> & Partial<Pick<UserDto, 'password'>>>{
+  Promise<Omit<UserDto, 'password'> & Partial<Pick<UserDto, 'password'>>> {
     const user = await this.service.create(data);
     return user;
   }

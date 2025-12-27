@@ -4,17 +4,12 @@ import { logger } from '@project/shared';
 import { CartItemDTO } from './dto/cart.dto';
 
 class Listener{
-  private readonly userService: UserService;
-  private readonly cartService: CartService;
-  private readonly emailService: EmailService;
-  private readonly channel: Channel;
-
-  constructor(userService: UserService, cartService: CartService, emailService: EmailService, channel: Channel) {
-    this.userService = userService;
-    this.cartService = cartService;
-    this.emailService = emailService;
-    this.channel = channel;
-
+  constructor(
+    private readonly userService: UserService,
+    private readonly cartService: CartService,
+    private readonly emailService: EmailService,
+    private readonly channel: Channel,
+  ) {
     this.listenOrder = this.listenOrder.bind(this);
     this.listenVerificationEmail = this.listenVerificationEmail.bind(this);
     this.listenResetPassword = this.listenResetPassword.bind(this);

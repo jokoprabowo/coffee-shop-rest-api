@@ -9,13 +9,11 @@ interface CoffeeResponse {
 }
 
 class CoffeeService {
-  private readonly repository: CoffeeRepository;
-  private readonly cache: CacheService;
 
-  constructor(repository: CoffeeRepository, cache: CacheService) {
-    this.repository = repository;
-    this.cache = cache;
-  }
+  constructor(
+    private readonly repository: CoffeeRepository,
+    private readonly cache: CacheService,
+  ) {}
 
   public async create(data: CoffeeDto): Promise<CoffeeDto> {
     const isExist = await this.repository.findByName(data.name);

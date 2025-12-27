@@ -4,17 +4,12 @@ import { NotFoundError } from '../exceptions';
 import { CartItemDTO, OrderDTO, OrderItemDTO } from '../dto';
 
 class OrderService {
-  private readonly repository: OrderRepository;
-  private readonly cartRepository: CartRepository;
-  private readonly cacheService: CacheService;
-  private readonly rabbitMQ:  typeof ProducerService;
-
-  constructor(repository: OrderRepository, cartRepository: CartRepository, cacheService: CacheService, rabbitMQ:  typeof ProducerService) {
-    this.repository = repository;
-    this.cartRepository = cartRepository;
-    this.cacheService = cacheService;
-    this.rabbitMQ = rabbitMQ;
-  }
+  constructor(
+    private readonly repository: OrderRepository,
+    private readonly cartRepository: CartRepository,
+    private readonly cacheService: CacheService,
+    private readonly rabbitMQ:  typeof ProducerService,
+  ) {}
 
   public async createOrder(userId: number): Promise<OrderDTO> {
     let cartItems: CartItemDTO[];

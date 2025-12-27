@@ -2,11 +2,7 @@ import { Pool } from 'pg';
 import { UserTokenDTO } from '../dto';
 
 class UserTokenRepository {
-  private readonly database: Pool;
-
-  constructor(database: Pool) {
-    this.database = database;
-  }
+  constructor(private readonly database: Pool) {}
 
   public async create(data: UserTokenDTO): Promise<UserTokenDTO> {
     const { user_id, token, type, expires_at } = data;

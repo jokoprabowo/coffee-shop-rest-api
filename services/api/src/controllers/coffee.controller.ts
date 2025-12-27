@@ -3,12 +3,10 @@ import { CoffeeService } from '../services';
 import CoffeeValidator from '../validators/coffee';
 
 class CoffeeController {
-  private readonly service: CoffeeService;
-  private readonly validator: typeof CoffeeValidator;
-
-  constructor(service: CoffeeService, validator: typeof CoffeeValidator) {
-    this.service = service;
-    this.validator = validator;
+  constructor(
+    private readonly service: CoffeeService,
+    private readonly validator: typeof CoffeeValidator,
+  ) {
     this.create = this.create.bind(this);
     this.getAll = this.getAll.bind(this);
     this.getById = this.getById.bind(this);

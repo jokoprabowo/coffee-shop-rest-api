@@ -2,11 +2,7 @@ import config, { mailer } from '../config';
 import { verificationEmailTemplate, passwordResetEmailTemplate } from '../templates';
 
 class EmailService {
-  private readonly mailer: typeof mailer;
-
-  constructor(emailClient: typeof mailer) {
-    this.mailer = emailClient;
-  }
+  constructor(private readonly email: typeof mailer) {}
 
   public async sendVerificationEmail(to: string, fullname: string, token: string, expiresAt: string): Promise<void> {
     const verificationLink = `http://localhost:3000/verify?token=${token}`;
@@ -19,7 +15,7 @@ class EmailService {
       html: verificationTemplate,
     };
 
-    await this.mailer.sendMail(mailOptions);
+    await this.email.sendMail(mailOptions);
   }
 
   public async sendResetPassword(to: string, fullname: string, token: string, expiresAt: string): Promise<void> {
@@ -33,7 +29,7 @@ class EmailService {
       html: resetPasswordTemplate,
     };
 
-    await this.mailer.sendMail(mailOptions);
+    await this.email.sendMail(mailOptions);
   }
 };
 

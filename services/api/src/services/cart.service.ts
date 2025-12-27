@@ -10,15 +10,11 @@ interface CartItemResponse {
 }
 
 class CartService {
-  private readonly repository: CartRepository;
-  private readonly coffeeRepository: CoffeeRepository;
-  private readonly cacheService: CacheService;
-
-  constructor(repository: CartRepository, cacheService: CacheService, coffeeRepository: CoffeeRepository) {
-    this.repository = repository;
-    this.cacheService = cacheService;
-    this.coffeeRepository = coffeeRepository;
-  }
+  constructor(
+    private readonly repository: CartRepository,
+    private readonly coffeeRepository: CoffeeRepository,
+    private readonly cacheService: CacheService,
+  ) {}
 
   public async addToCart(userId: number, coffeeId: number, quantity: number): Promise<CartItemDTO[]> {
     const coffee = await this.coffeeRepository.findOne(coffeeId);

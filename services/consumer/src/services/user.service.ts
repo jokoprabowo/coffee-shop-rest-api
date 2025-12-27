@@ -1,11 +1,7 @@
 import { UserRepository } from '../repositories';
 
 class UserService {
-  private readonly repository: UserRepository;
-
-  constructor(repository: UserRepository) {
-    this.repository = repository;
-  }
+  constructor(private readonly repository: UserRepository) {}
 
   public async isUserExist(id: number): Promise<boolean> {
     const user = await this.repository.isUserExist(id);

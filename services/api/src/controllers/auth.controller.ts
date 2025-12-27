@@ -6,14 +6,11 @@ import { generateAccessToken } from '../utilities/token';
 import config from '../config';
 
 class AuthController {
-  private readonly service: AuthService;
-  private readonly token: RefreshTokenService;
-  private readonly validator: typeof AuthenticateValidator;
-
-  constructor(service: AuthService, token: RefreshTokenService, validator: typeof AuthenticateValidator) {
-    this.service = service;
-    this.validator = validator;
-    this.token = token;
+  constructor(
+    private readonly service: AuthService,
+    private readonly token: RefreshTokenService,
+    private readonly validator: typeof AuthenticateValidator,
+  ) {
     this.register = this.register.bind(this);
     this.login = this.login.bind(this);
     this.forgotPassword = this.forgotPassword.bind(this);

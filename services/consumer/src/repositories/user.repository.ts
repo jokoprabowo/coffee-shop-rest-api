@@ -1,11 +1,7 @@
 import { Pool } from 'pg';
 
 class UserRepository {
-  private readonly database: Pool;
-
-  constructor(database: Pool) {
-    this.database = database;
-  }
+  constructor(private readonly database: Pool) {}
 
   public async isUserExist(id: number): Promise<boolean> {
     const query = {
