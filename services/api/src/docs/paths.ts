@@ -35,7 +35,7 @@ export const paths = {
         },
       },
       responses: {
-        201: pathResponse( 'Successfully register new user account', 'CREATED', 'User successfully created!',
+        201: pathResponse( 'Successfully register new user account', 'CREATED', 'Account successfully created! Please verify your email to activate your account.',
           { user: { $ref: '#/components/schemas/User model' } },
         ),
         400: pathResponse( 'Invalid register input', 'BAD_REQUEST', 'Invalid input!' ),
@@ -63,6 +63,7 @@ export const paths = {
             accessToken: { type: 'string', example: 'eqwkhbu283igsiug921giwge19whve2y1.hjdgas71fuawsyfd1' },
           }),
         400: pathResponse( 'Invalid login input', 'BAD-REQUEST', 'Invalid input!' ),
+        403: pathResponse( 'Email not verified', 'FORBIDDEN', 'Email is not verified! A new verification email has been sent to your email address.' ),
         404: pathResponse( 'User not found', 'NOT_FOUND', 'User not found!' ),
       },
     },
@@ -93,6 +94,70 @@ export const paths = {
         400: pathResponse( 'Invalid refresh token', 'BAD_REQUEST', 'Invalid refresh token!' ),
         403: pathResponse( 'Reuse revoked refresh token', 'FORBIDDEN', 'Refresh token has been revoked. Please login again!' ),
       },
+    },
+  },
+  'api/v1/auth/verify': {
+    post: {
+      tags: ['Auth'],
+      summary: 'Verify user account',
+      parameters: [{
+        name: 'token', in: 'query', required: true, description: 'Verification token',
+        schema: { type: 'string', example: '4c5c5eebc4cc7bef1bd22ebb64c6a8297381523ebd9c3ec2c556d64899c82649' },
+      }],
+      responses: {
+        200: pathResponse('Successfully verify user account', 'OK', 'Email successfully verified!'),
+        400: pathResponse('Invalid or expired verification token', 'BAD_REQUEST', 'Invalid or expired token'),
+      },
+    },
+  },
+  '/api/v1/auth/forgot-password': {
+    post: {
+      tags: ['Auth'],
+      summary: 'Request password reset',
+      requestBody: {
+        required: true,
+        content: {
+          'application/jsom': {
+            schema: {
+              type: 'object',
+              properties: {
+                email: { type: 'string', example: 'example@email.com' }, 
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: pathResponse('Successfully request password reset', 'OK', 'Password reset link sent to your email!'),
+        404: pathResponse('User not found', 'NOT_FOUND', 'User not found!'),
+      },
+    },
+  },
+  '/api/v1/auth/reset-password': {
+    post: {
+      tags: ['Auth'],
+      summary: 'Reset user password',
+      parameters: [{
+        name: 'token', in: 'query', required: true, description: 'Password reset token',
+        schema: { type: 'string', example: '4c5c5eebc4cc7bef1bd22ebb64c6a8297381523ebd9c3ec2c556d64899c82649' },
+      }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/jsom': {
+            schema: {
+              type: 'object',
+              properties: {
+                newPassword: { type: 'string', example: 'Example!pass123' }, 
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: pathResponse('Successfully reset user password', 'OK', 'Password successfully reset!'),
+        400: pathResponse('Invalid or expired verification token', 'BAD_REQUEST', 'Invalid or expired token'),
+      }
     },
   },
   '/api/v1/auth/logout': {
