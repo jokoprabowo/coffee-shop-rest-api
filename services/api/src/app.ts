@@ -7,8 +7,8 @@ import compression from 'compression';
 import helmet from 'helmet';
 
 import { logInfo } from './config/logger';
-import { corsOptions } from './config/corsOptions';
-import { errorHandler } from './middlewares/errorHandler';
+import { corsOptions } from './config/cors-options';
+import { errorHandler } from './middlewares/error-handler.middleware';
 import { swaggerOptions } from './docs/swagger';
 import v1Routes from './routes/v1';
 

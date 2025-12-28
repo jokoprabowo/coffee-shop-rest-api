@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { pool } from '@project/shared';
-import AuthMiddleware from '../../middlewares/AuthMiddleware';
+import AuthMiddleware from '../../middlewares/auth.middleware';
 import { UserRepository, CartRepository, OrderRepository } from '../../repositories';
 import { UserService, OrderService, CacheService, ProducerService } from '../../services';
 import { OrderController } from '../../controllers';

@@ -3,7 +3,7 @@ import { pool } from '@project/shared';
 import { UserController } from '../../controllers';
 import { UserService } from '../../services';
 import { UserRepository } from '../../repositories';
-import AuthMiddleware from '../../middlewares/AuthMiddleware';
+import AuthMiddleware from '../../middlewares/auth.middleware';
 import UserValidator from '../../validators/user';
 
 const repository = new UserRepository(pool);

@@ -4,7 +4,7 @@ import { CoffeeRepository, UserRepository } from '../../repositories';
 import { CoffeeService, UserService, CacheService } from '../../services';
 import CoffeeValidator from '../../validators/coffee';
 import { CoffeeController } from '../../controllers';
-import AuthMiddleware from '../../middlewares/AuthMiddleware';
+import AuthMiddleware from '../../middlewares/auth.middleware';
 
 const repository = new CoffeeRepository(pool);
 const service = new CoffeeService(repository, new CacheService());

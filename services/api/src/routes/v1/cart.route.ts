@@ -3,7 +3,7 @@ import { pool } from '@project/shared';
 import { CartRepository, UserRepository, CoffeeRepository } from '../../repositories';
 import { CartService, UserService, CacheService } from '../../services';
 import { CartController } from '../../controllers';
-import AuthMiddleware from '../../middlewares/AuthMiddleware';
+import AuthMiddleware from '../../middlewares/auth.middleware';
 
 const router = express.Router();
 
