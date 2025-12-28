@@ -1,6 +1,6 @@
 import { RefreshTokenRepository } from '../repositories';
 import { encryptInput, checkInput } from '../utilities/encrypt';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { NotFoundError, ClientError } from '../exceptions';
 import { RefreshTokenDTO } from '../dto';
 
