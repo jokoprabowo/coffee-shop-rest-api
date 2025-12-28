@@ -127,4 +127,14 @@ export const schemas = {
       total_price: { type: 'integer', description: 'Total price of the ordered coffees', example: 12000 },
     },
   },
+  'User token model': {
+    type: 'object',
+    properties: {
+      user_id: {  type: 'integer', description: 'Id of the user', example: 1 },
+      type: { type: 'string', description: 'Type of the token', example: 'password_reset' },
+      token: { type: 'string', description: 'The token string', example: '4c5c5eebc4cc7bef1bd22ebb64c6a8297381523ebd9c3ec2c556d64899c82649' },
+      expires_at: { type: 'string', format: 'date-time', description: 'Expiration date of the refresh token', example: '2025-01-28T16:27:58Z' },
+      used_at: { type: 'string', format: 'date-time', description: 'Date when the token was used', example: '2025-01-28T16:27:58Z' },
+    }
+  }
 };
