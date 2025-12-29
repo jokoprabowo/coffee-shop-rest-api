@@ -36,7 +36,7 @@ describe('Cart service', () => {
       findOne: jest.fn(),
     } as unknown as jest.Mocked<CoffeeRepository>;
 
-    service = new CartService(mockRepo, mockCache, mockCoffeeRepo);
+    service = new CartService(mockRepo, mockCoffeeRepo, mockCache);
   });
 
   describe('Create cart', () => {
