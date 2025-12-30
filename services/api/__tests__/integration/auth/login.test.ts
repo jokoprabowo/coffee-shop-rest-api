@@ -14,6 +14,8 @@ describe('Login endpoint.', () => {
         address: 'Test street, Example, 00000'
       });
 
+    await pool.query('update users set is_verified = true where id = $1', [userId]);
+
     userId = res.body.data.user.id;
   });
 
@@ -43,6 +45,19 @@ describe('Login endpoint.', () => {
 
     expect(response.statusCode).toBe(400);
     expect(response.body.status).toBe('BAD_REQUEST');
+  });
+
+  it('Should return a 403 status code if user email in not verified', async () => {
+    await pool.query('update users set is_verified = false where id = $1 returning id', [userId]);
+
+    const response = await request(app).post('/api/v1/auth/login')
+      .send({
+        email: 'testexample@gmail.com',
+        password: 'Example!test123'
+      });
+    
+    expect(response.statusCode).toBe(403);
+    expect(response.body.status).toBe('FORBIDDEN');
   });
 
   it('Should return a 404 status code if a user account with the provided email is not found.', async () => {
