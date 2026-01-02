@@ -10,6 +10,7 @@ import { logInfo } from './config/logger';
 import { corsOptions } from './config/cors-options';
 import { errorHandler } from './middlewares/error-handler.middleware';
 import { swaggerOptions } from './docs/swagger';
+import { rateLimiter } from './middlewares/rate-limiter';
 import v1Routes from './routes/v1';
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(cors(corsOptions));
 app.use(logInfo);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(rateLimiter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/v1', v1Routes);
