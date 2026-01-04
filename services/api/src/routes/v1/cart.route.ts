@@ -13,7 +13,7 @@ const coffeeRepository = new CoffeeRepository(pool);
 
 const cacheService = new CacheService();
 const userService = new UserService(userRepository);
-const cartService = new CartService(cartRepository, cacheService, coffeeRepository);
+const cartService = new CartService(cartRepository, coffeeRepository, cacheService);
 
 const cartController = new CartController(cartService);
 const middleware = new AuthMiddleware(userService);
