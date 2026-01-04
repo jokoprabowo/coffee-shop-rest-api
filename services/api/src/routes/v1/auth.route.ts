@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { pool } from '@project/shared';
 import { rateLimiter } from '../../middlewares/rate-limiter';
+import { withRateLimiter } from '../../utilities/with-rate-limiter';
 import { AuthController } from '../../controllers';
 import { AuthService, UserService, RefreshTokenService, ProducerService } from '../../services';
 import { UserRepository, RefreshTokenRepository, UserTokenRepository } from '../../repositories';
@@ -17,10 +18,10 @@ const refreshTokenService = new RefreshTokenService(refreshTokenRepository);
 const authController = new AuthController(authService, refreshTokenService, AuthenticateValidator);
 const router = Router();
 
-router.post('/login', rateLimiter(5), authController.login);
-router.post('/register', rateLimiter(5), authController.register);
+router.post('/login', withRateLimiter(() => rateLimiter(5)), authController.login);
+router.post('/register', withRateLimiter(() => rateLimiter(5)), authController.register);
 router.get('/verify', authController.verifyEmail);
-router.post('/forgot-password', rateLimiter(5), authController.forgotPassword);
+router.post('/forgot-password', withRateLimiter(() => rateLimiter(5)), authController.forgotPassword);
 router.post('/refresh-token', authController.refreshToken);
 router.put('/reset-password', authController.resetPassword);
 router.delete('/logout', authController.logout);
