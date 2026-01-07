@@ -3,13 +3,13 @@ import { UserTokenRepository } from '../../src/repositories';
 import { checkInput } from '../../src/utilities/encrypt';
 import { ClientError } from '../../src/exceptions';
 import bcrypt from 'bcrypt';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 jest.mock('bcrypt');
 jest.mock('../../src/utilities/encrypt', () => ({
   checkInput: jest.fn(),
 }));
-jest.mock('crypto');
+jest.mock('node:crypto');
 
 describe('Auth Service', () => {
   let userTokenRepository: jest.Mocked<UserTokenRepository>;
@@ -24,7 +24,7 @@ describe('Auth Service', () => {
 
   const mockUserToken = {
     user_id: 1,
-    token: 'hashedTokenValue',
+    token: 'hashedSampleToken',
     type: 'PASSWORD_RESET',
     expires_at: expect.any(String),
   };
@@ -33,6 +33,8 @@ describe('Auth Service', () => {
     userService = {
       create: jest.fn(),
       findOne: jest.fn(),
+      findById: jest.fn(),
+      update: jest.fn(),
     } as unknown as jest.Mocked<UserService>;
 
     userTokenRepository = {
@@ -50,13 +52,15 @@ describe('Auth Service', () => {
     (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPass');
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-    jest
-      .spyOn(authService, 'verifyToken')
-      .mockResolvedValue({ user_id: 1, token: 'sampleToken', type: 'PASSWORD_RESET', expires_at: new Date().toISOString() });
+    (crypto.randomBytes as jest.Mock).mockReturnValue({ toString: jest.fn().mockReturnValue('randomTokenValue') });
+    (crypto.createHash as jest.Mock).mockReturnValue({
+      update: jest.fn().mockReturnThis(), digest: jest.fn().mockReturnValue('hashedSampleToken')
+    });
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('Register', () => {
@@ -132,10 +136,6 @@ describe('Auth Service', () => {
   describe('Create User Token', () => {
     it('Should create user token and send message successfully', async () => {
       userService.findById.mockResolvedValue(mockUser);
-      
-      (crypto.randomBytes as jest.Mock).mockReturnValue({ toString: jest.fn().mockReturnValue('randomTokenValue') });
-      (crypto.randomBytes as jest.Mock).mockReturnValue({
-        update: jest.fn().mockReturnThis(), digest: jest.fn().mockReturnValue('hashedTokenValue') });
 
       const result = await authService.createUserToken(1, 'PASSWORD_RESET');
 
@@ -150,7 +150,7 @@ describe('Auth Service', () => {
           email: mockUser.email,
           fullname: mockUser.fullname,
           token: 'randomTokenValue',
-          expires_at: expect.any(String),
+          expiresAt: expect.any(String),
         })
       );
     });
@@ -158,6 +158,10 @@ describe('Auth Service', () => {
 
   describe('Reset Password', () => {
     it('Should reset password successfully', async () => {
+      jest
+        .spyOn(authService, 'verifyToken')
+        .mockResolvedValue({ user_id: 1, token: 'hashedSampleToken', type: 'PASSWORD_RESET', expires_at: new Date().toISOString() });
+
       await authService.resetPassword('sampleToken', 'newPassword!123');
 
       expect(authService.verifyToken).toHaveBeenCalledWith('sampleToken');
@@ -167,11 +171,8 @@ describe('Auth Service', () => {
 
   describe('Verify Token', () => {
     it('Should return user token data if token is valid', async () => {
-      (crypto.createHash as jest.Mock).mockReturnValue({
-        update: jest.fn().mockReturnThis(), digest: jest.fn().mockReturnValue('hashedSampleToken')
-      });
-
       userTokenRepository.findByToken.mockResolvedValue(mockUserToken);
+
 
       const result = await authService.verifyToken('sampleToken');
 
@@ -180,13 +181,9 @@ describe('Auth Service', () => {
     });
 
     it('Should throw ClientError if token is invalid', async () => {
-      (crypto.createHash as jest.Mock).mockReturnValue({
-        update: jest.fn().mockReturnThis(), digest: jest.fn().mockReturnValue('hashedSampleToken')
-      });
-
       userTokenRepository.findByToken.mockResolvedValue(null);
       await expect(
-        authService.verifyToken('sampleToken')
+        authService.verifyToken('invalidToken')
       ).rejects.toThrow(new ClientError('Invalid or expired token'));
     });
   });
