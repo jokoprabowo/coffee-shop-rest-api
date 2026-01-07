@@ -54,7 +54,7 @@ describe('Order service', () => {
       expect(mockCartRepo.isCartExist).toHaveBeenCalledWith(1);
       expect(mockCartRepo.getCartItems).toHaveBeenCalledWith(1);
       expect(mockCache.del).toHaveBeenCalledWith('cart:1');
-      expect(mockMQ.sendMessage).toHaveBeenCalledWith('checkout:1', [mockCartItem]);
+      expect(mockMQ.sendMessage).toHaveBeenCalledWith('checkout', { cartItems: [mockCartItem], userId: 1 });
       expect(mockOrderRepo.createOrder).toHaveBeenCalledWith(1,1);
       expect(result).toBe(mockOrder);
     });
@@ -68,7 +68,7 @@ describe('Order service', () => {
 
       expect(mockCache.get).toHaveBeenCalledWith('cart:1');
       expect(mockCache.del).toHaveBeenCalledWith('cart:1');
-      expect(mockMQ.sendMessage).toHaveBeenCalledWith('checkout:1', [mockCartItem]);
+      expect(mockMQ.sendMessage).toHaveBeenCalledWith('checkout', { cartItems: [mockCartItem], userId: 1 });
       expect(mockOrderRepo.createOrder).toHaveBeenCalledWith(1,1);
       expect(result).toBe(mockOrder);
       mockParse.mockRestore();
