@@ -1,27 +1,15 @@
 import request from 'supertest';
 import app from '../../../src/app';
 import { pool } from '@project/shared';
+import { generateAccessToken } from '../../../src/utilities/token';
 
 describe('Get all coffees endpoint', () => {
   let userId: number;
   let token: string;
 
   beforeAll(async () => {
-    const res = await request(app).post('/api/v1/auth/register')
-      .send({
-        email: 'testExample@gmail.com',
-        password: 'Example!test123',
-        fullname: 'Test Example',
-        phone: '081234567890',
-        address: 'Test street, Example, 00000',
-      });
-
-    userId = res.body.data.user.id;
-    token = res.body.data.accessToken;
-  });
-
-  afterAll(async () => {
-    await pool.query('delete from users where id = $1', [userId]);
+    userId = await pool.query('select id from users where email = $1', ['testexample@mail.com']).then(res => res.rows[0].id);
+    token = generateAccessToken(userId);
   });
 
   it('Should return a 200 status code and list of coffees', async () => {
@@ -37,6 +25,6 @@ describe('Get all coffees endpoint', () => {
     const response = await request(app).get('/api/v1/coffees');
 
     expect(response.statusCode).toBe(401);
-    expect(response.body.status).toBe('UNAUTHENTICATED');
+    expect(response.body.status).toBe('UNAUTHORIZED');
   });
 });

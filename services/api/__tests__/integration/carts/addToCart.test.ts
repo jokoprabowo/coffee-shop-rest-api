@@ -1,6 +1,7 @@
 import request from 'supertest';
 import app from '../../../src/app';
 import { pool } from '@project/shared';
+import { generateAccessToken } from '../../../src/utilities/token';
 
 describe('Add to cart endpoint.', () => {
   let userId: number;
@@ -11,21 +12,8 @@ describe('Add to cart endpoint.', () => {
   };
 
   beforeAll(async () => {
-    const res = await request(app).post('/api/v1/auth/register')
-      .send({
-        email: 'testexample@gmail.com',
-        password: 'Example!test123',
-        fullname: 'Test Example',
-        phone: '081234567890',
-        address: 'Test street, Example, 00000'
-      });
-
-    userId = res.body.data.user.id;
-    token = res.body.data.accessToken;
-  });
-
-  afterAll(async () => {
-    await pool.query('delete from users where id = $1', [userId]);
+    userId = await pool.query('select id from users where email = $1', ['testexample@mail.com']).then(res => res.rows[0].id);
+    token = generateAccessToken(userId);
   });
 
   it('Should return a 201 status code and list of cart item.', async () => {
@@ -43,6 +31,6 @@ describe('Add to cart endpoint.', () => {
       .send(mockCartItem);
 
     expect(response.statusCode).toBe(401);
-    expect(response.body.status).toBe('UNAUTHENTICATED');
+    expect(response.body.status).toBe('UNAUTHORIZED');
   });
 });

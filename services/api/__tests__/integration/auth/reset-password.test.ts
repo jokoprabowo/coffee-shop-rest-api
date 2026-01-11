@@ -6,22 +6,17 @@ describe('Reset password endpoint', () => {
   let userId: number;
   let resetToken: string;
   beforeAll(async () => {
-    const res = await request(app).post('/api/v1/auth/register')
+    const res = await request(app).post('/api/v1/auth/login')
       .send({
-        email: 'testexample@gmail.com',
+        email: 'testexample@mail.com',
         password: 'Example!test123',
-        fullname: 'Test Example',
-        phone: '081234567890',
-        address: 'Test street, Example, 00000'
       });
-
-    await pool.query('update users set is_verified = true where id = $1', [userId]);
 
     userId = res.body.data.user.id;
 
     const response = await request(app).post('/api/v1/auth/forgot-password')
       .send({
-        email: 'testexample@gmail.com',
+        email: 'testexample@mail.com',
       });
 
     resetToken = response.body.data.resetToken;
@@ -32,9 +27,9 @@ describe('Reset password endpoint', () => {
   });
 
   it('Should return 200 status code and reset the password', async () => {
-    const response = await request(app).post(`/api/v1/auth/reset-password?token=${resetToken}`)
+    const response = await request(app).put(`/api/v1/auth/reset-password?token=${resetToken}`)
       .send({
-        newPassword: 'NewExample!test123',
+        newPassword: 'Example!test123',
       });
     
     expect(response.statusCode).toBe(200);
@@ -43,9 +38,9 @@ describe('Reset password endpoint', () => {
   });
 
   it('Should return 400 status code for invalid token', async () => {
-    const response = await request(app).post('/api/v1/auth/reset-password?token=invalidToken')
+    const response = await request(app).put('/api/v1/auth/reset-password?token=invalidToken')
       .send({
-        newPassword: 'NewExample!test123',
+        newPassword: 'Example!test123',
       });
 
     expect(response.statusCode).toBe(400);

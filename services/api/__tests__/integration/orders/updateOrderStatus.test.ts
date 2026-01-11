@@ -1,42 +1,33 @@
 import request from 'supertest';
 import app from '../../../src/app';
 import { pool } from '@project/shared';
+import { generateAccessToken } from '../../../src/utilities/token';
 
 describe('Update order status endpoint.', () => {
   let userId: number;
-  let token: string;
+  let userToken: string;
+  let cartId: number;
   let orderId: number;
 
   beforeAll(async () => {
-    const res = await request(app).post('/api/v1/auth/register')
-      .send({
-        email: 'testexample@gmail.com',
-        password: 'Example!test123',
-        fullname: 'Test Example',
-        phone: '081234567890',
-        address: 'Test street, Example, 00000'
-      });
+    userId = await pool.query('select id from users where email = $1', ['testexample@mail.com'])
+      .then(res => res.rows[0].id);
+    userToken = generateAccessToken(userId);
 
-    token = res.body.data.accessToken;
-    userId = res.body.data.user.id;
-
-    await request(app).post('/api/v1/carts')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ coffeeId: 1, quantity: 1, });
-
-    const order = await request(app).post('/api/v1/orders')
-      .set('Authorization', `Bearer ${token}`);
-
-    orderId = order.body.data.order.id;
+    cartId = await pool.query('insert into carts (user_id) values ($1) returning id', [userId]).then(res => res.rows[0].id);
+    await pool.query('insert into cart_items (cart_id, coffee_id, quantity) values ($1, $2, $3) returning id', [cartId, 1, 1]);
+    orderId = await pool.query('insert into orders (user_id, total) values ($1, $2) returning id', [userId, 1])
+      .then(res => res.rows[0].id);
   });
 
   afterAll(async () => {
-    await pool.query('delete from users where id = $1', [userId]);
+    await pool.query('delete from carts where id = $1', [cartId]);
+    await pool.query('delete from orders where id = $1', [orderId]);
   });
 
   it('Should return a 200 status code if order status successfully updated.', async () => {
     const response = await request(app).put(`/api/v1/orders/${orderId}`)
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${userToken}`)
       .send({ status: 'paid' });
 
     expect(response.statusCode).toBe(200);
@@ -48,12 +39,12 @@ describe('Update order status endpoint.', () => {
       .send({ status: 'paid' });
 
     expect(response.statusCode).toBe(401);
-    expect(response.body.status).toBe('UNAUTHENTICATED');
+    expect(response.body.status).toBe('UNAUTHORIZED');
   });
 
   it('Should return a 404 status code if the cart with provided id is not exist.', async () => {
     const response = await request(app).put('/api/v1/orders/-1')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${userToken}`)
       .send({ status: 'paid' });
 
     expect(response.statusCode).toBe(404);

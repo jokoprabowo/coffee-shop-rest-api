@@ -1,22 +1,20 @@
 import request from 'supertest';
 import app from '../../../src/app';
 import { pool } from '@project/shared';
+import { encryptInput } from '../../../src/utilities/encrypt';
 
 describe('Login endpoint.', () => {
   let userId: number;
   beforeAll(async () => {
-    const res = await request(app).post('/api/v1/auth/register')
-      .send({
-        email: 'testexample@gmail.com',
-        password: 'Example!test123',
-        fullname: 'Test Example',
-        phone: '081234567890',
-        address: 'Test street, Example, 00000'
-      });
-
-    await pool.query('update users set is_verified = true where id = $1', [userId]);
-
-    userId = res.body.data.user.id;
+    userId = await pool.query('insert into users (email, password, fullname, phone, address, is_verified)' +
+      ' values ($1, $2, $3, $4, $5, $6) returning id', [
+      'testuserexample@mail.com',
+      await encryptInput('Example!test123'),
+      'Test Example',
+      '081234567890',
+      'Test street, Example, 00000',
+      false,
+    ]).then(res => res.rows[0].id);
   });
 
   afterAll(async () => {
@@ -26,7 +24,7 @@ describe('Login endpoint.', () => {
   it('Should return a 200 status code, user and and accees token if user login successfully.', async () => {
     const response = await request(app).post('/api/v1/auth/login')
       .send({
-        email: 'testexample@gmail.com',
+        email: 'testexample@mail.com',
         password: 'Example!test123'
       });
 
@@ -39,7 +37,7 @@ describe('Login endpoint.', () => {
   it('Should return a 400 status code if provided password is invalid.', async () => {
     const response = await request(app).post('/api/v1/auth/login')
       .send({
-        email: 'testexample@gmail.com',
+        email: 'testexample@mail.com',
         password: 'Example!test12345'
       });
 
@@ -48,11 +46,9 @@ describe('Login endpoint.', () => {
   });
 
   it('Should return a 403 status code if user email in not verified', async () => {
-    await pool.query('update users set is_verified = false where id = $1 returning id', [userId]);
-
     const response = await request(app).post('/api/v1/auth/login')
       .send({
-        email: 'testexample@gmail.com',
+        email: 'testuserexample@mail.com',
         password: 'Example!test123'
       });
     
@@ -63,7 +59,7 @@ describe('Login endpoint.', () => {
   it('Should return a 404 status code if a user account with the provided email is not found.', async () => {
     const response = await request(app).post('/api/v1/auth/login')
       .send({
-        email: 'example@gmail.com',
+        email: 'example@mail.com',
         password: 'Example!test123'
       });
 

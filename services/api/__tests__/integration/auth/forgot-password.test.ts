@@ -41,7 +41,7 @@ describe('Forgot password endpoint', () => {
       });
 
     expect(response.statusCode).toBe(404);
-    expect(response.body.status).toBe('NOT FOUND');
+    expect(response.body.status).toBe('NOT_FOUND');
     expect(response.body.message).toBe('User not found!');
   });
 });
