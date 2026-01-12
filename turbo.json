@@ -18,11 +18,19 @@
       "cache": false,
       "persistent": true
     },
-    "migrate:up": {
+    "migrate:up:dev": {
       "cache": false,
       "env": ["DATABASE_URL"]
     },
-    "migrate:down": {
+    "migrate:down:dev": {
+      "cache": false,
+      "env": ["DATABASE_URL"]
+    },
+    "migrate:up:test": {
+      "cache": false,
+      "env": ["DATABASE_URL"]
+    },
+    "migrate:down:test": {
       "cache": false,
       "env": ["DATABASE_URL"]
     }
