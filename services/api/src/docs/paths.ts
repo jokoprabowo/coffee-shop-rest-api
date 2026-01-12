@@ -29,7 +29,7 @@ export const paths = {
       requestBody: {
         required: true,
         content: {
-          'application/jsom': {
+          'application/json': {
             schema: { $ref: '#/components/schemas/User registration request' },
           },
         },
@@ -51,7 +51,7 @@ export const paths = {
       requestBody: {
         required: true,
         content: {
-          'application/jsom': {
+          'application/json': {
             schema: { $ref: '#/components/schemas/User login request' },
           },
         },
@@ -76,7 +76,7 @@ export const paths = {
       requestBody: {
         required: false,
         content: {
-          'application/jsom': {
+          'application/json': {
             schema: {
               type: 'object',
               properties: {
@@ -96,8 +96,8 @@ export const paths = {
       },
     },
   },
-  'api/v1/auth/verify': {
-    post: {
+  '/api/v1/auth/verify': {
+    get: {
       tags: ['Auth'],
       summary: 'Verify user account',
       parameters: [{
@@ -117,7 +117,7 @@ export const paths = {
       requestBody: {
         required: true,
         content: {
-          'application/jsom': {
+          'application/json': {
             schema: {
               type: 'object',
               properties: {
@@ -134,7 +134,7 @@ export const paths = {
     },
   },
   '/api/v1/auth/reset-password': {
-    post: {
+    put: {
       tags: ['Auth'],
       summary: 'Reset user password',
       parameters: [{
@@ -144,7 +144,7 @@ export const paths = {
       requestBody: {
         required: true,
         content: {
-          'application/jsom': {
+          'application/json': {
             schema: {
               type: 'object',
               properties: {
@@ -207,7 +207,7 @@ export const paths = {
       requestBody: {
         required: true,
         content: {
-          'application/jsom': {
+          'application/json': {
             schema: { $ref: '#/components/schemas/User update request' },
           },
         },
