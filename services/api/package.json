@@ -3,14 +3,18 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest --detectOpenHandles --forceExit",
+    "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles --forceExit",
     "build": "tsc -p tsconfig.json",
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "dev": "cross-env NODE_ENV=development nodemon",
     "start:docker": "cross-env NODE_ENV=production npm run migrate:up && node dist/server.js",
     "migrate": "node-pg-migrate -j ts",
-    "migrate:up": "npx dotenv -e ../../.env.development -- npx node-pg-migrate up",
-    "migrate:down": "npx dotenv -e ../../.env.development -- npx node-pg-migrate down 9"
+    "migrate:up": "cross-env NODE_ENV=production npx node-pg-migrate up",
+    "migrate:down": "cross-env NODE_ENV=production npx node-pg-migrate down 9",
+    "migrate:up:dev": "npx dotenv -e ../../.env.development -- npx node-pg-migrate up",
+    "migrate:down:dev": "npx dotenv -e ../../.env.development -- npx node-pg-migrate down 9",
+    "migrate:up:test": "npx dotenv -e ../../.env.test -- npx node-pg-migrate up",
+    "migrate:down:test": "npx dotenv -e ../../.env.test -- npx node-pg-migrate down 9"
   },
   "keywords": [
     "node",
