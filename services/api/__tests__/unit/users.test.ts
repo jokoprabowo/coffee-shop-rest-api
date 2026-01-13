@@ -1,9 +1,9 @@
 import { UserRepository } from '../../src/repositories';
 import { UserService } from '../../src/services';
-import { encryptInput } from '../../src/utilities/encrypt';
+import { encryptInput } from '@project/shared';
 import { AuthorizationError, ConflictError, NotFoundError } from '../../src/exceptions';
 
-jest.mock('../../src/utilities/encrypt', () => ({
+jest.mock('@project/shared', () => ({
   encryptInput: jest.fn(),
 }));
 describe('User service', () => {

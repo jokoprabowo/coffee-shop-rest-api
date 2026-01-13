@@ -1,5 +1,5 @@
 import { RefreshTokenRepository } from '../repositories';
-import { encryptInput, checkInput } from '../utilities/encrypt';
+import { encryptInput, checkInput } from '@project/shared';
 import crypto from 'node:crypto';
 import { NotFoundError, ClientError } from '../exceptions';
 import { RefreshTokenDTO } from '../dto';

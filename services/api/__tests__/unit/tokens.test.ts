@@ -2,9 +2,9 @@ import crypto from 'node:crypto';
 import { ClientError, NotFoundError } from '../../src/exceptions';
 import { RefreshTokenRepository } from '../../src/repositories';
 import { RefreshTokenService } from '../../src/services';
-import { encryptInput, checkInput } from '../../src/utilities/encrypt';
+import { encryptInput, checkInput } from '@project/shared';
 
-jest.mock('../../src/utilities/encrypt', () => ({
+jest.mock('@project/shared', () => ({
   encryptInput: jest.fn(),
   checkInput: jest.fn(),
 }));

@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { UserDto, LoginUserDto, UserTokenDTO } from '../dto';
 import { UserService, ProducerService } from './';
-import { checkInput } from '../utilities/encrypt';
+import { checkInput } from '@project/shared';
 import { ClientError, NotFoundError } from '../exceptions';
 import { UserTokenRepository } from '../repositories';
 

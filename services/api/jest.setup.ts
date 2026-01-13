@@ -1,5 +1,4 @@
-import { redis, pool } from '@project/shared';
-import { encryptInput } from './src/utilities/encrypt';
+import { redis, pool, encryptInput } from '@project/shared';
 
 jest.setTimeout(30000);
 let adminId: number;

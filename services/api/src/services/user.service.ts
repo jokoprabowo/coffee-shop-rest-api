@@ -1,7 +1,7 @@
 import { UserRepository } from '../repositories';
 import { UserDto } from '../dto';
 import { AuthorizationError, ConflictError, NotFoundError } from '../exceptions';
-import { encryptInput } from '../utilities/encrypt';
+import { encryptInput } from '@project/shared';
 import config from '../config';
 
 class UserService {

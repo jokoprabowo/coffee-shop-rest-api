@@ -1,7 +1,7 @@
 import request from 'supertest';
 import app from '../../../src/app';
 import { pool } from '@project/shared';
-import { encryptInput } from '../../../src/utilities/encrypt';
+import { encryptInput } from '@project/shared';
 
 describe('Login endpoint.', () => {
   let userId: number;

@@ -1,12 +1,12 @@
 import { AuthService, UserService, ProducerService } from '../../src/services';
 import { UserTokenRepository } from '../../src/repositories';
-import { checkInput } from '../../src/utilities/encrypt';
+import { checkInput } from '@project/shared';
 import { ClientError } from '../../src/exceptions';
 import bcrypt from 'bcrypt';
 import crypto from 'node:crypto';
 
 jest.mock('bcrypt');
-jest.mock('../../src/utilities/encrypt', () => ({
+jest.mock('@project/shared', () => ({
   checkInput: jest.fn(),
 }));
 jest.mock('node:crypto');
