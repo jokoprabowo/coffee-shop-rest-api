@@ -22,6 +22,10 @@ describe('Cart Service', () => {
     cartService = new CartService(mockRepository);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('addToCart', () => {
     it('should add item to cart',  async () => {
       mockRepository.insertIntoCartItem.mockResolvedValue(mockCartItem);
