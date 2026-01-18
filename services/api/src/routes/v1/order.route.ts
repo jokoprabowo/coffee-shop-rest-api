@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { pool } from '@project/shared';
+import { pool, redis } from '@project/shared';
 import AuthMiddleware from '../../middlewares/auth.middleware';
 import { UserRepository, CartRepository, OrderRepository } from '../../repositories';
 import { UserService, OrderService, CacheService, ProducerService } from '../../services';
@@ -9,7 +9,7 @@ const userRepository = new UserRepository(pool);
 const cartRepository = new CartRepository(pool);
 const orderRepository = new OrderRepository(pool);
 
-const cacheService = new CacheService();
+const cacheService = new CacheService(redis);
 const userService = new UserService(userRepository);
 const orderService = new OrderService(orderRepository, cartRepository, cacheService, ProducerService);
 const controller = new OrderController(orderService);

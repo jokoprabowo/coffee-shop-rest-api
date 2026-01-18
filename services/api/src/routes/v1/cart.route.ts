@@ -1,5 +1,5 @@
 import express from 'express';
-import { pool } from '@project/shared';
+import { pool, redis } from '@project/shared';
 import { CartRepository, UserRepository, CoffeeRepository } from '../../repositories';
 import { CartService, UserService, CacheService } from '../../services';
 import { CartController } from '../../controllers';
@@ -11,7 +11,7 @@ const userRepository = new UserRepository(pool);
 const cartRepository = new CartRepository(pool);
 const coffeeRepository = new CoffeeRepository(pool);
 
-const cacheService = new CacheService();
+const cacheService = new CacheService(redis);
 const userService = new UserService(userRepository);
 const cartService = new CartService(cartRepository, coffeeRepository, cacheService);
 
