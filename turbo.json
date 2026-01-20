@@ -14,6 +14,16 @@
       "outputs": [],
       "cache": false
     },
+    "test:api": {
+      "dependsOn": ["^build"], 
+      "outputs": [],
+      "cache": false
+    },
+    "test:consumer": {
+      "dependsOn": ["^build"], 
+      "outputs": [],
+      "cache": false
+    },
     "dev": {
       "cache": false,
       "persistent": true
