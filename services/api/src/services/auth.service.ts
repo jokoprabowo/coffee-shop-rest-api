@@ -1,12 +1,13 @@
 import crypto from 'node:crypto';
 import { UserDto, LoginUserDto, UserTokenDTO } from '../dto';
 import { UserService, ProducerService } from './';
-import { checkInput } from '@project/shared';
+import { checkInput, Database } from '@project/shared';
 import { ClientError, NotFoundError } from '../exceptions';
 import { UserTokenRepository } from '../repositories';
 
 class AuthService {
   constructor(
+    private readonly db: Database,
     private readonly service: UserService,
     private readonly userTokenRepository: UserTokenRepository,
     private readonly rabbitMQ:  typeof ProducerService,
@@ -42,30 +43,32 @@ class AuthService {
   }
 
   public async createUserToken(userId: number, type: string): Promise<string> {
-    const token = crypto.randomBytes(32).toString('hex');
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-    await this.userTokenRepository.create({
-      user_id: userId,
-      token: hashedToken,
-      type,
-      expires_at: expiresAt,
+    return await this.db.withTransaction(async () => {
+      const token = crypto.randomBytes(32).toString('hex');
+      const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      await this.userTokenRepository.create({
+        user_id: userId,
+        token: hashedToken,
+        type,
+        expires_at: expiresAt,
+      });
+
+      const date = new Date(expiresAt);
+      const UTCString = date.toUTCString();
+
+      const user = await this.service.findById(userId);
+      const email = user.email;
+      const fullname = user.fullname;
+      const data = {
+        email,
+        fullname,
+        token,
+        expiresAt: UTCString,
+      };
+      await this.rabbitMQ.sendMessage(type, data);
+      return token;
     });
-
-    const date = new Date(expiresAt);
-    const UTCString = date.toUTCString();
-
-    const user = await this.service.findById(userId);
-    const email = user.email;
-    const fullname = user.fullname;
-    const data = {
-      email,
-      fullname,
-      token,
-      expiresAt: UTCString,
-    };
-    await this.rabbitMQ.sendMessage(type, data);
-    return token;
   }
 
   public async resetPassword(token: string, newPassword: string): Promise<void> {
@@ -74,17 +77,19 @@ class AuthService {
   }
 
   public async verifyToken(token: string): Promise<UserTokenDTO> {
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-    const data = await this.userTokenRepository.findByToken(hashedToken);
-    if (!data) {
-      throw new ClientError('Invalid or expired token');
-    }
+    return await this.db.withTransaction(async () => {
+      const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+      const data = await this.userTokenRepository.findByToken(hashedToken);
+      if (!data) {
+        throw new ClientError('Invalid or expired token');
+      }
 
-    if (data.type === 'email_verification') {
-      await this.service.update(data.user_id, { is_verified: true });
-    }
-    await this.updateUsedAt(hashedToken);
-    return data;
+      if (data.type === 'email_verification') {
+        await this.service.update(data.user_id, { is_verified: true });
+      }
+      await this.updateUsedAt(hashedToken);
+      return data;
+    });
   }
 }
 
