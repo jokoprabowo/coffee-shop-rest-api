@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { Database } from '@project/shared';
 import { NotFoundError } from '../exceptions';
 import { CartRepository, CoffeeRepository } from '../repositories';
 import { CacheService } from '.';
@@ -11,26 +12,43 @@ interface CartItemResponse {
 
 class CartService {
   constructor(
+    private readonly db: Database,
     private readonly repository: CartRepository,
     private readonly coffeeRepository: CoffeeRepository,
     private readonly cacheService: CacheService,
   ) {}
 
   public async addToCart(userId: number, coffeeId: number, quantity: number): Promise<CartItemDTO[]> {
-    const coffee = await this.coffeeRepository.findOne(coffeeId);
-    if (!coffee) {
-      throw new NotFoundError('Coffee not found!');
-    }
-    const cartItemId = crypto.randomBytes(32).toString('hex');
+    return this.db.withTransaction(async () => {
+      const coffee = await this.coffeeRepository.findOne(coffeeId);
+      if (!coffee) {
+        throw new NotFoundError('Coffee not found!');
+      }
+      const cartItemId = crypto.randomBytes(32).toString('hex');
 
-    const cart = await this.cacheService.get(`cart:${userId}`);
-    if (cart) {
-      const cartItems: CartItemDTO[] = JSON.parse(cart);
-      const data = cartItems.find(item => item.coffee_id === coffee.id);
-      if (data) {
-        data.quantity += quantity;
-        data.total_price = coffee.price * data.quantity;
-        data.updated_at = new Date().toISOString();
+      const cart = await this.cacheService.get(`cart:${userId}`);
+      if (cart) {
+        const cartItems: CartItemDTO[] = JSON.parse(cart);
+        const data = cartItems.find(item => item.coffee_id === coffee.id);
+        if (data) {
+          data.quantity += quantity;
+          data.total_price = coffee.price * data.quantity;
+          data.updated_at = new Date().toISOString();
+          await this.cacheService.set(`cart:${userId}`, JSON.stringify(cartItems));
+          return cartItems;
+        }
+
+        const cartItem = {
+          cart_item_id: cartItemId,
+          coffee_id: coffeeId,
+          name: coffee.name,
+          price: coffee.price,
+          quantity,
+          total_price: (coffee.price * quantity),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        cartItems.push(cartItem);
         await this.cacheService.set(`cart:${userId}`, JSON.stringify(cartItems));
         return cartItems;
       }
@@ -45,24 +63,10 @@ class CartService {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
-      cartItems.push(cartItem);
+      const cartItems = [cartItem];
       await this.cacheService.set(`cart:${userId}`, JSON.stringify(cartItems));
       return cartItems;
-    }
-
-    const cartItem = {
-      cart_item_id: cartItemId,
-      coffee_id: coffeeId,
-      name: coffee.name,
-      price: coffee.price,
-      quantity,
-      total_price: (coffee.price * quantity),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    const cartItems = [cartItem];
-    await this.cacheService.set(`cart:${userId}`, JSON.stringify(cartItems));
-    return cartItems;
+    });
   }
 
   public async getCartItems(userId: number): Promise<CartItemResponse> {
