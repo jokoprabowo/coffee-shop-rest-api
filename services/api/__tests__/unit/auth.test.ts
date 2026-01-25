@@ -1,6 +1,6 @@
 import { AuthService, UserService, ProducerService } from '../../src/services';
 import { UserTokenRepository } from '../../src/repositories';
-import { checkInput } from '@project/shared';
+import { checkInput, Database } from '@project/shared';
 import { ClientError } from '../../src/exceptions';
 import bcrypt from 'bcrypt';
 import crypto from 'node:crypto';
@@ -12,6 +12,7 @@ jest.mock('@project/shared', () => ({
 jest.mock('node:crypto');
 
 describe('Auth Service', () => {
+  let db: jest.Mocked<Database>;
   let userTokenRepository: jest.Mocked<UserTokenRepository>;
   let producerService: jest.Mocked<typeof ProducerService>;
   let userService: jest.Mocked<UserService>;
@@ -30,6 +31,10 @@ describe('Auth Service', () => {
   };
 
   beforeEach(() => {
+    db = {
+      withTransaction: jest.fn().mockImplementation(async (fn) => fn()),
+    } as unknown as jest.Mocked<Database>;
+
     userService = {
       create: jest.fn(),
       findOne: jest.fn(),
@@ -48,7 +53,7 @@ describe('Auth Service', () => {
       sendMessage: jest.fn(),
     } as unknown as jest.Mocked<typeof ProducerService>;
 
-    authService = new AuthService(userService, userTokenRepository, producerService);
+    authService = new AuthService(db, userService, userTokenRepository, producerService);
     (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPass');
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
@@ -140,6 +145,7 @@ describe('Auth Service', () => {
       const result = await authService.createUserToken(1, 'PASSWORD_RESET');
 
       expect(result).toBe('randomTokenValue');
+      expect(db.withTransaction).toHaveBeenCalledTimes(1);
       expect(userTokenRepository.create).toHaveBeenCalledTimes(1);
       expect(userTokenRepository.create).toHaveBeenCalledWith(
         expect.objectContaining(mockUserToken)
@@ -176,6 +182,7 @@ describe('Auth Service', () => {
 
       const result = await authService.verifyToken('sampleToken');
 
+      expect(db.withTransaction).toHaveBeenCalledTimes(1);
       expect(userTokenRepository.findByToken).toHaveBeenCalledWith('hashedSampleToken');
       expect(result).toBe(mockUserToken);
     });

@@ -1,8 +1,10 @@
+import { Database } from '@project/shared';
 import { NotFoundError } from '../../src/exceptions';
 import { OrderRepository, CartRepository } from '../../src/repositories';
 import { OrderService, CacheService, ProducerService } from '../../src/services';
 
 describe('Order service', () => {
+  let db: jest.Mocked<Database>;
   let mockCartRepo: jest.Mocked<CartRepository>;
   let mockOrderRepo: jest.Mocked<OrderRepository>;
   let mockCache: jest.Mocked<CacheService>;
@@ -15,6 +17,10 @@ describe('Order service', () => {
   const mockOrderItem = { id: 1, order_id: 1, coffee_id: 1, name: 'Americano', quantity: 1, unit_price: 15000, total_price: 15000 };
 
   beforeEach(() => {
+    db = {
+      withTransaction: jest.fn().mockImplementation(async (fn) => fn()),
+    } as unknown as jest.Mocked<Database>;
+
     mockCartRepo = {
       isCartExist: jest.fn(),
       getCartItems: jest.fn(),
@@ -40,7 +46,7 @@ describe('Order service', () => {
       sendMessage: jest.fn(),
     } as unknown as jest.Mocked<typeof ProducerService>;
 
-    service = new OrderService(mockOrderRepo, mockCartRepo, mockCache, mockMQ);
+    service = new OrderService(db, mockOrderRepo, mockCartRepo, mockCache, mockMQ);
   });
 
   describe('Create order', () => {
@@ -51,6 +57,7 @@ describe('Order service', () => {
 
       const result = await service.createOrder(1);
 
+      expect(db.withTransaction).toHaveBeenCalledTimes(1);
       expect(mockCartRepo.isCartExist).toHaveBeenCalledWith(1);
       expect(mockCartRepo.getCartItems).toHaveBeenCalledWith(1);
       expect(mockCache.del).toHaveBeenCalledWith('cart:1');
@@ -66,6 +73,7 @@ describe('Order service', () => {
 
       const result = await service.createOrder(1);
 
+      expect(db.withTransaction).toHaveBeenCalledTimes(1);
       expect(mockCache.get).toHaveBeenCalledWith('cart:1');
       expect(mockCache.del).toHaveBeenCalledWith('cart:1');
       expect(mockMQ.sendMessage).toHaveBeenCalledWith('checkout', { cartItems: [mockCartItem], userId: 1 });
@@ -81,6 +89,7 @@ describe('Order service', () => {
       await expect(
         service.createOrder(1)
       ).rejects.toThrow(new NotFoundError('Cart is empty!'));
+      expect(db.withTransaction).toHaveBeenCalledTimes(1);
       expect(mockCartRepo.isCartExist).toHaveBeenCalledWith(1);
     });
   });

@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { Database } from '@project/shared';
 import { NotFoundError } from '../../src/exceptions';
 import { CartRepository, CoffeeRepository } from '../../src/repositories';
 import { CartService, CacheService } from '../../src/services';
@@ -8,6 +9,7 @@ jest.mock('crypto', () => ({
   randomBytes: jest.fn(),
 }));
 describe('Cart service', () => {
+  let db: jest.Mocked<Database>;
   let mockRepo: jest.Mocked<CartRepository>;
   let mockCoffeeRepo: jest.Mocked<CoffeeRepository>;
   let mockCache: jest.Mocked<CacheService>;
@@ -17,6 +19,10 @@ describe('Cart service', () => {
   const mockCartItem = { cart_item_id: 'cartItemId', coffee_id:1, name: 'Americano', price: 12000, quantity: 1, total_price: 12000 };
 
   beforeEach(() => {
+    db = {
+      withTransaction: jest.fn().mockImplementation(async (fn) => fn()),
+    } as unknown as jest.Mocked<Database>;
+
     mockRepo = {
       create: jest.fn(),
       createItem: jest.fn(),
@@ -36,7 +42,7 @@ describe('Cart service', () => {
       findOne: jest.fn(),
     } as unknown as jest.Mocked<CoffeeRepository>;
 
-    service = new CartService(mockRepo, mockCoffeeRepo, mockCache);
+    service = new CartService(db, mockRepo, mockCoffeeRepo, mockCache);
   });
 
   describe('Create cart', () => {
@@ -47,6 +53,7 @@ describe('Cart service', () => {
 
       const result = await service.addToCart(1, 1, 1);
       
+      expect(db.withTransaction).toHaveBeenCalledTimes(1);
       expect(mockCoffeeRepo.findOne).toHaveBeenCalledWith(1);
       expect(mockCache.get).toHaveBeenCalledTimes(1);
       expect(result[0].name).toBe('Americano');
