@@ -1,16 +1,17 @@
 import { UserRepository, CartRepository } from './repositories';
 import { UserService, CartService, EmailService } from './services';
-import { pool, logger, connectRabbitMQ } from '@project/shared';
+import { pool, logger, connectRabbitMQ, Database } from '@project/shared';
 import { mailer } from './config';
 import Listener from './listener';
 
 const init = async (): Promise<void> => {
   try {
+    const db = new Database(pool);
     const userService = new UserService(new UserRepository(pool));
     const cartService = new CartService(new CartRepository(pool));
     const emailService = new EmailService(mailer);
     const channel = await connectRabbitMQ();
-    const listener = new Listener(userService, cartService, emailService, channel);
+    const listener = new Listener(db, userService, cartService, emailService, channel);
 
     const queues = ['checkout', 'email_verification', 'password_reset'];
 
