@@ -21,29 +21,57 @@ Some benefits include:
 
 ---
 
-## 🔑 Key Features
+## 🚀 Features  
 
-* **User Authentication & Authorization** (JWT & Refresh Token support)
-* **Menu Management**: Add, update, delete, and fetch coffee
-* **Cart System**: Manage user carts (add, update quantity, remove items)
-* **Order Management**: Place and track customer orders based on their carts
-* **Database Migrations & Seeding** for development and production environments
-* **Dockerized Setup** for easy deployment and scalability
-* **Message Queue**: RabbitMQ
-* **Caching**: Redis
+### 🔐 Authentication & Security  
+- **JWT Authentication** with Access Token & Refresh Token  
+- **Email Verification**  
+  - Automatically sends verification email upon user registration  
+  - Secure verification using token-based validation  
+- **Forgot & Reset Password**  
+  - Password reset flow via email  
+  - Time-limited reset tokens for enhanced security  
+- **Role-based Authorization** (Admin & Customer)  
+
+### ☕ Coffee Shop Core Features  
+- **Product Management**  
+  - Create, update, delete, and retrieve coffee & menu items  
+- **Cart System**  
+  - Add products to cart  
+  - Update quantity and remove items  
+- **Order Management**  
+  - Create orders from cart  
+  - Track order status (pending, paid, completed)  
+
+### 📧 Email Service  
+- **Nodemailer Integration**  
+  - Send verification emails  
+  - Send password reset emails  
+  - Configurable SMTP service (Gmail, Mailtrap, etc.)  
+
+### ⚡ Performance & Scalability  
+- **Redis Integration** for caching and token/session handling  
+- **RabbitMQ** for asynchronous event handling  
+  - Email jobs  
+  - Order-related events  
+
+### 🛠️ Developer Experience  
+- **Type-safe codebase** with TypeScript  
+- **PostgreSQL Transactions** for data consistency  
+- **Unit & Integration Testing** using Jest  
+- **Docker & Docker Compose** for consistent development and deployment  
 
 ---
 
-## 🛠 Tech Stack
-
-* **Backend**: Node.js, Express.js, TypeScript
-* **Database**: PostgreSQL
-* **Authentication**: JWT-based system with refresh token
-* **Testing**: Jest, Supertest
-* **Message Queue**: RabbitMQ
-* **Caching**: Redis,
-* **Monorepo management**: Turborepo
-* **Containerization**: Docker, Docker Compose
+## 🧰 Tech Stack  
+- **Backend Framework**: Express.js + TypeScript  
+- **Database**: PostgreSQL  
+- **Authentication**: JWT (Access Token & Refresh Token)  
+- **Email Service**: Nodemailer  
+- **Caching**: Redis  
+- **Message Broker**: RabbitMQ  
+- **Testing**: Jest & Supertest  
+- **Containerization**: Docker & Docker Compose  
 
 ---
 
@@ -67,14 +95,15 @@ npm install
 This project uses two environment files to separate local development configuration from Docker production configuration.
 
 ### 📌 Environment Files
-| File                   | Purpose                                                               |
-| ---------------------- | --------------------------------------------------------------------- |
-| **`.env.development`** | Used when running the project **locally** (without Docker).           |
-| **`.env.production`**  | Used when running the project **inside Docker** via `docker-compose`. |
+| File                   | Purpose                                                                |
+| ---------------------- | ---------------------------------------------------------------------- |
+| **`.env.development`** | Used when running the project **locally** (without Docker).            |
+| **`.env.test`**        | Used when running the project **locally** for testing (without Docker).|
+| **`.env.production`**  | Used when running the project **inside Docker** via `docker-compose`.  |
 You must create both files in the project root
 
 
-### 🧪 `.env.development` (Local Development)
+### 🧪 `.env.development` and `.env.test` (Local Development)
 
 Use local service addresses when you run the backend without Docker:
 
@@ -145,6 +174,7 @@ If any of these are not running, the API will fail to start.
 **Build and start development mode**
 
 ```bash
+npm run migrate:up:dev
 npm run build
 npm run dev
 ```
@@ -170,12 +200,6 @@ Runs the following containers:
 * Redis
 * RabbitMQ
 
-**To stop:**
-
-```bash
-docker-compose down
-```
-
 ---
 
 ## 📖 API Documentation
@@ -192,23 +216,22 @@ Authorization: Bearer <token>
 ---
 
 ## 🧪 Testing
-
-Run all tests:
+Run migration for testing environment
 
 ```bash
-npm run test
+npm run migrate:up:test
 ```
 
-Run a specific test file:
+Run all tests in api service:
 
 ```bash
-npm run test path
+npm run test:api
 ```
 
-example:
+Run all tests in consumer service:
 
 ```bash
-npm run test integration/auth/login.test.ts
+npm run test:consumer
 ```
 
 ---
