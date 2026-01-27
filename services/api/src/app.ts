@@ -6,10 +6,12 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import helmet from 'helmet';
 
+import config from './config';
 import { logInfo } from './config/logger';
-import { corsOptions } from './config/corsOptions';
-import { errorHandler } from './middlewares/errorHandler';
+import { corsOptions } from './config/cors-options';
+import { errorHandler } from './middlewares/error-handler.middleware';
 import { swaggerOptions } from './docs/swagger';
+import { rateLimiter } from './middlewares/rate-limiter';
 import v1Routes from './routes/v1';
 
 const app = express();
@@ -25,6 +27,9 @@ app.use(logInfo);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+if(config.NODE_ENV !== 'test') {
+  app.use(rateLimiter);
+}
 
 app.use('/api/v1', v1Routes);
 app.use(errorHandler);

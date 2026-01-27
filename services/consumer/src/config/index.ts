@@ -20,6 +20,12 @@ const config = {
   REDIS_PORT: process.env.REDIS_PORT,
   REDIS_PASSWORD: process.env.REDIS_PASSWORD,
   RABBITMQ_URL: process.env.RABBITMQ_URL,
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_PORT: process.env.SMTP_PORT,
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASS: process.env.SMTP_PASS,
+  MAILTRAP_TOKEN: process.env.MAILTRAP_TOKEN,
 };
 
 export default config;
+export { mailer } from './mailer';

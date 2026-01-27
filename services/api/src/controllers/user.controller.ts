@@ -4,12 +4,10 @@ import { AuthenticationError } from '../exceptions';
 import UserValidator from '../validators/user';
 
 class UserController {
-  private readonly service: UserService;
-  private readonly validator: typeof UserValidator;
-
-  constructor(service: UserService, validator: typeof UserValidator) {
-    this.service = service;
-    this.validator = validator;
+  constructor(
+    private readonly service: UserService,
+    private readonly validator: typeof UserValidator,
+  ) {
     this.getUserDetails = this.getUserDetails.bind(this);
     this.getAllUsers = this.getAllUsers.bind(this);
     this.updateUser = this.updateUser.bind(this);

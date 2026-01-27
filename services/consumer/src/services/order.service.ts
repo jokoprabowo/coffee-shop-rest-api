@@ -1,11 +1,7 @@
 import { OrderRepository } from '../repositories';
 
 class OrderService {
-  private readonly repository: OrderRepository;
-
-  constructor(repository: OrderRepository) {
-    this.repository = repository;
-  }
+  constructor(private readonly repository: OrderRepository) {}
 
   public async deleteUnpaidOrder(): Promise<boolean> {
     const order = await this.repository.deleteUnpaidOrder();

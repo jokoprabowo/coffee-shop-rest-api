@@ -3,10 +3,7 @@ import { CartService } from '../services';
 import { AuthenticationError } from '../exceptions';
 
 class CartController {
-  private readonly service: CartService;
-
-  constructor(service: CartService) {
-    this.service = service;
+  constructor(private readonly service: CartService) {
     this.addToCart = this.addToCart.bind(this);
     this.getCartItems = this.getCartItems.bind(this);
     this.updateItem = this.updateItem.bind(this);

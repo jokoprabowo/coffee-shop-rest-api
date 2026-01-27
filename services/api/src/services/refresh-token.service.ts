@@ -1,15 +1,12 @@
 import { RefreshTokenRepository } from '../repositories';
-import { encryptInput, checkInput } from '../utilities/encrypt';
-import crypto from 'crypto';
+import { encryptInput, checkInput } from '@project/shared';
+import crypto from 'node:crypto';
 import { NotFoundError, ClientError } from '../exceptions';
 import { RefreshTokenDTO } from '../dto';
 
 class RefreshTokenService {
-  private readonly repository: RefreshTokenRepository;
 
-  constructor(repository: RefreshTokenRepository) {
-    this.repository = repository;
-  }
+  constructor(private readonly repository: RefreshTokenRepository) {}
 
   public async generateToken(userId: number, deviceInfo?: string, ipAddress?: string): Promise<string> {
     const selector = crypto.randomBytes(32).toString('hex');

@@ -1,34 +1,25 @@
 import request from 'supertest';
 import app from '../../../src/app';
 import { pool } from '@project/shared';
+import { generateAccessToken } from '../../../src/utilities/token';
 
 describe('Delete cart item endpoint.', () => {
   let userId: number;
   let token: string;
+  let cartId: number;
   let cartItemId: number;
 
   beforeAll(async () => {
-    const res = await request(app).post('/api/v1/auth/register')
-      .send({
-        email: 'testexample@gmail.com',
-        password: 'Example!test123',
-        fullname: 'Test Example',
-        phone: '081234567890',
-        address: 'Test street, Example, 00000'
-      });
-
-    token = res.body.data.accessToken;
-    userId = res.body.data.user.id;
-
-    const cart = await request(app).post('/api/v1/carts')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ coffeeId: 1, quantity: 1, });
-
-    cartItemId = cart.body.data.cartItems[0].cart_item_id;
+    userId = await pool.query('select id from users where email = $1', ['testexample@mail.com'])
+      .then(res => res.rows[0].id);
+    token = generateAccessToken(userId);    
+    cartId = await pool.query('insert into carts (user_id) values ($1) returning id', [userId]).then(res => res.rows[0].id);
+    cartItemId = await pool.query('insert into cart_items (cart_id, coffee_id, quantity) values ($1, $2, $3) returning id', [cartId, 1, 1])
+      .then(res => res.rows[0].id);
   });
 
   afterAll(async () => {
-    await pool.query('delete from users where id = $1', [userId]);
+    await pool.query('delete from carts where id = $1', [cartId]);
   });
 
   it('Should return a 200 status code.', async () => {
@@ -45,7 +36,7 @@ describe('Delete cart item endpoint.', () => {
       .send({ cartItemId: cartItemId });
 
     expect(response.statusCode).toBe(401);
-    expect(response.body.status).toBe('UNAUTHENTICATED');
+    expect(response.body.status).toBe('UNAUTHORIZED');
   });
 
   it('Should return a 404 status code if cart item with provided id is not exist.', async () => {

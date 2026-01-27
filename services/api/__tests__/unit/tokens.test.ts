@@ -1,25 +1,35 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { ClientError, NotFoundError } from '../../src/exceptions';
 import { RefreshTokenRepository } from '../../src/repositories';
 import { RefreshTokenService } from '../../src/services';
-import { encryptInput, checkInput } from '../../src/utilities/encrypt';
+import { encryptInput, checkInput } from '@project/shared';
 
-jest.mock('../../src/utilities/encrypt', () => ({
+jest.mock('@project/shared', () => ({
   encryptInput: jest.fn(),
   checkInput: jest.fn(),
 }));
-jest.mock('crypto', () => ({
-  randomBytes: jest.fn(),
-}));
+jest.mock('node:crypto');
+
 describe('Refresh token service', () => {
   let mockRepo: jest.Mocked<RefreshTokenRepository>;
   let service: RefreshTokenService;
 
-  const mockToken = {
+  const mockTokenData = {
     user_id: 1, selector: 'secectorTest', token: 'hashedToken', device_info: 'Chrome', ip_address: '192.168.1.1',
     is_revokde: false, expires_at: '2025-09-27T15:10:19.525Z'
   };
+
+  const mockSelector = 'selectorTokenTest';
+  const mockToken = 'tokenTest';
+  const mockHashedToken = 'hashedToken';
+
   beforeEach(() => {
+    (crypto.randomBytes as jest.Mock)
+      .mockReturnValueOnce({ toString: () => mockSelector })
+      .mockReturnValueOnce({ toString: () => mockToken });
+
+    (encryptInput as jest.Mock).mockResolvedValue(mockHashedToken);
+
     mockRepo = {
       create: jest.fn(),
       findUserIdBySelector: jest.fn(),
@@ -29,58 +39,56 @@ describe('Refresh token service', () => {
     } as unknown as jest.Mocked<RefreshTokenRepository>;
 
     service = new RefreshTokenService(mockRepo);
-    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   describe('Create refresh token', () => {
     it('Should return refresh token', async () => {
-      mockRepo.create.mockResolvedValue(mockToken);
-      (crypto.randomBytes as jest.Mock)
-        .mockReturnValueOnce({ toString: () => 'selectorTest' })
-        .mockReturnValueOnce({ toString: () => 'tokenTest' });
-      (encryptInput as jest.Mock).mockReturnValue('hashedToken');
-
       const result = await service.generateToken(1, 'Chrome', '192.168.1.1');
+      mockRepo.create.mockResolvedValue(mockTokenData);
 
       expect(mockRepo.create).toHaveBeenCalledTimes(1);
-      expect(encryptInput).toHaveBeenCalledWith('tokenTest');
-      expect(result).toBe('selectorTest.tokenTest');
+      expect(encryptInput).toHaveBeenCalledWith(mockToken);
+      expect(result).toBe(mockSelector+'.'+ mockToken);
     });
   });
   describe('Find user id by selector', () => {
     it('Should return user id if token with provided selector exist', async () => {
-      mockRepo.findUserIdBySelector.mockResolvedValue(mockToken);
+      mockRepo.findUserIdBySelector.mockResolvedValue(mockTokenData);
 
-      const result = await service.findUserIdBySelector('selectorTest');
+      const result = await service.findUserIdBySelector(mockSelector);
 
-      expect(mockRepo.findUserIdBySelector).toHaveBeenCalledWith('selectorTest');
+      expect(mockRepo.findUserIdBySelector).toHaveBeenCalledWith(mockSelector);
       expect(result).toBe(1);
     });
     it('Should return not found error if token with provided selector does not exist', async () => {
       mockRepo.findUserIdBySelector.mockResolvedValue(null);
 
       await expect(
-        service.findUserIdBySelector('selectorTest')
+        service.findUserIdBySelector(mockSelector)
       ).rejects.toThrow(new NotFoundError('Token not found!'));
     });
   });
   describe('Verify token', () => {
     it('Should return token data if token is valid', async () => {
-      mockRepo.findActiveToken.mockResolvedValue(mockToken);
+      mockRepo.findActiveToken.mockResolvedValue(mockTokenData);
       (checkInput as jest.Mock).mockReturnValue(true);
 
-      const result = await service.verifyToken('selectorTest', 'tokenTest');
+      const result = await service.verifyToken(mockSelector, mockToken);
 
-      expect(mockRepo.findActiveToken).toHaveBeenCalledWith('selectorTest');
-      expect(checkInput).toHaveBeenCalledWith('tokenTest', 'hashedToken');
-      expect(result).toBe(mockToken);
+      expect(mockRepo.findActiveToken).toHaveBeenCalledWith(mockSelector);
+      expect(checkInput).toHaveBeenCalledWith(mockToken, mockHashedToken);
+      expect(result).toBe(mockTokenData);
     });
     it('Should return client error if token is invalid', async () => {
-      mockRepo.findActiveToken.mockResolvedValue(mockToken);
+      mockRepo.findActiveToken.mockResolvedValue(mockTokenData);
       (checkInput as jest.Mock).mockReturnValue(false);
 
       await expect(
-        service.verifyToken('selectorTest', 'tokenTest')
+        service.verifyToken(mockSelector, mockToken)
       ).rejects.toThrow( new ClientError('Invalid refresh token!'));
 
     });
@@ -89,16 +97,16 @@ describe('Refresh token service', () => {
     it('Should return true if revoke token wwith provided selector is successful', async () => {
       mockRepo.revokeToken.mockResolvedValue(true);
 
-      const result = await service.revokeToken('selectorTest');
+      const result = await service.revokeToken(mockSelector);
 
-      expect(mockRepo.revokeToken).toHaveBeenCalledWith('selectorTest');
+      expect(mockRepo.revokeToken).toHaveBeenCalledWith(mockSelector);
       expect(result).toBe(true);
     });
     it('Should return not found error if token with provided selector does not exist', async () => {
       mockRepo.revokeToken.mockResolvedValue(false);
 
       await expect(
-        service.revokeToken('selectorTest')
+        service.revokeToken(mockSelector)
       ).rejects.toThrow(new NotFoundError('Token not found!'));
     });
   });

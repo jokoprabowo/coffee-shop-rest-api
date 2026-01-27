@@ -1,21 +1,22 @@
-import { redis } from '@project/shared';
+import Redis from 'ioredis';
 
 class CacheService {
+  constructor(private readonly redisClient: Redis) {}
 
   public async set(key: string, value: string, expirationInSecond: number = 24 * 3600): Promise<void> {
-    await redis.set(key, value, 'EX', expirationInSecond);
+    await this.redisClient.set(key, value, 'EX', expirationInSecond);
   }
 
   public async get(key: string): Promise<string | null> {
-    return await redis.get(key);
+    return await this.redisClient.get(key);
   }
 
-  public async del(key: string): Promise<void> {
-    await redis.del(key);
+  public async del(key: string): Promise<number> {
+    return await this.redisClient.del(key);
   }
 
   public async disconnect(): Promise<void> {
-    await redis.quit();
+    await this.redisClient.quit();
   }
 }
 

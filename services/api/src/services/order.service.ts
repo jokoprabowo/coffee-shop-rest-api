@@ -1,51 +1,50 @@
+import { Database } from '@project/shared';
 import { CartRepository, OrderRepository } from '../repositories';
 import { CacheService, ProducerService } from '.';
 import { NotFoundError } from '../exceptions';
 import { CartItemDTO, OrderDTO, OrderItemDTO } from '../dto';
 
 class OrderService {
-  private readonly repository: OrderRepository;
-  private readonly cartRepository: CartRepository;
-  private readonly cacheService: CacheService;
-  private readonly rabbitMQ:  typeof ProducerService;
-
-  constructor(repository: OrderRepository, cartRepository: CartRepository, cacheService: CacheService, rabbitMQ:  typeof ProducerService) {
-    this.repository = repository;
-    this.cartRepository = cartRepository;
-    this.cacheService = cacheService;
-    this.rabbitMQ = rabbitMQ;
-  }
+  constructor(
+    private readonly db: Database,
+    private readonly repository: OrderRepository,
+    private readonly cartRepository: CartRepository,
+    private readonly cacheService: CacheService,
+    private readonly rabbitMQ:  typeof ProducerService,
+  ) {}
 
   public async createOrder(userId: number): Promise<OrderDTO> {
-    let cartItems: CartItemDTO[];
-    const cartCache = await this.cacheService.get(`cart:${userId}`);
-    if (cartCache) {
-      cartItems = JSON.parse(cartCache);
-    } else {
-      const cart = await this.cartRepository.isCartExist(userId);
-      if (!cart) {
-        throw new NotFoundError('Cart is empty!');
+    return this.db.withTransaction(async () => {
+      let cartItems: CartItemDTO[];
+      const cartCache = await this.cacheService.get(`cart:${userId}`);
+      if (cartCache) {
+        cartItems = JSON.parse(cartCache);
+      } else {
+        const cart = await this.cartRepository.isCartExist(userId);
+        if (!cart) {
+          throw new NotFoundError('Cart is empty!');
+        }
+        cartItems = await this.cartRepository.getCartItems(cart.id);
+        await this.cartRepository.updateStatus(cart.id);
       }
-      cartItems = await this.cartRepository.getCartItems(cart.id);
-      await this.cartRepository.updateStatus(cart.id);
-    }
 
-    const total = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-    const order = await this.repository.createOrder(userId, total);
-    for (const item of cartItems) {
-      await this.repository.createOrderItem(
-        order.id, item.coffee_id, item.quantity, item.price, item.total_price
-      );
-    }
-    await this.cacheService.del(`cart:${userId}`);
+      const total = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+      const order = await this.repository.createOrder(userId, total);
+      for (const item of cartItems) {
+        await this.repository.createOrderItem(
+          order.id, item.coffee_id, item.quantity, item.price, item.total_price
+        );
+      }
+      await this.cacheService.del(`cart:${userId}`);
 
-    const data = {
-      userId,
-      cartItems,
-    };
-    
-    await this.rabbitMQ.sendMessage('checkout', data);
-    return order;
+      const data = {
+        userId,
+        cartItems,
+      };
+      
+      await this.rabbitMQ.sendMessage('checkout', data);
+      return order;
+    });
   }
 
   public async getOrderList(userId: number): Promise<OrderDTO[]> {

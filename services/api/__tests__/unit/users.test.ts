@@ -1,10 +1,9 @@
 import { UserRepository } from '../../src/repositories';
 import { UserService } from '../../src/services';
-import { userRole } from '../../src/dto';
-import { encryptInput } from '../../src/utilities/encrypt';
+import { encryptInput } from '@project/shared';
 import { AuthorizationError, ConflictError, NotFoundError } from '../../src/exceptions';
 
-jest.mock('../../src/utilities/encrypt', () => ({
+jest.mock('@project/shared', () => ({
   encryptInput: jest.fn(),
 }));
 describe('User service', () => {
@@ -46,6 +45,11 @@ describe('User service', () => {
     });
 
     it('Should return authorization error if create a user with admin role with email that is not whitelisted', async () => {
+      enum userRole {
+        ADMIN = 'admin',
+        CUSTOMER = 'customer',
+      }
+
       await expect(
         service.create({
           email: 'test@mail.com', password: 'hashedPass', fullname: 'Test Example', 

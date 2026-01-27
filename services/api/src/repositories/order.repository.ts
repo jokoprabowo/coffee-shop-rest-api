@@ -2,11 +2,7 @@ import { Pool } from 'pg';
 import { OrderDTO, OrderItemDTO } from '../dto';
 
 class OrderRepository{
-  private readonly database: Pool;
-  
-  constructor(database: Pool) {
-    this.database = database;
-  }
+  constructor(private readonly database: Pool) {}
 
   public async createOrder(userId: number, total: number): Promise<OrderDTO> {
     const query = {

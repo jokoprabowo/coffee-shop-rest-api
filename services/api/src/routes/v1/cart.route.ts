@@ -1,22 +1,23 @@
-import express from 'express';
-import { pool } from '@project/shared';
+import { Router } from 'express';
+import { pool, redis, Database } from '@project/shared';
 import { CartRepository, UserRepository, CoffeeRepository } from '../../repositories';
 import { CartService, UserService, CacheService } from '../../services';
 import { CartController } from '../../controllers';
-import AuthMiddleware from '../../middlewares/AuthMiddleware';
+import AuthMiddleware from '../../middlewares/auth.middleware';
 
-const router = express.Router();
+const db = new Database(pool);
 
 const userRepository = new UserRepository(pool);
 const cartRepository = new CartRepository(pool);
 const coffeeRepository = new CoffeeRepository(pool);
 
-const cacheService = new CacheService();
+const cacheService = new CacheService(redis);
 const userService = new UserService(userRepository);
-const cartService = new CartService(cartRepository, cacheService, coffeeRepository);
+const cartService = new CartService(db, cartRepository, coffeeRepository, cacheService);
 
 const cartController = new CartController(cartService);
 const middleware = new AuthMiddleware(userService);
+const router = Router();
 
 router.post('/', middleware.authorize, cartController.addToCart);
 router.get('/', middleware.authorize, cartController.getCartItems);

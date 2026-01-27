@@ -1,11 +1,7 @@
 import Redis from 'ioredis';
 
 class CacheService {
-  private readonly redisClient: Redis;
-
-  constructor(redisClient: Redis) {
-    this.redisClient = redisClient;
-  }
+  constructor(private readonly redisClient: Redis) {}
 
   public async getKeys(matchPattern: string, count: number): Promise<string[]> {
     const keys: string[] = [];

@@ -2,11 +2,7 @@ import { UserDto } from '../dto';
 import { Pool } from 'pg';
 
 class UserRepository {
-  private readonly database: Pool;
-
-  constructor(database: Pool) {
-    this.database = database;
-  }
+  constructor(private readonly database: Pool) {}
 
   public async create(user: Omit<UserDto, 'id'>): Promise<UserDto> {
     const {
@@ -17,7 +13,7 @@ class UserRepository {
 
     const query = {
       text: 'insert into users(email, password, fullname, address, phone, role, created_at, updated_at) '
-      + 'values($1, $2, $3, $4, $5, $6, $7, $8) returning id, email, fullname, address, phone',
+      + 'values($1, $2, $3, $4, $5, $6, $7, $8) returning id, email, password, fullname, address, phone',
       values: [email, password, fullname, address, phone, role, createdAt, updatedAt],
     };
     const { rows } = await this.database.query(query);
@@ -35,7 +31,7 @@ class UserRepository {
 
   public async findOne(email: string): Promise<UserDto|null> {
     const query = {
-      text: 'select id, email, password, fullname, address, phone from users where email = $1',
+      text: 'select id, email, password, fullname, address, phone, is_verified from users where email = $1',
       values: [email],
     };
     const { rows } = await this.database.query(query);

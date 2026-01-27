@@ -10,7 +10,8 @@ export interface UserDto {
   fullname: string,
   address: string,
   phone: string,
-  role?: userRole
+  role?: userRole,
+  is_verified?: boolean,
 }
 
 export interface LoginUserDto {

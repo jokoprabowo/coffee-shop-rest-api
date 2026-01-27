@@ -2,11 +2,7 @@ import { Pool } from 'pg';
 import { CartDTO, CartItemDTO } from '../dto/cart.dto';
 
 class CartRepository {
-  private readonly database: Pool;
-  
-  constructor(database: Pool) {
-    this.database = database;
-  }
+  constructor(private readonly database: Pool) {}
 
   public async create(userId: number): Promise<CartDTO> {
     const query = {

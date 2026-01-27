@@ -13,14 +13,25 @@
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "start": "turbo run start",
-    "lint": "turbo run lint",
-    "test": "turbo run test --filter=@project/api -- --watch"
+    "lint": "eslint .",
+    "test:api": "turbo run test --filter=@project/api",
+    "test:consumer": "turbo run test --filter=@project/consumer",
+    "migrate:up:dev": "turbo run migrate:up:dev --filter=@project/api",
+    "migrate:down:dev": "turbo run migrate:down:dev --filter=@project/api",
+    "migrate:up:test": "turbo run migrate:up:test --filter=@project/api",
+    "migrate:down:test": "turbo run migrate:down:test --filter=@project/api"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "dotenv-cli": "^11.0.0",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "jiti": "^2.6.1",
     "turbo": "^2.5.8",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.48.0"
   }
 }

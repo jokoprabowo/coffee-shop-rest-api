@@ -1,19 +1,32 @@
 import { Router } from 'express';
-import { pool } from '@project/shared';
+import { pool, Database } from '@project/shared';
+import { rateLimiter } from '../../middlewares/rate-limiter';
+import { withRateLimiter } from '../../utilities/with-rate-limiter';
 import { AuthController } from '../../controllers';
-import { AuthService, UserService, RefreshTokenService } from '../../services';
-import { UserRepository, RefreshTokenRepository } from '../../repositories';
+import { AuthService, UserService, RefreshTokenService, ProducerService } from '../../services';
+import { UserRepository, RefreshTokenRepository, UserTokenRepository } from '../../repositories';
 import AuthenticateValidator from '../../validators/authentication';
 
-const repository = new UserRepository(pool);
-const service = new AuthService(new UserService(repository));
-const controller = new AuthController(service, new RefreshTokenService(new RefreshTokenRepository(pool)), AuthenticateValidator);
+const db = new Database(pool);
+
+const userRepository = new UserRepository(pool);
+const userTokenRepository = new UserTokenRepository(pool);
+const refreshTokenRepository = new RefreshTokenRepository(pool);
+
+const userService = new UserService(userRepository);
+const authService = new AuthService(db, userService, userTokenRepository, ProducerService);
+const refreshTokenService = new RefreshTokenService(refreshTokenRepository);
+
+const authController = new AuthController(authService, refreshTokenService, AuthenticateValidator);
 const router = Router();
 
-router.post('/login', controller.login);
-router.post('/register', controller.register);
-router.post('/refresh-token', controller.refreshToken);
-router.delete('/logout', controller.logout);
+router.post('/login', withRateLimiter(() => rateLimiter(5)), authController.login);
+router.post('/register', withRateLimiter(() => rateLimiter(5)), authController.register);
+router.get('/verify', authController.verifyEmail);
+router.post('/forgot-password', withRateLimiter(() => rateLimiter(5)), authController.forgotPassword);
+router.post('/refresh-token', authController.refreshToken);
+router.put('/reset-password', authController.resetPassword);
+router.delete('/logout', authController.logout);
 
 
 export default router;

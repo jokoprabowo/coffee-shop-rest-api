@@ -32,6 +32,6 @@ const connectRabbitMQ = async (
   }
   logger.error('Failed to connect to RabbitMQ');
   throw new Error('Could not connect to RabbitMQ after multiple attempts');
-}
+};
 
 export default connectRabbitMQ;

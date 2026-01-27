@@ -3,10 +3,7 @@ import { OrderService } from '../services';
 import { AuthenticationError } from '../exceptions';
 
 class OrderController {
-  private readonly service: OrderService;
-
-  constructor(service: OrderService) {
-    this.service = service;
+  constructor(private readonly service: OrderService) {
     this.createOrder = this.createOrder.bind(this);
     this.getOrders = this.getOrders.bind(this);
     this.getOrderDetails = this.getOrderDetails.bind(this);

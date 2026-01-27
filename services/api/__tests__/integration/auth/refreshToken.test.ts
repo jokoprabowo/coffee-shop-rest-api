@@ -7,13 +7,10 @@ describe('Refresh token endpoint.', () => {
   let cookie: string;
 
   beforeAll(async () => {
-    const res = await request(app).post('/api/v1/auth/register')
+    const res = await request(app).post('/api/v1/auth/login')
       .send({
-        email: 'testexample@gmail.com',
+        email: 'testexample@mail.com',
         password: 'Example!test123',
-        fullname: 'Test Example',
-        phone: '081234567890',
-        address: 'Test street, Example, 00000'
       });
 
     userId = res.body.data.user.id;
