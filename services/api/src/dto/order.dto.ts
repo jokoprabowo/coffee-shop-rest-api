@@ -4,6 +4,7 @@ export interface OrderDTO {
   status: string,
   total: number,
   total_price?: number,
+  created_at?: string,
 }
 
 export interface OrderItemDTO {
@@ -14,4 +15,5 @@ export interface OrderItemDTO {
   quantity: number,
   unit_price: number,
   total_price: number,
+  created_at?: string,
 }
