@@ -4,3 +4,4 @@ export type { RefreshTokenDTO } from './refresh-token.dto';
 export type { CartItemDTO } from './cart.dto';
 export type { OrderDTO, OrderItemDTO } from './order.dto';
 export type { UserTokenDTO } from './user-token.dto';
+export type { PaymentDTO, PaymentEventDTO } from './payment.dto';
