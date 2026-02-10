@@ -3,18 +3,14 @@ import { MigrationBuilder } from 'node-pg-migrate';
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable('payment_events', {
     id: 'id',
-    order_id: {
+    payment_id: {
       type: 'integer',
       notNull: true,
-      references: 'orders',
+      references: 'payments',
       onDelete: 'CASCADE',
     },
-    transaction_status: {
+    event_type: {
       type: 'varchar(50)',
-      notNull: true,
-    },
-    transaction_id: {
-      type: 'varchar(100)',
       notNull: true,
     },
     payload_hash: {
@@ -29,10 +25,10 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     },
   });
 
-  pgm.createIndex('payment_events', 'order_id');
+  pgm.createIndex('payment_events', 'payment_id');
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.dropIndex('payment_events', 'order_id');
+  pgm.dropIndex('payment_events', 'payment_id');
   pgm.dropTable('payment_events');
 }
