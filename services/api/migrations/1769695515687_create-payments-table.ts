@@ -16,9 +16,9 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     },
     payment_type: {
       type: 'varchar(50)',
-      notNull: true,
+      notNull: false,
     },
-    transaction_id: {
+    token: {
       type: 'varchar(100)',
       notNull: true,
       unique: true,
@@ -26,12 +26,18 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     transaction_status: {
       type: 'varchar(50)',
       notNull: true,
+      default: 'pending',
     },
     amount: {
       type: 'integer',
       notNull: true,
     },
     created_at: {
+      type: 'timestamp',
+      notNull: true,
+      default: pgm.func('current_timestamp'),
+    },
+    updated_at: {
       type: 'timestamp',
       notNull: true,
       default: pgm.func('current_timestamp'),
