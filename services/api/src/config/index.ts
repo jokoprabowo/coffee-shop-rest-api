@@ -31,5 +31,4 @@ const config = {
   MERCHANT_ID: process.env.MERCHANT_ID,
 };
 
-export { midtransSnap } from './midtrans';
 export default config;
