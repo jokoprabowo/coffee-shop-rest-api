@@ -5,4 +5,5 @@ export { default as RefreshTokenService } from './refresh-token.service';
 export { default as CartService } from './cart.service';
 export { default as OrderService } from './order.service';
 export { default as CacheService } from './cache.service';
-export { ProducerService } from './produser.service';
+export { default as PaymentService } from './payment.service';
+export { ProducerService } from './producer.service';
