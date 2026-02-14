@@ -17,12 +17,14 @@ class OrderController {
         throw new AuthenticationError('Login required!');
       }
       const order = await this.service.createOrder(req.userId);
+      const transaction = await this.service.createTransaction(req.userId, order.id);
 
       res.status(201).json({
         status: 'CREATED',
         message: 'Order has been created!',
         data: {
           order,
+          transaction,
         }
       });
       return;
