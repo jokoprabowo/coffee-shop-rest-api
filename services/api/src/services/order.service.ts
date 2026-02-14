@@ -1,5 +1,6 @@
 import { Database } from '@project/shared';
-import { CartRepository, OrderRepository } from '../repositories';
+import { midtransSnap } from '../config/midtrans';
+import { UserRepository, CartRepository, OrderRepository } from '../repositories';
 import { CacheService, ProducerService } from '.';
 import { NotFoundError } from '../exceptions';
 import { CartItemDTO, OrderDTO, OrderItemDTO } from '../dto';
@@ -7,10 +8,12 @@ import { CartItemDTO, OrderDTO, OrderItemDTO } from '../dto';
 class OrderService {
   constructor(
     private readonly db: Database,
-    private readonly repository: OrderRepository,
+    private readonly orderRepository: OrderRepository,
+    private readonly userRepository: UserRepository,
     private readonly cartRepository: CartRepository,
     private readonly cacheService: CacheService,
     private readonly rabbitMQ:  typeof ProducerService,
+    private readonly snapClient: typeof midtransSnap,
   ) {}
 
   public async createOrder(userId: number): Promise<OrderDTO> {
@@ -29,9 +32,9 @@ class OrderService {
       }
 
       const total = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-      const order = await this.repository.createOrder(userId, total);
+      const order = await this.orderRepository.createOrder(userId, total);
       for (const item of cartItems) {
-        await this.repository.createOrderItem(
+        await this.orderRepository.createOrderItem(
           order.id, item.coffee_id, item.quantity, item.price, item.total_price
         );
       }
@@ -47,13 +50,54 @@ class OrderService {
     });
   }
 
+  public async createTransaction(userId: number, orderId: number): Promise<{redirect_url: string, token: string}> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundError('User not found!');
+    }
+
+    const orderItems = await this.orderRepository.getOrderDetails(orderId);
+    const orderTotalPrice = orderItems.reduce((acc , item) => acc + item.total_price, 0);
+    
+    const parameter = {
+      'transaction_details': {
+        'order_id': orderId.toString(),
+        'gross_amount': orderTotalPrice,
+      },
+      'item_details': orderItems.map(item => ({
+        'id': item.coffee_id,
+        'price': item.unit_price,
+        'quantity': item.quantity,
+        'name': item.name,
+      })),
+      'credit_card':{
+        'secure' : true
+      },
+      'customer_details': {
+        'first_name': user.fullname.split(' ')[0],
+        'last_name': user.fullname.split(' ')[1] || ' ',
+        'email': user.email,
+        'phone': user.phone,
+        'address': user.address,
+      }
+    };
+    const transaction = await this.snapClient.createTransaction(parameter);
+
+    await this.rabbitMQ.sendMessage('create_payment', {
+      orderId,
+      transaction_token: transaction.token,
+      amount: orderTotalPrice,
+    });
+    return transaction;
+  }
+
   public async getOrderList(userId: number): Promise<OrderDTO[]> {
-    const orders = await this.repository.getOrderList(userId);
+    const orders = await this.orderRepository.getOrderList(userId);
     return orders;
   }
 
   public async getOrderDetails(orderId: number): Promise<OrderItemDTO[]> {
-    const orderItems = await this.repository.getOrderDetails(orderId);
+    const orderItems = await this.orderRepository.getOrderDetails(orderId);
     if (!orderItems[0]) {
       throw new NotFoundError('Order not found!');
     }
@@ -61,7 +105,7 @@ class OrderService {
   }
 
   public async updateStatus(orderId: number, status: string): Promise<boolean> {
-    const order = await this.repository.updateStatus(orderId, status);
+    const order = await this.orderRepository.updateStatus(orderId, status);
     if (!order) {
       throw new NotFoundError('Order not found!');
     }
@@ -69,7 +113,7 @@ class OrderService {
   }
 
   public async deleteOrder(orderId: number): Promise<boolean> {
-    const order = await this.repository.deleteOrder(orderId);
+    const order = await this.orderRepository.deleteOrder(orderId);
     if (!order) {
       throw new NotFoundError('Order not found!');
     }
