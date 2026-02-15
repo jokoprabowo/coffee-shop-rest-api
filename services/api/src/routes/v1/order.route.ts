@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { pool, redis, Database } from '@project/shared';
+import { midtransSnap } from '../../config/midtrans';
 import AuthMiddleware from '../../middlewares/auth.middleware';
 import { UserRepository, CartRepository, OrderRepository } from '../../repositories';
 import { UserService, OrderService, CacheService, ProducerService } from '../../services';
@@ -13,7 +14,7 @@ const orderRepository = new OrderRepository(pool);
 
 const cacheService = new CacheService(redis);
 const userService = new UserService(userRepository);
-const orderService = new OrderService(db, orderRepository, cartRepository, cacheService, ProducerService);
+const orderService = new OrderService(db, orderRepository, userRepository, cartRepository, cacheService, ProducerService, midtransSnap);
 const controller = new OrderController(orderService);
 
 const middleware = new AuthMiddleware(userService);
