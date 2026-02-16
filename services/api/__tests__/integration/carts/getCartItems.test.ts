@@ -1,6 +1,6 @@
 import request from 'supertest';
 import app from '../../../src/app';
-import { generateAccessToken } from '../../../src/utilities/token';
+import { generateAccessToken } from '../../../src/utils/token';
 import { pool } from '@project/shared';
 
 describe('Get cart item endpoint.', () => {

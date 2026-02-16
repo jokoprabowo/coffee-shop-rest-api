@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../services';
-import { verifyAccessToken } from '../utilities/token';
+import { verifyAccessToken } from '../utils/token';
 import { AuthenticationError } from '../exceptions';
 
 class AuthMiddleware {

@@ -1,7 +1,7 @@
 import request from 'supertest';
 import app from '../../../src/app';
 import { pool } from '@project/shared';
-import { generateAccessToken } from '../../../src/utilities/token';
+import { generateAccessToken } from '../../../src/utils/token';
 
 describe('Create order endpoint.', () => {
   let userId: number;

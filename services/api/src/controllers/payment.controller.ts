@@ -1,5 +1,5 @@
 import { NextFunction ,Request, Response } from 'express';
-import { verifyMidtransSignature } from '../utilities/midtrans';
+import { verifyMidtransSignature } from '../utils/midtrans';
 import { PaymentService } from '../services';
 import { ClientError } from '../exceptions';
 import config from '../config';
