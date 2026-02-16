@@ -7,7 +7,7 @@ interface MidtransPayload {
   signature_key: 'string',
 }
 
-export function verifyMidtransSignature(payload: MidtransPayload, serverKey: string) {
+export function verifyMidtransSignature(payload: MidtransPayload, serverKey: string): boolean {
   const { order_id, status_code, gross_amount, signature_key } = payload;
 
   const hash = crypto
