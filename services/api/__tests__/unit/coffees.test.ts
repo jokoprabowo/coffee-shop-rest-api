@@ -39,7 +39,7 @@ describe('Coffee service', () => {
     it('Should return coffee if successfully create coffee.', async () => {
       mockRepo.findByName.mockResolvedValue(null);
       mockRepo.create.mockResolvedValue(mockCoffee);
-      mockCacheService.del.mockResolvedValue();
+      mockCacheService.del.mockResolvedValue(1);
 
       const result = await service.create(mockCoffee);
       
@@ -103,7 +103,7 @@ describe('Coffee service', () => {
     it('Should return coffee if update with correct id and update data', async () => {
       mockRepo.findOne.mockResolvedValue(mockCoffee);
       mockRepo.update.mockResolvedValue(mockCoffee);
-      mockCacheService.del.mockResolvedValue();
+      mockCacheService.del.mockResolvedValue(1);
 
       const result = await service.update(1, mockCoffee);
 
@@ -125,7 +125,7 @@ describe('Coffee service', () => {
     it('Should return true if delete with correct id', async () => {
       mockRepo.findOne.mockResolvedValue(mockCoffee);
       mockRepo.delete.mockResolvedValue(true);
-      mockCacheService.del.mockResolvedValue();
+      mockCacheService.del.mockResolvedValue(1);
 
       const result = await service.delete(1);
 
