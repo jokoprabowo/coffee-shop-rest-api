@@ -4,3 +4,4 @@ export { default as RefreshTokenService } from './refreshToken.service';
 export { default as CacheService } from './cache.service';
 export { default as EmailService } from './email.service';
 export { default as UserService } from './user.service';
+export { default as PaymentService } from './payment.service';
