@@ -1,8 +1,7 @@
 import { CartRepository, OrderRepository, RefreshTokenRepository } from './repositories';
 import { CacheService, CartService, OrderService, RefreshTokenService } from './services';
 import { CartItemDTO } from './dto/cart.dto';
-import { logger, redis } from '@project/shared';
-import pool from './config/db';
+import { logger, redis, pool } from '@project/shared';
 import cron from 'node-cron';
 
 const init = async (): Promise<void> => {
