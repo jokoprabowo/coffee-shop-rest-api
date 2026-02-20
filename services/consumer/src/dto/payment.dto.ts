@@ -13,6 +13,6 @@ export interface PaymentEventDTO {
   id: number,
   payment_id: number,
   event_type: string,
-  payload_hash: string,
+  payload: string,
   created_at?: string,
 }

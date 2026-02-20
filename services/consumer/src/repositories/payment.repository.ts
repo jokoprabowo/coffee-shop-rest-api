@@ -49,7 +49,7 @@ class PaymentRepository {
 
   public async getPaymentEventById(paymentEventId: number): Promise<PaymentEventDTO | null> {
     const query = {
-      text : 'select payment_id, payload_hash from payment_events where id = $1',
+      text : 'select payment_id, payload from payment_events where id = $1',
       values : [paymentEventId],
     };
 

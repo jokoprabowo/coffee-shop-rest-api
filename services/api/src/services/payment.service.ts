@@ -23,12 +23,3 @@ class PaymentService {
 }
 
 export default PaymentService;
-
-/**
- * Create order and transaction also send event to queue
- * Create payment in consumer
- * Costumer pay the payment
- * Midtrans send notification to backend
- * Create payment events and send event to update payment and order status
- * Update payment and order status in consumer
- */

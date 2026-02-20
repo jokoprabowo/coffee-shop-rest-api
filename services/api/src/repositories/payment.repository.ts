@@ -6,7 +6,7 @@ class PaymentRepository {
 
   public async createPaymentEvent(paymentId: number, eventType: string, payload: string): Promise<PaymentEventDTO> {
     const query = {
-      text: 'insert into payment_events (payment_id, event_type, payload_hash) values ($1, $2, $3) returning *',
+      text: 'insert into payment_events (payment_id, event_type, payload) values ($1, $2, $3) returning *',
       values: [paymentId, eventType, payload],
     };
 

@@ -14,6 +14,6 @@ export interface PaymentEventDTO {
   order_id: number,
   transaction_id: string,
   transaction_status: string,
-  payload_hash: number,
+  payload: string,
   created_at?: string,
 }

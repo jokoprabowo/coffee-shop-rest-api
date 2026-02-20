@@ -42,7 +42,7 @@ class Listener{
         }
 
         const paymentId = paymentEvent.payment_id;
-        const payload = JSON.parse(paymentEvent.payload_hash);
+        const payload = JSON.parse(paymentEvent.payload);
 
         const transactionStatus = mapTransactionStatus(payload.transaction_status, payload.fraud_status);
 
