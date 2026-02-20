@@ -13,7 +13,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       type: 'varchar(50)',
       notNull: true,
     },
-    payload_hash: {
+    payload: {
       type: 'text',
       notNull: true,
       unique: true,
