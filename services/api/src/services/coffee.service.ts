@@ -68,6 +68,13 @@ class CoffeeService {
     await this.cache.del('coffees');
     return coffee;
   }
+
+  public async getMostFavoriteCoffees(): Promise<{ name: string, total_ordered: number }[]> {
+    const date = new Date();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return await this.repository.getMostFavoriteCoffees(month, year);
+  }
 }
 
 export default CoffeeService;
