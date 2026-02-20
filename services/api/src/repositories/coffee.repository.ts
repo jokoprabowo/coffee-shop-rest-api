@@ -70,6 +70,21 @@ class CoffeeRepository {
     const { rowCount } = await this.database.query(query);
     return (rowCount ?? 0) > 0;
   }
+
+  public async getMostFavoriteCoffees(month: number, year: number): Promise<{ name: string, total_ordered: number }[]> {
+    const query = {
+      text: `select c.name, sum(oi.quantity) as total_ordered from order_items oi
+      inner join coffees c on c.id = oi.coffee_id where oi.created_at >= $1 and oi.created_at < $2
+      group by c.name order by total_ordered desc limit 5`,
+      values: [
+        new Date(year, month -1, 1),
+        new Date(year, month, 1),
+      ],
+    };
+
+    const { rows } = await this.database.query(query);
+    return rows;
+  }
 }
 
 export default CoffeeRepository;
