@@ -69,6 +69,34 @@ class OrderRepository{
     const { rowCount } = await this.database.query(query);
     return (rowCount ?? 0) > 0;
   }
+
+  public async getMonthlyOrderStats(month: number, year: number, statuses: string[]): Promise<{
+    month: number, year: number, totalOrders: number, totalRevenue: number }[]> {
+    const query = {
+      text: `WITH date_series AS (
+        SELECT generate_series(
+            DATE_TRUNC('month', make_date($1, $2, 1)),
+            DATE_TRUNC('month', make_date($1, $2, 1)) + INTERVAL '1 month' - INTERVAL '1 day',
+            INTERVAL '1 day'
+        )::date AS date
+      )
+      SELECT 
+          ds.date,
+          COALESCE(COUNT(o.id), 0) AS total_orders,
+          COALESCE(SUM(o.total), 0) AS total_revenue
+      FROM date_series ds
+      LEFT JOIN orders o 
+          ON o.created_at >= (ds.date AT TIME ZONE 'Asia/Jakarta')
+          AND o.created_at < ((ds.date + INTERVAL '1 day') AT TIME ZONE 'Asia/Jakarta')
+          AND ($3::text[] IS NULL OR o.status = ANY($3))
+      GROUP BY ds.date
+      ORDER BY ds.date`,
+      values: [year, month, statuses && statuses.length > 0 ? statuses : null],
+    };
+
+    const { rows } = await this.database.query(query);
+    return rows;
+  }
 }
 
 export default OrderRepository;
