@@ -119,6 +119,11 @@ class OrderService {
     }
     return true;
   }
+
+  public async getMonthlyOrderStats(month: number, year: number, statuses: string[]): Promise<{
+    month: number, year: number, totalOrders: number, totalRevenue: number }[]> {
+    return await this.orderRepository.getMonthlyOrderStats(month, year, statuses);
+  }
 }
 
 export default OrderService;
