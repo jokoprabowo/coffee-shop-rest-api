@@ -20,6 +20,7 @@ describe('Coffee service', () => {
       findByName: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      getMostFavoriteCoffees: jest.fn(),
     } as unknown as jest.Mocked<CoffeeRepository>;
 
     mockCacheService = {
@@ -140,6 +141,22 @@ describe('Coffee service', () => {
       await expect(
         service.delete(1)
       ).rejects.toThrow(new NotFoundError('Coffee not found!'));
+    });
+  });
+
+  describe('Get most favorite coffees', () => {
+    it('Should return most favorite coffee data', async () => {
+      const mostFavoriteCoffees = [
+        { id: 1, name: 'Americano', total_ordered: 100 },
+        { id: 2, name: 'Latte', total_ordered: 80 },
+        { id: 3, name: 'Cappuccino', total_ordered: 70 },
+      ];
+
+      mockRepo.getMostFavoriteCoffees.mockResolvedValue(mostFavoriteCoffees);
+
+      const result = await service.getMostFavoriteCoffees();
+      expect(mockRepo.getMostFavoriteCoffees).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(mostFavoriteCoffees);
     });
   });
 });
