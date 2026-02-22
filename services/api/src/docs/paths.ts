@@ -171,7 +171,7 @@ export const paths = {
       },
     },
   },
-  '/api/v1/user/all': {
+  '/api/v1/users/all': {
     get: {
       tags: ['Users'],
       summary: 'Get all users',
@@ -185,7 +185,7 @@ export const paths = {
       },
     },
   },
-  '/api/v1/user/profile': {
+  '/api/v1/users/profile': {
     get: {
       tags: ['Users'],
       summary: 'Get user details',
@@ -199,7 +199,7 @@ export const paths = {
       },
     },
   },
-  '/api/v1/user/update': {
+  '/api/v1/users/update': {
     put: {
       tags: ['Users'],
       summary: 'Update user details',
@@ -222,7 +222,7 @@ export const paths = {
       },
     },
   },
-  'api/v1/user/delete': {
+  'api/v1/users/delete': {
     delete: {
       tags: ['Users'],
       summary: 'Delete user account',
@@ -234,7 +234,7 @@ export const paths = {
       },
     },
   },
-  '/api/v1/coffee': {
+  '/api/v1/coffees': {
     post: {
       tags: ['Coffees'],
       summary: 'Create new coffee',
@@ -269,7 +269,20 @@ export const paths = {
       },
     },
   },
-  '/api/v1/coffee/{id}': {
+  '/api/v1/coffees/most-favorite': {
+    get: {
+      tags: ['Coffees'],
+      summary: 'Get most favorite coffees',
+      security: [{ barerAuth: [] }],
+      responses: {
+        200: pathResponse('Successfully get most favorite coffees', 'OK', 'Most favorite coffees have been retrieved!',
+          { coffees: { type: 'array', items: { name: { type: 'string', description: 'The coffee name', example: 'Americano' },
+            total_ordered: { type: 'integer', description: 'Total ordered quantity of the coffee', example: 100 } } } }
+        ),
+      }
+    }
+  },
+  '/api/v1/coffees/{id}': {
     get: {
       tags: ['Coffees'],
       summary: 'Get coffee details',
@@ -325,7 +338,7 @@ export const paths = {
       },
     },
   },
-  '/api/v1/cart': {
+  '/api/v1/carts': {
     post: {
       tags: ['Carts'],
       summary: 'Add coffee to cart',
@@ -418,7 +431,7 @@ export const paths = {
       },
     },
   },
-  '/api/v1/order': {
+  '/api/v1/orders': {
     post: {
       tags: ['Orders'],
       summary: 'Create new order from cart',
@@ -443,7 +456,7 @@ export const paths = {
       },
     },
   },
-  '/api/v1/order/{id}': {
+  '/api/v1/orders/{id}': {
     get: {
       tags: ['Orders'],
       summary: 'Get order details',
