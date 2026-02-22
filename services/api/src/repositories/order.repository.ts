@@ -71,7 +71,7 @@ class OrderRepository{
   }
 
   public async getMonthlyOrderStats(month: number, year: number, statuses: string[]): Promise<{
-    month: number, year: number, totalOrders: number, totalRevenue: number }[]> {
+    date: Date, totalOrders: number, totalRevenue: number }[]> {
     const query = {
       text: `WITH date_series AS (
         SELECT generate_series(
