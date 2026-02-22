@@ -157,7 +157,7 @@ export const paths = {
       responses: {
         200: pathResponse('Successfully reset user password', 'OK', 'Password successfully reset!'),
         400: pathResponse('Invalid or expired verification token', 'BAD_REQUEST', 'Invalid or expired token'),
-      }
+      },
     },
   },
   '/api/v1/auth/logout': {
@@ -279,8 +279,8 @@ export const paths = {
           { coffees: { type: 'array', items: { name: { type: 'string', description: 'The coffee name', example: 'Americano' },
             total_ordered: { type: 'integer', description: 'Total ordered quantity of the coffee', example: 100 } } } }
         ),
-      }
-    }
+      },
+    },
   },
   '/api/v1/coffees/{id}': {
     get: {
@@ -449,11 +449,34 @@ export const paths = {
       summary: 'Get user order histories',
       security: [{ barerAuth: [] }],
       responses: {
-        201: pathResponse( 'Successfully get user order histories', 'OK', 'Orders have been retrieved!',
+        200: pathResponse( 'Successfully get user order histories', 'OK', 'Orders have been retrieved!',
           { order: { type: 'array', items: { $ref: '#/components/schemas/Order model' } } }
         ),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
       },
+    },
+  },
+  '/api/v1/orders/stats': {
+    get: {
+      tags: ['Orders'],
+      summary: 'Get list of total ordered and total revenue per day in a month',
+      security: [{ bearerAuth: [] }],
+      parameters: [{
+        name: 'month', in: 'query', required: true, description: 'The month of requested data', schema: { type: 'integer', example: 1 },
+      }, {
+        name: 'year', in: 'query', required: true, description: 'The year of requested data', schema: { type: 'integer', example: 2026 },
+      },  {
+        name: 'statuses', in: 'query', required: true, description: 'The status of requested data', schema: { type: 'string', example: 'paid,settlement' },
+      }],
+      responses: {
+        200: pathResponse('Successfully get monthly order stats data', 'OK', 'Monthly order stats have been retrieved!', {
+          orderStats: { type: 'array', items: {
+            date: { type: 'string', description: 'Date of the data', example: '2026-01-01T00:00:00' },
+            totalOrder: { type: 'integer', description: 'Total order data', example: 10 },
+            totalRevenue: { type: 'integer', description: 'Total ordered coffee', example: 100 }
+          } },
+        }),
+      },    
     },
   },
   '/api/v1/orders/{id}': {
@@ -465,12 +488,12 @@ export const paths = {
         name: 'id', in: 'path', required: true, description: 'Order id', schema: { type: 'integer', example: 1 },
       }],
       responses: {
-        201: pathResponse( 'Successfully get user order details', 'OK', 'Order has been retrieved!',
+        200: pathResponse( 'Successfully get user order details', 'OK', 'Order has been retrieved!',
           { order: { $ref: '#/components/schemas/Order model' } }
         ),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
         404: pathResponse( 'Order not found', 'NOT_FOUND', 'Order not found!' ),
-      }
+      },
     },
     put: {
       tags: ['Orders'],
@@ -493,7 +516,7 @@ export const paths = {
         },
       },
       responses: {
-        201: pathResponse( 'Successfully update user order', 'OK', 'Order has been updated!' ),
+        200: pathResponse( 'Successfully update user order', 'OK', 'Order has been updated!' ),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
         404: pathResponse( 'Order not found', 'NOT_FOUND', 'Order not found!' ),
       },
@@ -506,7 +529,7 @@ export const paths = {
         name: 'id', in: 'path', required: true, description: 'Order id', schema: { type: 'integer', example: 1 },
       }],
       responses: {
-        201: pathResponse( 'Successfully delete user order', 'OK', 'Order has been deleted!' ),
+        200: pathResponse( 'Successfully delete user order', 'OK', 'Order has been deleted!' ),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
         404: pathResponse( 'Order not found', 'NOT_FOUND', 'Order not found!' ),
       },
