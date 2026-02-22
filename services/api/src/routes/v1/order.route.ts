@@ -22,6 +22,7 @@ const router = Router();
 
 router.post('/', middleware.authorize, controller.createOrder);
 router.get('/', middleware.authorize, controller.getOrders);
+router.get('/stats', middleware.isAdmin, controller.getMonthlyOrderStats);
 router.get('/:id', middleware.authorize, controller.getOrderDetails);
 router.put('/:id', middleware.authorize, controller.updateOrderStatus);
 router.delete('/:id', middleware.authorize, controller.deleteOrder);
