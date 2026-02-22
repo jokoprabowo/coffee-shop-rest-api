@@ -9,6 +9,7 @@ class OrderController {
     this.getOrderDetails = this.getOrderDetails.bind(this);
     this.updateOrderStatus = this.updateOrderStatus.bind(this);
     this.deleteOrder = this.deleteOrder.bind(this);
+    this.getMonthlyOrderStats = this.getMonthlyOrderStats.bind(this);
   }
 
   public async createOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -90,6 +91,25 @@ class OrderController {
       });
       return;
     } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getMonthlyOrderStats(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const month = Number(req.query.month);
+      const year = Number(req.query.year);
+      const statuses = req.query.statuses ? (req.query.statuses as string).split(',') : [];
+      const orderStats = await this.service.getMonthlyOrderStats(month, year, statuses);
+      res.status(200).json({
+        status: 'OK',
+        message: 'Monthly order stats have been retrieved!',
+        data: {
+          orderStats,
+        },
+      });
+      return;
+    }  catch (err) {
       next(err);
     }
   }
