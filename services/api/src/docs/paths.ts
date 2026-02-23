@@ -535,4 +535,13 @@ export const paths = {
       },
     },
   },
+  '/api/v1/payments/webhook': {
+    post: {
+      tags: ['Payments'],
+      summary: 'Webhook for payment gateway',
+      response: {
+        201: pathResponse('Successfully create payment event', 'CREATED', 'Transaction has been created!'),
+      },
+    },
+  },
 };
