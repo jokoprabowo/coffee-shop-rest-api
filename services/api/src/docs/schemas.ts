@@ -129,12 +129,34 @@ export const schemas = {
   },
   'User token model': {
     type: 'object',
+    required: ['user_id', 'type', 'token'],
     properties: {
-      user_id: {  type: 'integer', description: 'Id of the user', example: 1 },
+      user_id: { type: 'integer', description: 'Id of the user', example: 1 },
       type: { type: 'string', description: 'Type of the token', example: 'password_reset' },
       token: { type: 'string', description: 'The token string', example: '4c5c5eebc4cc7bef1bd22ebb64c6a8297381523ebd9c3ec2c556d64899c82649' },
       expires_at: { type: 'string', format: 'date-time', description: 'Expiration date of the refresh token', example: '2025-01-28T16:27:58Z' },
       used_at: { type: 'string', format: 'date-time', description: 'Date when the token was used', example: '2025-01-28T16:27:58Z' },
     }
-  }
+  },
+  'Payment model': {
+    type: 'object',
+    required: ['order_id', 'token', 'amount'],
+    properties: {
+      order_id: { type: 'integer', description: 'Id of the order', example: 1 },
+      provider: { type: 'string', description: 'Payment provider', example: 'Midtrans' },
+      payment_type: { type: 'string', description: 'Payment type', example: 'Qris' },
+      token: { type: 'string', description: 'The token string', example: '4c5c5eebc4cc7bef1bd22ebb64c6a8297381523ebd9c3ec2c556d64899c82649' },
+      transaction_status: { type: 'string', description: 'status of the transaction', example: 'paid' },
+      amount: { type: 'integer', description: 'Amount of the payment', example: '24000' },      
+    }
+  },
+  'Payment event model': {
+    type: 'object',
+    required: ['payment_id', 'event_type', 'payload_hash'],
+    properties: {
+      payment_id: { type: 'integer', description: 'Id of the payment', example: 1 },
+      event_type: { type: 'string', description: 'Type of the event', example: 'payment.success' },
+      payload_hash: { type: 'string', description: 'The event payload', example: '{ transaction_id: 123456789 }' },
+    }
+  },
 };
