@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { pool, Database } from '@project/shared';
-import { authRateLimiter } from '../../middlewares/rate-limiter';
-import { withRateLimiter } from '../../utils/with-rate-limiter';
+import { authRateLimiter } from '../../middlewares/rateLimiter';
+import { withRateLimiter } from '../../utils/withRateLimiter';
 import { AuthController } from '../../controllers';
 import { AuthService, UserService, RefreshTokenService, ProducerService } from '../../services';
 import { UserRepository, RefreshTokenRepository, UserTokenRepository } from '../../repositories';
