@@ -1,20 +1,28 @@
 import { Database } from '@project/shared';
+import { midtransSnap } from '../../src/config/midtrans';
 import { NotFoundError } from '../../src/exceptions';
-import { OrderRepository, CartRepository } from '../../src/repositories';
+import { OrderRepository, CartRepository, UserRepository } from '../../src/repositories';
 import { OrderService, CacheService, ProducerService } from '../../src/services';
 
 describe('Order service', () => {
   let db: jest.Mocked<Database>;
   let mockCartRepo: jest.Mocked<CartRepository>;
+  let mockUserRepo: jest.Mocked<UserRepository>;
   let mockOrderRepo: jest.Mocked<OrderRepository>;
   let mockCache: jest.Mocked<CacheService>;
+  let mockMidtransSnap: jest.Mocked<typeof midtransSnap>;
   let mockMQ: jest.Mocked<typeof ProducerService>;
   let service: OrderService;
 
+  const mockUser = {
+    id: 1, email: 'test@mail.com', password: 'hashedPass', fullname: 'Test Example', 
+    phone: '081234567890', address: 'Test street, Example, 00000'
+  };
   const mockCart = { id: 1, user_id: 1, status: 'open' };
   const mockCartItem = { cart_item_id: 'cartItemId', coffee_id:1, name: 'Americano', price: 12000, quantity: 1, total_price: 12000 };
   const mockOrder = { id: 1, user_id: 1, status: 'pending', total: 1 };
   const mockOrderItem = { id: 1, order_id: 1, coffee_id: 1, name: 'Americano', quantity: 1, unit_price: 15000, total_price: 15000 };
+  const mockTransaction = { redirect_url: 'http://payment-test.url', token: 'sampleToken' };
 
   beforeEach(() => {
     db = {
@@ -26,6 +34,10 @@ describe('Order service', () => {
       getCartItems: jest.fn(),
       updateStatus: jest.fn(),
     } as unknown as jest.Mocked<CartRepository>;
+
+    mockUserRepo = {
+      findById: jest.fn(),
+    } as unknown as jest.Mocked<UserRepository>;
 
     mockOrderRepo = {
       createOrder: jest.fn(),
@@ -42,11 +54,15 @@ describe('Order service', () => {
       del: jest.fn(),
     } as unknown as jest.Mocked<CacheService>;
 
+    mockMidtransSnap = {
+      createTransaction: jest.fn(),
+    } as unknown as jest.Mocked<typeof midtransSnap>;
+
     mockMQ = {
       sendMessage: jest.fn(),
     } as unknown as jest.Mocked<typeof ProducerService>;
 
-    service = new OrderService(db, mockOrderRepo, mockCartRepo, mockCache, mockMQ);
+    service = new OrderService(db, mockOrderRepo, mockUserRepo, mockCartRepo, mockCache, mockMQ, mockMidtransSnap);
   });
 
   describe('Create order', () => {
@@ -153,6 +169,34 @@ describe('Order service', () => {
         service.deleteOrder(1)
       ).rejects.toThrow(new NotFoundError('Order not found!'));
       expect(mockOrderRepo.deleteOrder).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('Create transaction', () => {
+    it('Should create transaction and send message to rabbitMQ', async () => {
+      mockUserRepo.findById.mockResolvedValue(mockUser);
+      mockOrderRepo.getOrderDetails.mockResolvedValue([mockOrderItem]);
+      mockMidtransSnap.createTransaction.mockResolvedValue(mockTransaction);
+
+      const result = await service.createTransaction(1, 1);
+      
+      expect(mockUserRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockOrderRepo.getOrderDetails).toHaveBeenCalledWith(1);
+      expect(mockMidtransSnap.createTransaction).toHaveBeenCalledTimes(1);
+      expect(mockMQ.sendMessage).toHaveBeenCalledWith('create_payment', {
+        orderId: 1,
+        transaction_token: mockTransaction.token,
+        amount: mockOrderItem.total_price,
+      });
+      expect(result).toBe(mockTransaction);
+    });
+    it('Should return not found error if user is not exist', async () => {
+      mockUserRepo.findById.mockResolvedValue(null);
+
+      await expect(
+        service.createTransaction(1,1)
+      ).rejects.toThrow(new NotFoundError('User not found!'));
+      expect(mockUserRepo.findById).toHaveBeenCalledWith(1);
     });
   });
 });
