@@ -3,10 +3,11 @@ export interface PaymentDTO {
   order_id: number,
   provider: string,
   payment_type: string,
-  transaction_id: string,
+  token: string,
   transaction_status: string,
   amount: number,
   created_at?: string,
+  updated_at?: string,
 }
 
 export interface PaymentEventDTO {
