@@ -56,6 +56,16 @@ class PaymentRepository {
     const { rows } = await this.database.query(query);
     return rows[0];
   }
+
+  public async deletePaymentEvent(): Promise<boolean> {
+    const query = {
+      text: 'delete from payment_events where created_at < now() - interval \'7 days\'',
+      values: [],
+    };
+
+    const { rowCount } = await this.database.query(query);
+    return (rowCount ?? 0) > 0;
+  }
 }
 
 export default PaymentRepository;
