@@ -23,6 +23,10 @@ class PaymentService {
   public async getPaymentEventById(paymentEventId: number): Promise<PaymentEventDTO | null> {
     return this.paymentRepository.getPaymentEventById(paymentEventId);
   }
+
+  public async deletePaymentEvent(): Promise<boolean> {
+    return this.paymentRepository.deletePaymentEvent();
+  }
 }
 
 export default PaymentService;
