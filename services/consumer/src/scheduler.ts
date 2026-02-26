@@ -1,5 +1,5 @@
-import { CartRepository, OrderRepository, RefreshTokenRepository } from './repositories';
-import { CacheService, CartService, OrderService, RefreshTokenService } from './services';
+import { CartRepository, OrderRepository, RefreshTokenRepository, PaymentRepository } from './repositories';
+import { CacheService, CartService, OrderService, RefreshTokenService, PaymentService } from './services';
 import { CartItemDTO } from './dto/cart.dto';
 import { logger, redis, pool } from '@project/shared';
 import cron from 'node-cron';
@@ -8,6 +8,8 @@ const init = async (): Promise<void> => {
   const cartService = new CartService(new CartRepository(pool));
   const orderService = new OrderService(new OrderRepository(pool));
   const refreshTokenService = new RefreshTokenService(new RefreshTokenRepository(pool));
+  const paymentRepository = new PaymentRepository(pool);
+  const paymentService = new PaymentService(paymentRepository);
   const cacheService = new CacheService(redis);
 
   const cartSync = async (): Promise<void> => {
@@ -47,6 +49,7 @@ const init = async (): Promise<void> => {
   // cron job every monday at 2 am
   cron.schedule('0 2 * * 1', async () => {
     await refreshTokenService.deleteToken().then(() => logger.info('Refresh token data have been deleted!'));
+    await paymentService.deletePaymentEvent().then(() => logger.info('Payment event data have been deleted!'));
   });
 
   // cron job every 1st at 2 am
