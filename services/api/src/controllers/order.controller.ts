@@ -1,9 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { OrderService } from '../services';
 import { AuthenticationError } from '../exceptions';
+import { OrderValidator } from '../validators';
 
 class OrderController {
-  constructor(private readonly service: OrderService) {
+  constructor(
+    private readonly service: OrderService,
+    private readonly validator: typeof OrderValidator,
+  ) {
     this.createOrder = this.createOrder.bind(this);
     this.getOrders = this.getOrders.bind(this);
     this.getOrderDetails = this.getOrderDetails.bind(this);
@@ -55,6 +59,7 @@ class OrderController {
 
   public async getOrderDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      this.validator.validateGetOrderDetails({ id: Number(req.params.id) });
       const orders = await this.service.getOrderDetails(Number(req.params.id));
       res.status(200).json({
         status: 'OK',
@@ -71,6 +76,7 @@ class OrderController {
 
   public async updateOrderStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      this.validator.validatePutOrderStatus({ id: Number(req.params.id), status: req.body.status });
       await this.service.updateStatus(Number(req.params.id), req.body.status);
       res.status(200).json({
         status: 'OK',
@@ -84,6 +90,7 @@ class OrderController {
 
   public async deleteOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      this.validator.validateDelOrder({ id: Number(req.params.id) });
       await this.service.deleteOrder(Number(req.params.id));
       res.status(200).json({
         status: 'OK',
@@ -100,6 +107,7 @@ class OrderController {
       const month = Number(req.query.month);
       const year = Number(req.query.year);
       const statuses = req.query.statuses ? (req.query.statuses as string).split(',') : [];
+      this.validator.validateGetMonthlyOrderStats({ month, year, statuses });
       const orderStats = await this.service.getMonthlyOrderStats(month, year, statuses);
       res.status(200).json({
         status: 'OK',

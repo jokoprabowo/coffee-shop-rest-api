@@ -1,9 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { CartService } from '../services';
 import { AuthenticationError } from '../exceptions';
+import { CartValidator } from '../validators';
 
 class CartController {
-  constructor(private readonly service: CartService) {
+  constructor(
+    private readonly service: CartService,
+    private readonly validator: typeof CartValidator,
+  ){
     this.addToCart = this.addToCart.bind(this);
     this.getCartItems = this.getCartItems.bind(this);
     this.updateItem = this.updateItem.bind(this);
@@ -12,6 +16,7 @@ class CartController {
 
   public async addToCart(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      this.validator.validatePostCartPayload(req.body);
       const { coffeeId, quantity } = req.body;
       if(!req.userId) {
         throw new AuthenticationError('Login required!');
@@ -52,6 +57,7 @@ class CartController {
 
   public async updateItem(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      this.validator.validatePutCartPayload(req.body);
       if(!req.userId) {
         throw new AuthenticationError('Login required!');
       }
@@ -69,6 +75,7 @@ class CartController {
 
   public async deleteItem(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      this.validator.validateDeleteCartPayload(req.body);
       if(!req.userId) {
         throw new AuthenticationError('Login required!');
       }
