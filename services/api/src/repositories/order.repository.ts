@@ -97,6 +97,16 @@ class OrderRepository{
     const { rows } = await this.database.query(query);
     return rows;
   }
+
+  public async verifyOrderOwnership(orderId: number, userId: number): Promise<boolean> {
+    const query = {
+      text: 'select id from orders where id = $1 and user_id = $2',
+      values: [orderId, userId],
+    };
+
+    const { rowCount } = await this.database.query(query);
+    return (rowCount ?? 0) > 0;
+  }
 }
 
 export default OrderRepository;
