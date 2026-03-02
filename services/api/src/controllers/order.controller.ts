@@ -59,8 +59,12 @@ class OrderController {
 
   public async getOrderDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      if (!req.userId) {
+        throw new AuthenticationError('Login required!');
+      }
+
       this.validator.validateGetOrderDetails({ id: Number(req.params.id) });
-      const orders = await this.service.getOrderDetails(Number(req.params.id));
+      const orders = await this.service.getOrderDetails(Number(req.params.id), req.userId);
       res.status(200).json({
         status: 'OK',
         message: 'Order have been retrieved!',
@@ -76,8 +80,12 @@ class OrderController {
 
   public async updateOrderStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      if(!req.userId) {
+        throw new AuthenticationError('Login required!');
+      }
+
       this.validator.validatePutOrderStatus({ id: Number(req.params.id), status: req.body.status });
-      await this.service.updateStatus(Number(req.params.id), req.body.status);
+      await this.service.updateStatus(Number(req.params.id), req.body.status, req.userId);
       res.status(200).json({
         status: 'OK',
         message: 'Order status have been updated!',
@@ -90,11 +98,15 @@ class OrderController {
 
   public async deleteOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      if(!req.userId) {
+        throw new AuthenticationError('Login required!');
+      }
+
       this.validator.validateDelOrder({ id: Number(req.params.id) });
-      await this.service.deleteOrder(Number(req.params.id));
+      await this.service.deleteOrder(Number(req.params.id), req.userId);
       res.status(200).json({
         status: 'OK',
-        message: 'Order status have been deleted!',
+        message: 'Order have been deleted!',
       });
       return;
     } catch (err) {
