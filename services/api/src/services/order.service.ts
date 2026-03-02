@@ -2,7 +2,7 @@ import { Database } from '@project/shared';
 import { midtransSnap } from '../config/midtrans';
 import { UserRepository, CartRepository, OrderRepository } from '../repositories';
 import { CacheService, ProducerService } from '.';
-import { NotFoundError } from '../exceptions';
+import { AuthorizationError, NotFoundError } from '../exceptions';
 import { CartItemDTO, OrderDTO, OrderItemDTO } from '../dto';
 
 class OrderService {
@@ -56,6 +56,8 @@ class OrderService {
       throw new NotFoundError('User not found!');
     }
 
+    await this.verifyOrderOwnership(orderId, userId);
+
     const orderItems = await this.orderRepository.getOrderDetails(orderId);
     const orderTotalPrice = orderItems.reduce((acc , item) => acc + item.total_price, 0);
     
@@ -96,7 +98,8 @@ class OrderService {
     return orders;
   }
 
-  public async getOrderDetails(orderId: number): Promise<OrderItemDTO[]> {
+  public async getOrderDetails(orderId: number, userId: number): Promise<OrderItemDTO[]> {
+    await this.verifyOrderOwnership(orderId, userId);
     const orderItems = await this.orderRepository.getOrderDetails(orderId);
     if (!orderItems[0]) {
       throw new NotFoundError('Order not found!');
@@ -104,7 +107,8 @@ class OrderService {
     return orderItems;
   }
 
-  public async updateStatus(orderId: number, status: string): Promise<boolean> {
+  public async updateStatus(orderId: number, status: string, userId: number): Promise<boolean> {
+    await this.verifyOrderOwnership(orderId, userId);
     const order = await this.orderRepository.updateStatus(orderId, status);
     if (!order) {
       throw new NotFoundError('Order not found!');
@@ -112,7 +116,8 @@ class OrderService {
     return true;
   }
 
-  public async deleteOrder(orderId: number): Promise<boolean> {
+  public async deleteOrder(orderId: number, userId: number): Promise<boolean> {
+    await this.verifyOrderOwnership(orderId, userId);
     const order = await this.orderRepository.deleteOrder(orderId);
     if (!order) {
       throw new NotFoundError('Order not found!');
@@ -123,6 +128,13 @@ class OrderService {
   public async getMonthlyOrderStats(month: number, year: number, statuses: string[]): Promise<{
     date: Date, totalOrders: number, totalRevenue: number }[]> {
     return await this.orderRepository.getMonthlyOrderStats(month, year, statuses);
+  }
+
+  public async verifyOrderOwnership(orderId: number, userId: number): Promise<void> {
+    const isOwner = await this.orderRepository.verifyOrderOwnership(orderId, userId);
+    if (!isOwner) {
+      throw new AuthorizationError('You are not authorized to access this order!');
+    }
   }
 }
 
