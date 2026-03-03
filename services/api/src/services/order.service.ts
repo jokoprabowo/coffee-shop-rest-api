@@ -99,29 +99,24 @@ class OrderService {
   }
 
   public async getOrderDetails(orderId: number, userId: number): Promise<OrderItemDTO[]> {
-    await this.verifyOrderOwnership(orderId, userId);
     const orderItems = await this.orderRepository.getOrderDetails(orderId);
     if (!orderItems[0]) {
       throw new NotFoundError('Order not found!');
     }
+
+    await this.verifyOrderOwnership(orderId, userId);
     return orderItems;
   }
 
   public async updateStatus(orderId: number, status: string, userId: number): Promise<boolean> {
-    await this.verifyOrderOwnership(orderId, userId);
-    const order = await this.orderRepository.updateStatus(orderId, status);
-    if (!order) {
-      throw new NotFoundError('Order not found!');
-    }
+    await this.getOrderDetails(orderId, userId);
+    await this.orderRepository.updateStatus(orderId, status);
     return true;
   }
 
   public async deleteOrder(orderId: number, userId: number): Promise<boolean> {
-    await this.verifyOrderOwnership(orderId, userId);
-    const order = await this.orderRepository.deleteOrder(orderId);
-    if (!order) {
-      throw new NotFoundError('Order not found!');
-    }
+    await this.getOrderDetails(orderId, userId);
+    await this.orderRepository.deleteOrder(orderId);
     return true;
   }
 
