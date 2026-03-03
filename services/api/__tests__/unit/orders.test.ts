@@ -1,6 +1,6 @@
 import { Database } from '@project/shared';
 import { midtransSnap } from '../../src/config/midtrans';
-import { NotFoundError } from '../../src/exceptions';
+import { AuthorizationError, NotFoundError } from '../../src/exceptions';
 import { OrderRepository, CartRepository, UserRepository } from '../../src/repositories';
 import { OrderService, CacheService, ProducerService } from '../../src/services';
 
@@ -46,6 +46,7 @@ describe('Order service', () => {
       getOrderDetails: jest.fn(),
       updateStatus: jest.fn(),
       deleteOrder: jest.fn(),
+      verifyOrderOwnership: jest.fn(),
     } as unknown as jest.Mocked<OrderRepository>;
 
     mockCache = {
@@ -124,51 +125,114 @@ describe('Order service', () => {
   describe('Get order details', () => {
     it('Should return order details', async () => {
       mockOrderRepo.getOrderDetails.mockResolvedValue([mockOrderItem]);
+      mockOrderRepo.verifyOrderOwnership.mockResolvedValue(true);
 
-      const result = await service.getOrderDetails(1);
+      const result = await service.getOrderDetails(1, 1);
 
+      expect(mockOrderRepo.verifyOrderOwnership).toHaveBeenCalledWith(1, 1);
       expect(mockOrderRepo.getOrderDetails).toHaveBeenCalledWith(1);
       expect(result).toEqual([mockOrderItem]);
+    });
+
+    it('Should return unauthorized error if user is not the owner of the order', async () => {
+      mockOrderRepo.getOrderDetails.mockResolvedValue([mockOrderItem]);
+      mockOrderRepo.verifyOrderOwnership.mockResolvedValue(false);
+
+      await expect(
+        service.getOrderDetails(1, 1)
+      ).rejects.toThrow(new AuthorizationError('You are not authorized to access this order!'));
+
+      expect(mockOrderRepo.getOrderDetails).toHaveBeenCalledWith(1);
+      expect(mockOrderRepo.verifyOrderOwnership).toHaveBeenCalledWith(1, 1);
+    });
+
+    it('Should return not found error if order is not exist', async () => {
+      mockOrderRepo.verifyOrderOwnership.mockResolvedValue(true);
+      mockOrderRepo.getOrderDetails.mockResolvedValue([]);
+
+      await expect(
+        service.getOrderDetails(1, 1)
+      ).rejects.toThrow(new NotFoundError('Order not found!'));
+
+      expect(mockOrderRepo.getOrderDetails).toHaveBeenCalledWith(1);
     });
   });
 
   describe('Update order status', () => {
     it('Should return true if update successfull', async () => {
+      mockOrderRepo.getOrderDetails.mockResolvedValue([mockOrderItem]);
+      mockOrderRepo.verifyOrderOwnership.mockResolvedValue(true);
       mockOrderRepo.updateStatus.mockResolvedValue(true);
 
-      const result = await service.updateStatus(1, 'paid');
+      const result = await service.updateStatus(1, 'paid', 1);
 
+      expect(mockOrderRepo.getOrderDetails).toHaveBeenCalledWith(1);
+      expect(mockOrderRepo.verifyOrderOwnership).toHaveBeenCalledWith(1, 1);
       expect(mockOrderRepo.updateStatus).toHaveBeenCalledWith(1, 'paid');
       expect(result).toBe(true);
     });
 
-    it('Should return not found error if order is not exist', async () => {
-      mockOrderRepo.updateStatus.mockResolvedValue(false);
+    it('Should return unauthorized error if user is not the owner of the order', async () => {
+      mockOrderRepo.getOrderDetails.mockResolvedValue([mockOrderItem]);
+      mockOrderRepo.verifyOrderOwnership.mockResolvedValue(false);
 
       await expect(
-        service.updateStatus(1, 'paid')
+        service.updateStatus(1, 'paid', 1)
+      ).rejects.toThrow(new AuthorizationError('You are not authorized to access this order!'));
+
+      expect(mockOrderRepo.getOrderDetails).toHaveBeenCalledWith(1);
+      expect(mockOrderRepo.verifyOrderOwnership).toHaveBeenCalledWith(1, 1);
+      expect(mockOrderRepo.updateStatus).not.toHaveBeenCalled();
+    });
+
+    it('Should return not found error if order is not exist', async () => {
+      mockOrderRepo.getOrderDetails.mockResolvedValue([]);
+
+      await expect(
+        service.updateStatus(1, 'paid', 1)
       ).rejects.toThrow(new NotFoundError('Order not found!'));
-      expect(mockOrderRepo.updateStatus).toHaveBeenCalledWith(1, 'paid');
+
+      expect(mockOrderRepo.getOrderDetails).toHaveBeenCalledWith(1);
     });
   });
 
   describe('Delete order', () => {
     it('Should return true if delete successfull', async () => {
+      mockOrderRepo.getOrderDetails.mockResolvedValue([mockOrderItem]);
+      mockOrderRepo.verifyOrderOwnership.mockResolvedValue(true);
       mockOrderRepo.deleteOrder.mockResolvedValue(true);
 
-      const result = await service.deleteOrder(1);
+      const result = await service.deleteOrder(1, 1);
 
+      expect(mockOrderRepo.getOrderDetails).toHaveBeenCalledWith(1);
+      expect(mockOrderRepo.verifyOrderOwnership).toHaveBeenCalledWith(1, 1);
       expect(mockOrderRepo.deleteOrder).toHaveBeenCalledWith(1);
       expect(result).toBe(true);
     });
 
-    it('Should return not found error if order is not exist', async () => {
-      mockOrderRepo.deleteOrder.mockResolvedValue(false);
+    it('Should return unauthorized error if user is not the owner of the order', async () => {
+      mockOrderRepo.getOrderDetails.mockResolvedValue([mockOrderItem]);
+      mockOrderRepo.verifyOrderOwnership.mockResolvedValue(false);
 
       await expect(
-        service.deleteOrder(1)
+        service.deleteOrder(1, 1)
+      ).rejects.toThrow(new AuthorizationError('You are not authorized to access this order!'));
+
+      expect(mockOrderRepo.getOrderDetails).toHaveBeenCalledWith(1);
+      expect(mockOrderRepo.verifyOrderOwnership).toHaveBeenCalledWith(1, 1);
+      expect(mockOrderRepo.deleteOrder).not.toHaveBeenCalled();
+    });
+
+    it('Should return not found error if order is not exist', async () => {
+      mockOrderRepo.getOrderDetails.mockResolvedValue([]);
+
+      await expect(
+        service.deleteOrder(1, 1)
       ).rejects.toThrow(new NotFoundError('Order not found!'));
-      expect(mockOrderRepo.deleteOrder).toHaveBeenCalledWith(1);
+
+      expect(mockOrderRepo.getOrderDetails).toHaveBeenCalledWith(1);
+      expect(mockOrderRepo.verifyOrderOwnership).not.toHaveBeenCalled();
+      expect(mockOrderRepo.deleteOrder).not.toHaveBeenCalled();
     });
   });
 
@@ -176,11 +240,13 @@ describe('Order service', () => {
     it('Should create transaction and send message to rabbitMQ', async () => {
       mockUserRepo.findById.mockResolvedValue(mockUser);
       mockOrderRepo.getOrderDetails.mockResolvedValue([mockOrderItem]);
+      mockOrderRepo.verifyOrderOwnership.mockResolvedValue(true);
       mockMidtransSnap.createTransaction.mockResolvedValue(mockTransaction);
 
       const result = await service.createTransaction(1, 1);
       
       expect(mockUserRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockOrderRepo.verifyOrderOwnership).toHaveBeenCalledWith(1, 1);
       expect(mockOrderRepo.getOrderDetails).toHaveBeenCalledWith(1);
       expect(mockMidtransSnap.createTransaction).toHaveBeenCalledTimes(1);
       expect(mockMQ.sendMessage).toHaveBeenCalledWith('create_payment', {
@@ -190,13 +256,30 @@ describe('Order service', () => {
       });
       expect(result).toBe(mockTransaction);
     });
+
     it('Should return not found error if user is not exist', async () => {
       mockUserRepo.findById.mockResolvedValue(null);
 
       await expect(
         service.createTransaction(1,1)
       ).rejects.toThrow(new NotFoundError('User not found!'));
+
       expect(mockUserRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockOrderRepo.verifyOrderOwnership).not.toHaveBeenCalled();
+      expect(mockMidtransSnap.createTransaction).not.toHaveBeenCalled();
+    });
+
+    it('Should return unauthorized error if user is not the owner of the order', async () => {
+      mockUserRepo.findById.mockResolvedValue(mockUser);
+      mockOrderRepo.verifyOrderOwnership.mockResolvedValue(false);
+
+      await expect(
+        service.createTransaction(1, 1)
+      ).rejects.toThrow(new AuthorizationError('You are not authorized to access this order!'));
+
+      expect(mockUserRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockOrderRepo.verifyOrderOwnership).toHaveBeenCalledWith(1, 1);
+      expect(mockMidtransSnap.createTransaction).not.toHaveBeenCalled();
     });
   });
 });
