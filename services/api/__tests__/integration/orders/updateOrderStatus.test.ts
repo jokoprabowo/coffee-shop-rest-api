@@ -23,6 +23,7 @@ describe('Update order status endpoint.', () => {
     await pool.query('insert into cart_items (cart_id, coffee_id, quantity) values ($1, $2, $3) returning id', [cartId, 1, 1]);
     orderId = await pool.query('insert into orders (user_id, total) values ($1, $2) returning id', [userId, 1])
       .then(res => res.rows[0].id);
+    await pool.query('insert into order_items (order_id, coffee_id, quantity, unit_price, total_price) values ($1, $2, $3, $4, $5)', [orderId, 1, 1, 10000, 10000]);
   });
 
   afterAll(async () => {
@@ -37,6 +38,15 @@ describe('Update order status endpoint.', () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.body.status).toBe('OK');
+  });
+
+  it('Should return a 400 status code if the provided order id is not a number.', async () => {
+    const response = await request(app).put('/api/v1/orders/invalid-id')
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ status: 'paid' });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body.status).toBe('BAD_REQUEST');
   });
 
   it('Should return a 401 status code if access token is missing.', async () => {

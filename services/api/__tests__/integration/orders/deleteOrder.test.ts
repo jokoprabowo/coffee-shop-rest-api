@@ -47,6 +47,14 @@ describe('Delete order endpoint.', () => {
     expect(response.body.status).toBe('OK');
   });
 
+  it('Should return a 400 status code if the provided order id is not a number.', async () => {
+    const response = await request(app).delete('/api/v1/orders/invalid-id')
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body.status).toBe('BAD_REQUEST');
+  });
+
   it('Should return a 401 status code if access token is missing.', async () => {
     const response = await request(app).delete(`/api/v1/orders/${orderId}`);
 
