@@ -5,7 +5,9 @@ import { generateAccessToken } from '../../../src/utils/token';
 
 describe('Update order status endpoint.', () => {
   let userId: number;
+  let adminId: number;
   let userToken: string;
+  let adminToken: string;
   let cartId: number;
   let orderId: number;
 
@@ -13,6 +15,9 @@ describe('Update order status endpoint.', () => {
     userId = await pool.query('select id from users where email = $1', ['testexample@mail.com'])
       .then(res => res.rows[0].id);
     userToken = generateAccessToken(userId);
+    adminId = await pool.query('select id from users where email = $1', ['adminexample@mail.com'])
+      .then(res => res.rows[0].id);
+    adminToken = generateAccessToken(adminId);
 
     cartId = await pool.query('insert into carts (user_id) values ($1) returning id', [userId]).then(res => res.rows[0].id);
     await pool.query('insert into cart_items (cart_id, coffee_id, quantity) values ($1, $2, $3) returning id', [cartId, 1, 1]);
@@ -42,8 +47,17 @@ describe('Update order status endpoint.', () => {
     expect(response.body.status).toBe('UNAUTHORIZED');
   });
 
+  it('Should return a 403 status code if the order does not belong to the user.', async () => {
+    const response = await request(app).put(`/api/v1/orders/${orderId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ status: 'paid' });
+
+    expect(response.statusCode).toBe(403);
+    expect(response.body.status).toBe('FORBIDDEN');
+  });
+
   it('Should return a 404 status code if the cart with provided id is not exist.', async () => {
-    const response = await request(app).put('/api/v1/orders/-1')
+    const response = await request(app).put(`/api/v1/orders/${orderId + 1}`)
       .set('Authorization', `Bearer ${userToken}`)
       .send({ status: 'paid' });
 
