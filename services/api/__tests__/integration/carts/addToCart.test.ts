@@ -26,6 +26,15 @@ describe('Add to cart endpoint.', () => {
     expect(response.body.data.cartItems[0].quantity).toBe(1);
   });
 
+  it('Should return a 400 status code if request body is invalid.', async () => {
+    const response = await request(app).post('/api/v1/carts')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ coffeeId: 'a', quantity: 'b' });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body.status).toBe('BAD_REQUEST');
+  });
+
   it('Should return a 401 status code if access token is missing.', async () => {
     const response = await request(app).post('/api/v1/carts')
       .send(mockCartItem);
