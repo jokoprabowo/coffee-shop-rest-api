@@ -361,6 +361,7 @@ export const paths = {
         201: pathResponse( 'Successfully add coffee to cart', 'CREATED', 'Coffee has been added to cart!', 
           { cartItems : { type: 'array', items: { $ref: '#/components/schemas/Cart item model' } } }
         ),
+        400: pathResponse('Invalid cart item input data', 'BAD_REQUEST', 'Invalid input!'),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
       },
     },
@@ -400,6 +401,7 @@ export const paths = {
         200: pathResponse( 'Successfully update cart item', 'OK', 'Cart item has been updated!',
           { cartItems : { type: 'array', items: { $ref: '#/components/schemas/Cart item model' } } }
         ),
+        400: pathResponse('Invalid cart item input data', 'BAD_REQUEST', 'Invalid input!'),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
         404: pathResponse( 'Cart item not found', 'NOT_FOUND', 'Cart item not found!' ),
       },
@@ -426,6 +428,7 @@ export const paths = {
       },
       responses: {
         200: pathResponse( 'Successfully delete cart item', 'OK', 'Cart item has been deleted!' ),
+        400: pathResponse('Invalid cart item input data', 'BAD_REQUEST', 'Invalid input!'),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
         404: pathResponse( 'Cart item not found', 'NOT_FOUND', 'Cart item not found!' ),
       },
@@ -476,6 +479,7 @@ export const paths = {
             totalRevenue: { type: 'integer', description: 'Total ordered coffee', example: 100 }
           } },
         }),
+        400: pathResponse('Invalid order input data', 'BAD_REQUEST', 'Invalid input!'),
       },    
     },
   },
@@ -491,6 +495,7 @@ export const paths = {
         200: pathResponse( 'Successfully get user order details', 'OK', 'Order has been retrieved!',
           { order: { $ref: '#/components/schemas/Order model' } }
         ),
+        400: pathResponse('Invalid order input data', 'BAD_REQUEST', 'Invalid input!'),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
         403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
         404: pathResponse( 'Order not found', 'NOT_FOUND', 'Order not found!' ),
@@ -518,6 +523,7 @@ export const paths = {
       },
       responses: {
         200: pathResponse( 'Successfully update user order', 'OK', 'Order has been updated!' ),
+        400: pathResponse('Invalid order input data', 'BAD_REQUEST', 'Invalid input!'),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
         403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
         404: pathResponse( 'Order not found', 'NOT_FOUND', 'Order not found!' ),
@@ -532,6 +538,7 @@ export const paths = {
       }],
       responses: {
         200: pathResponse( 'Successfully delete user order', 'OK', 'Order has been deleted!' ),
+        400: pathResponse('Invalid order input data', 'BAD_REQUEST', 'Invalid input!'),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
         403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
         404: pathResponse( 'Order not found', 'NOT_FOUND', 'Order not found!' ),
