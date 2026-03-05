@@ -492,6 +492,7 @@ export const paths = {
           { order: { $ref: '#/components/schemas/Order model' } }
         ),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
+        403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
         404: pathResponse( 'Order not found', 'NOT_FOUND', 'Order not found!' ),
       },
     },
@@ -518,6 +519,7 @@ export const paths = {
       responses: {
         200: pathResponse( 'Successfully update user order', 'OK', 'Order has been updated!' ),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
+        403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
         404: pathResponse( 'Order not found', 'NOT_FOUND', 'Order not found!' ),
       },
     },
@@ -531,6 +533,7 @@ export const paths = {
       responses: {
         200: pathResponse( 'Successfully delete user order', 'OK', 'Order has been deleted!' ),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
+        403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
         404: pathResponse( 'Order not found', 'NOT_FOUND', 'Order not found!' ),
       },
     },
