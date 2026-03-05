@@ -41,7 +41,24 @@ Some benefits include:
   - Update quantity and remove items  
 - **Order Management**  
   - Create orders from cart  
-  - Track order status (pending, paid, completed)  
+  - Track order status (pending, paid, completed)
+
+### 💳 Payment Gateway Integration (Midtrans)  
+- Integrated with **Midtrans Snap API** for secure online payments  
+- Generate **Snap Token** upon order creation  
+- Support multiple payment methods:  
+  - Bank Transfer  
+  - E-Wallet (GoPay, ShopeePay, etc.)  
+  - Credit/Debit Card  
+- Handle **Midtrans Webhook Notifications** to update transaction status automatically  
+- Store and manage transaction states such as:  
+  - `pending`  
+  - `paid`  
+  - `failed`  
+  - `canceled`  
+  - `expired`  
+  - `refunded`  
+- Ensure secure server-side verification of payment status
 
 ### 📧 Email Service  
 - **Nodemailer Integration**  
@@ -68,6 +85,7 @@ Some benefits include:
 - **Database**: PostgreSQL  
 - **Authentication**: JWT (Access Token & Refresh Token)  
 - **Email Service**: Nodemailer  
+- **Payment Gateway**: Midtrans (Snap API & Webhook)  
 - **Caching**: Redis  
 - **Message Broker**: RabbitMQ  
 - **Testing**: Jest & Supertest  
@@ -126,6 +144,17 @@ REDIS_PASSWORD=
 
 # RabbitMQ
 RABBITMQ_URL=amqp://localhost:5672
+
+# SMTP (Email)
+SMTP_HOST=your_host
+SMTP_PORT=465
+SMTP_USER=your_username
+SMTP_PASS=tour_password
+
+# Midtrans
+MERCHANT_ID=your_midtrans_merchant_id
+SERVER_KEY=your_midtrans_server_key
+CLIENT_KEY=your_midtrans_client_key
 ```
 
 ---
@@ -153,6 +182,17 @@ REDIS_PASSWORD=
 
 # RabbitMQ
 RABBITMQ_URL=amqp://rabbitmq:5672
+
+# SMTP (Email)
+SMTP_HOST=your_host
+SMTP_PORT=465
+SMTP_USER=your_username
+SMTP_PASS=tour_password
+
+# Midtrans
+MERCHANT_ID=your_midtrans_merchant_id
+SERVER_KEY=your_midtrans_server_key
+CLIENT_KEY=your_midtrans_client_key
 ```
 
 ---
@@ -199,6 +239,30 @@ Runs the following containers:
 * PostgreSQL
 * Redis
 * RabbitMQ
+
+---
+
+## 📦 Apply Midtrans Webhook with Ngrok (Port 3000)
+
+**Start Ngrok**
+
+```bash
+ngrok http 3000
+```
+
+Ngrok will generate a public URL like:
+
+```bash
+https://abcd-1234.ngrok-free.app
+```
+
+**Register the URL in Midtrans**
+
+Fill in the Notification URL with:
+
+```bash
+https://abcd-1234.ngrok-free.app/api/v1/payments/webhook
+```
 
 ---
 
