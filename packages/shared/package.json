@@ -1,0 +1,25 @@
+{
+  "name": "@project/shared",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev:prepare": "npm run build"
+  },
+  "keywords": [],
+  "author": "Joko Prabowo",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "amqplib": "^0.10.9",
+    "ioredis": "^5.8.2",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.8",
+    "@types/pg": "^8.15.6",
+    "dotenv": "^17.2.3",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,90 @@
+import { Pool } from 'pg';
+import { CoffeeDto } from '../dto';
+
+class CoffeeRepository {
+  constructor(private readonly database: Pool) {}
+
+  public async create(data: CoffeeDto): Promise<CoffeeDto> {
+    const {
+      name, price, description, image,
+    } = data;
+    const createdAt = new Date();
+    const updatedAt = createdAt;
+
+    const query = {
+      text: 'insert into coffees(name, price, description, image, created_at, updated_at) '
+      + 'values ($1, $2, $3, $4, $5, $6) returning id, name, price, description, image',
+      values: [name, price, description, image, createdAt, updatedAt],
+    };
+
+    const { rows } = await this.database.query(query);
+    return rows[0];
+  }
+
+  public async findOne(id: number): Promise<CoffeeDto | null> {
+    const query = {
+      text: 'select id, name, price, description, image from coffees where id = $1',
+      values: [id],
+    };
+    const { rows } = await this.database.query(query);
+    return rows[0];
+  }
+
+  public async findByName(name: string): Promise<CoffeeDto | null> {
+    const query = {
+      text: 'select id, name, price, description, image from coffees where name = $1',
+      values: [name],
+    };
+    const { rows } = await this.database.query(query);
+    return rows[0];
+  }
+
+  public async findAll(): Promise<CoffeeDto[]> {
+    const query = {
+      text: 'select id, name, price, description, image from coffees',
+    };
+    const { rows } = await this.database.query(query);
+    return rows;
+  }
+
+  public async update(id: number, data: Partial<CoffeeDto>): Promise<CoffeeDto | null> {
+    const entries = Object.entries(data).filter(([_, v]) => v !== undefined);
+    const fields = entries.map(([key], i) => `${key}=$${i + 1}`).join(', ');
+    const values = entries.map(([_, value]) => value);
+    const query = {
+      text: `update coffees set ${fields}, updated_at = $${entries.length + 1} where id = $${entries.length + 2} `+
+      'returning name, price, description, image',
+      values: [...values, new Date(), id],
+    };
+
+    const { rows } = await this.database.query(query);
+    return rows[0];
+  }
+
+  public async delete(id: number): Promise<boolean> {
+    const query = {
+      text: 'delete from coffees where id = $1',
+      values: [id],
+    };
+
+    const { rowCount } = await this.database.query(query);
+    return (rowCount ?? 0) > 0;
+  }
+
+  public async getMostFavoriteCoffees(month: number, year: number): Promise<{ name: string, total_ordered: number }[]> {
+    const query = {
+      text: `select c.name, sum(oi.quantity) as total_ordered from order_items oi
+      inner join coffees c on c.id = oi.coffee_id where oi.created_at >= $1 and oi.created_at < $2
+      group by c.name order by total_ordered desc limit 5`,
+      values: [
+        new Date(year, month -1, 1),
+        new Date(year, month, 1),
+      ],
+    };
+
+    const { rows } = await this.database.query(query);
+    return rows;
+  }
+}
+
+export default CoffeeRepository;

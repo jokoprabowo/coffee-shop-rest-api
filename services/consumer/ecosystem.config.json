@@ -1,0 +1,26 @@
+{
+  "apps": [
+    {
+      "name": "consumer",
+      "script": "src/consumer.ts",
+      "interpreter": "ts-node",
+      "instances": 1,
+      "autorestart": true,
+      "watch": true,
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    {
+      "name": "scheduler",
+      "script": "src/scheduler.ts",
+      "interpreter": "ts-node",
+      "instances": 1,
+      "autorestart": true,
+      "watch": true,
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  ]
+}

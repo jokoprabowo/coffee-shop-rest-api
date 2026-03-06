@@ -1,27 +1,95 @@
 # ☕ Coffee Shop REST API
 
-The Coffee Shop REST API is a backend service designed to manage a coffee shop’s operations, built with **Express.js**, **TypeScript**, **PostgreSQL**, and **Docker**. It provides endpoints to handle customers, menu items, orders, carts, and authentication, enabling smooth integration with frontend or mobile applications.
+The Coffee Shop REST API is a backend service designed to manage a coffee shop’s operations, built with **Express.js**, **TypeScript**, **PostgreSQL**, **Redis**, and **RabbitMQ**. It provides endpoints to handle customers, menu items, orders, carts, and authentication, enabling smooth integration with frontend or mobile applications, and fully containerized using **Docker**.
+
+This project is structured as a **monorepo** and managed using **Turborepo** for optimized builds, caching, and workspace organization.
 
 ---
 
-## 🔑 Key Features
+## 🧩 Monorepo Architecture (Turborepo)
 
-* **User Authentication & Authorization** (JWT & Refresh Token support)
-* **Menu Management**: Add, update, delete, and fetch coffee
-* **Cart System**: Manage user carts (add, update quantity, remove items)
-* **Order Management**: Place and track customer orders based on their carts
-* **Database Migrations & Seeding** for development and production environments
-* **Dockerized Setup** for easy deployment and scalability
+This repository uses Turborepo to manage multiple backend-related packages and services in a single monorepo.
+Some benefits include:
+
+* **Shared code** (types, utilities, configs) across services
+
+* **Remote & local caching** for faster build and development
+
+* **Pipeline orchestration** for linting, building, testing
+
+* **Workspace organization** for multi-service backend structure
 
 ---
 
-## 🛠 Tech Stack
+## 🚀 Features  
 
-* **Backend**: Node.js, Express.js, TypeScript
-* **Database**: PostgreSQL
-* **Authentication**: JWT-based system with refresh token
-* **Testing**: Jest, Supertest
-* **Containerization**: Docker, Docker Compose
+### 🔐 Authentication & Security  
+- **JWT Authentication** with Access Token & Refresh Token  
+- **Email Verification**  
+  - Automatically sends verification email upon user registration  
+  - Secure verification using token-based validation  
+- **Forgot & Reset Password**  
+  - Password reset flow via email  
+  - Time-limited reset tokens for enhanced security  
+- **Role-based Authorization** (Admin & Customer)  
+
+### ☕ Coffee Shop Core Features  
+- **Product Management**  
+  - Create, update, delete, and retrieve coffee & menu items  
+- **Cart System**  
+  - Add products to cart  
+  - Update quantity and remove items  
+- **Order Management**  
+  - Create orders from cart  
+  - Track order status (pending, paid, completed)
+
+### 💳 Payment Gateway Integration (Midtrans)  
+- Integrated with **Midtrans Snap API** for secure online payments  
+- Generate **Snap Token** upon order creation  
+- Support multiple payment methods:  
+  - Bank Transfer  
+  - E-Wallet (GoPay, ShopeePay, etc.)  
+  - Credit/Debit Card  
+- Handle **Midtrans Webhook Notifications** to update transaction status automatically  
+- Store and manage transaction states such as:  
+  - `pending`  
+  - `paid`  
+  - `failed`  
+  - `canceled`  
+  - `expired`  
+  - `refunded`  
+- Ensure secure server-side verification of payment status
+
+### 📧 Email Service  
+- **Nodemailer Integration**  
+  - Send verification emails  
+  - Send password reset emails  
+  - Configurable SMTP service (Gmail, Mailtrap, etc.)  
+
+### ⚡ Performance & Scalability  
+- **Redis Integration** for caching and token/session handling  
+- **RabbitMQ** for asynchronous event handling  
+  - Email jobs  
+  - Order-related events  
+
+### 🛠️ Developer Experience  
+- **Type-safe codebase** with TypeScript  
+- **PostgreSQL Transactions** for data consistency  
+- **Unit & Integration Testing** using Jest  
+- **Docker & Docker Compose** for consistent development and deployment  
+
+---
+
+## 🧰 Tech Stack  
+- **Backend Framework**: Express.js + TypeScript  
+- **Database**: PostgreSQL  
+- **Authentication**: JWT (Access Token & Refresh Token)  
+- **Email Service**: Nodemailer  
+- **Payment Gateway**: Midtrans (Snap API & Webhook)  
+- **Caching**: Redis  
+- **Message Broker**: RabbitMQ  
+- **Testing**: Jest & Supertest  
+- **Containerization**: Docker & Docker Compose  
 
 ---
 
@@ -42,25 +110,113 @@ npm install
 
 ### 3. Setup environment variables
 
-Copy `.env.example` to `.env` and configure it:
+This project uses two environment files to separate local development configuration from Docker production configuration.
+
+### 📌 Environment Files
+| File                   | Purpose                                                                |
+| ---------------------- | ---------------------------------------------------------------------- |
+| **`.env.development`** | Used when running the project **locally** (without Docker).            |
+| **`.env.test`**        | Used when running the project **locally** for testing (without Docker).|
+| **`.env.production`**  | Used when running the project **inside Docker** via `docker-compose`.  |
+You must create both files in the project root
+
+
+### 🧪 `.env.development` and `.env.test` (Local Development)
+
+Use local service addresses when you run the backend without Docker:
 
 ```env
-NODE_ENV=development
 PORT=3000
-DB_USER=username
-DB_PASSWORD=password
-DB_NAME=dbname
-DATABASE_URL=postgresql://user:password@host:5432/dbname
-JWT_ACCESS_SECRET=your-secret
+
+# Database
+DATABASE_URL=postgresql://username:password@localhost:5432/dbname
+
+# Authentication
+JWT_ACCESS_SECRET=your_secret_key
 ACCESS_TOKEN_EXPIRY=30m
 WHITELIST_ORIGINS=http://localhost:3000
-WHITELIST_ADMIN_EMAILS=youradminemail@email.com
+WHITELIST_ADMIN_EMAILS=jokoprabowo4550@gmail.com
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# RabbitMQ
+RABBITMQ_URL=amqp://localhost:5672
+
+# SMTP (Email)
+SMTP_HOST=your_host
+SMTP_PORT=465
+SMTP_USER=your_username
+SMTP_PASS=tour_password
+
+# Midtrans
+MERCHANT_ID=your_midtrans_merchant_id
+SERVER_KEY=your_midtrans_server_key
+CLIENT_KEY=your_midtrans_client_key
 ```
 
+---
+
+### 🏭 `.env.production` (Docker Environment)
+
+These values are used automatically by docker-compose, where services communicate using Docker internal hostnames:
+
+```env
+PORT=3000
+
+# Database
+DATABASE_URL=postgresql://postgres:password@db:5432/coffeeshop
+
+# Authentication
+JWT_ACCESS_SECRET=your_secret_key
+ACCESS_TOKEN_EXPIRY=30m
+WHITELIST_ORIGINS=http://localhost:3000
+WHITELIST_ADMIN_EMAILS=jokoprabowo4550@gmail.com
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# RabbitMQ
+RABBITMQ_URL=amqp://rabbitmq:5672
+
+# SMTP (Email)
+SMTP_HOST=your_host
+SMTP_PORT=465
+SMTP_USER=your_username
+SMTP_PASS=tour_password
+
+# Midtrans
+MERCHANT_ID=your_midtrans_merchant_id
+SERVER_KEY=your_midtrans_server_key
+CLIENT_KEY=your_midtrans_client_key
+```
+
+---
+
 ### 4. Run locally (without Docker)
+---
+**⚠️ Important Warning**
+To run the project locally, several external services must be running on your machine:
+
+1. PostgreSQL (database)
+
+2. Redis (cache / token store)
+
+3. RabbitMQ (message broker)
+
+If any of these are not running, the API will fail to start.
+
+---
+**Build and start development mode**
 
 ```bash
-npm run start:dev
+npm run migrate:up:dev
+npm run build
+npm run dev
 ```
 
 Server will be available at: `http://localhost:3000`
@@ -69,19 +225,43 @@ Server will be available at: `http://localhost:3000`
 
 ## 🐳 Running with Docker
 
-Build and start services:
+**Build and start services:**
 
 ```bash
 docker-compose up --build
 ```
 
-* API: `http://localhost:3000`
-* Database: `localhost:5432`
+Runs the following containers:
 
-To stop:
+* API (Express + TypeScript)
+* Consumer
+* Scheduler
+* PostgreSQL
+* Redis
+* RabbitMQ
+
+---
+
+## 📦 Apply Midtrans Webhook with Ngrok (Port 3000)
+
+**Start Ngrok**
 
 ```bash
-docker-compose down
+ngrok http 3000
+```
+
+Ngrok will generate a public URL like:
+
+```bash
+https://abcd-1234.ngrok-free.app
+```
+
+**Register the URL in Midtrans**
+
+Fill in the Notification URL with:
+
+```bash
+https://abcd-1234.ngrok-free.app/api/v1/payments/webhook
 ```
 
 ---
@@ -100,38 +280,26 @@ Authorization: Bearer <token>
 ---
 
 ## 🧪 Testing
-
-Run all tests:
+Run migration for testing environment
 
 ```bash
-npm run test
+npm run migrate:up:test
 ```
 
-Run a specific test file:
+Run all tests in api service:
 
 ```bash
-npm run test path
+npm run test:api
 ```
 
-example:
+Run all tests in consumer service:
 
 ```bash
-npm run test integration/auth/login.test.ts
+npm run test:consumer
 ```
 
 ---
 
-## 🚀 Deployment
+## 📄 License
 
-Production build:
-
-```bash
-npm run build
-npm start
-```
-
-Or with Docker:
-
-```bash
-docker-compose up --build -d
-```
+This project is licensed under the MIT License.

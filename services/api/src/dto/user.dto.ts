@@ -1,0 +1,20 @@
+export enum userRole {
+  ADMIN = 'admin',
+  CUSTOMER = 'customer',
+}
+
+export interface UserDto {
+  id: number,
+  email: string,
+  password: string,
+  fullname: string,
+  address: string,
+  phone: string,
+  role?: userRole,
+  is_verified?: boolean,
+}
+
+export interface LoginUserDto {
+  email: string,
+  password: string,
+}
