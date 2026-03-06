@@ -12,6 +12,7 @@ class CoffeeController {
     this.getById = this.getById.bind(this);
     this.updateById = this.updateById.bind(this);
     this.deleteById = this.deleteById.bind(this);
+    this.getMostFavoriteCoffees = this.getMostFavoriteCoffees.bind(this);
   }
 
   public async create(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -87,6 +88,22 @@ class CoffeeController {
       res.status(200).json({
         status: 'OK',
         message: 'Coffee has been deleted!',
+      });
+      return;
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getMostFavoriteCoffees(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const coffees = await this.service.getMostFavoriteCoffees();
+      res.status(200).json({
+        status: 'OK',
+        message: 'Most favorite coffees have been retrieved!',
+        data: {
+          coffees,
+        },
       });
       return;
     } catch (err) {

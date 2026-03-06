@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
@@ -8,10 +8,10 @@ import helmet from 'helmet';
 
 import config from './config';
 import { logInfo } from './config/logger';
-import { corsOptions } from './config/cors-options';
-import { errorHandler } from './middlewares/error-handler.middleware';
+import { corsOptions } from './config/corsOptions';
+import { errorHandler } from './middlewares/errorHandler.middleware';
 import { swaggerOptions } from './docs/swagger';
-import { rateLimiter } from './middlewares/rate-limiter';
+import { globalRateLimiter } from './middlewares/rateLimiter';
 import v1Routes from './routes/v1';
 
 const app = express();
@@ -27,8 +27,15 @@ app.use(logInfo);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+const authExcluePaths = new Set(['/api/v1/auth/login', '/api/v1/auth/register', '/api/v1/auth/forgot-password']);
 if(config.NODE_ENV !== 'test') {
-  app.use(rateLimiter);
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    if(authExcluePaths.has(req.path)) {
+      return next();
+    }
+    globalRateLimiter(req, res, next);
+  });
 }
 
 app.use('/api/v1', v1Routes);

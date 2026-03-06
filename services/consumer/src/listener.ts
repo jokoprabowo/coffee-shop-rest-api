@@ -1,5 +1,6 @@
-import { CartService, EmailService, UserService } from './services';
+import { CartService, OrderService, EmailService, UserService, PaymentService } from './services';
 import { Channel, ConsumeMessage } from 'amqplib';
+import { mapTransactionStatus } from './utils/midtrans';
 import { logger, Database } from '@project/shared';
 import { CartItemDTO } from './dto/cart.dto';
 
@@ -8,12 +9,48 @@ class Listener{
     private readonly db: Database,
     private readonly userService: UserService,
     private readonly cartService: CartService,
+    private readonly orderService: OrderService,
     private readonly emailService: EmailService,
+    private readonly paymentService: PaymentService,
     private readonly channel: Channel,
   ) {
     this.listenOrder = this.listenOrder.bind(this);
     this.listenVerificationEmail = this.listenVerificationEmail.bind(this);
     this.listenResetPassword = this.listenResetPassword.bind(this);
+    this.listenPayment = this.listenPayment.bind(this);
+    this.listenPaymentEvent = this.listenPaymentEvent.bind(this);
+  }
+
+  public async listenPayment(message: ConsumeMessage | null): Promise<void> {
+    return this.structure(message, async (msg) => {
+      const { orderId, transaction_token, amount } = JSON.parse(msg.content.toString());
+      const payment = await this.paymentService.createPayment(orderId, transaction_token, amount);
+      if (!payment) {
+        return;
+      }
+      this.channel.ack(msg);
+    });
+  }
+
+  public async listenPaymentEvent(message: ConsumeMessage | null): Promise<void> {
+    return this.structure(message, async (msg) => {
+      return this.db.withTransaction(async () => {
+        const { paymentEventId } = JSON.parse(msg.content.toString());
+        const paymentEvent = await this.paymentService.getPaymentEventById(paymentEventId);
+        if (!paymentEvent) {
+          return;
+        }
+
+        const paymentId = paymentEvent.payment_id;
+        const payload = JSON.parse(paymentEvent.payload);
+
+        const transactionStatus = mapTransactionStatus(payload.transaction_status, payload.fraud_status);
+
+        await this.paymentService.updatePayment(paymentId, payload.payment_type, transactionStatus);
+        await this.orderService.updateOrderStatus(payload.order_id, transactionStatus);
+        this.channel.ack(msg);
+      });
+    });
   }
 
   public async listenOrder(message: ConsumeMessage | null): Promise<void> {
@@ -84,7 +121,7 @@ class Listener{
         this.channel.reject(message, false);
       } else {
         this.incrementRetryHeader(message);
-        this.channel.nack(message, false, true);
+        this.channel.nack(message, false, false);
       }
     }    
   }

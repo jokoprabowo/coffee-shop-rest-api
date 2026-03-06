@@ -23,6 +23,10 @@ export const swaggerOptions: Options = {
     },
     tags: [
       {
+        name: 'Admin',
+        description: 'Endpoints that can only be accessed by admin',
+      },
+      {
         name: 'Auth',
         description: 'Auth API'
       },
@@ -32,12 +36,20 @@ export const swaggerOptions: Options = {
       },
       {
         name: 'Coffees',
-        description: 'Coffees API'
+        description: 'Coffees API',
       },
       {
         name: 'Carts',
         description: 'Carts API',
-      }
+      },
+      {
+        name: 'Orders',
+        description: 'Orders API',
+      },
+      {
+        name: 'Payments',
+        description: 'Payments API',
+      },
     ],
     servers: [
       {

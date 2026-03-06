@@ -26,6 +26,9 @@ const config = {
   REDIS_PORT: process.env.REDIS_PORT,
   REDIS_PASSWORD: process.env.REDIS_PASSWORD,
   RABBITMQ_URL: process.env.RABBITMQ_URL,
+  SERVER_KEY: process.env.SERVER_KEY,
+  CLIENT_KEY: process.env.CLIENT_KEY,
+  MERCHANT_ID: process.env.MERCHANT_ID,
 };
 
 export default config;

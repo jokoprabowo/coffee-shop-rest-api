@@ -20,6 +20,7 @@ describe('Coffee service', () => {
       findByName: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      getMostFavoriteCoffees: jest.fn(),
     } as unknown as jest.Mocked<CoffeeRepository>;
 
     mockCacheService = {
@@ -39,7 +40,7 @@ describe('Coffee service', () => {
     it('Should return coffee if successfully create coffee.', async () => {
       mockRepo.findByName.mockResolvedValue(null);
       mockRepo.create.mockResolvedValue(mockCoffee);
-      mockCacheService.del.mockResolvedValue();
+      mockCacheService.del.mockResolvedValue(1);
 
       const result = await service.create(mockCoffee);
       
@@ -103,7 +104,7 @@ describe('Coffee service', () => {
     it('Should return coffee if update with correct id and update data', async () => {
       mockRepo.findOne.mockResolvedValue(mockCoffee);
       mockRepo.update.mockResolvedValue(mockCoffee);
-      mockCacheService.del.mockResolvedValue();
+      mockCacheService.del.mockResolvedValue(1);
 
       const result = await service.update(1, mockCoffee);
 
@@ -125,7 +126,7 @@ describe('Coffee service', () => {
     it('Should return true if delete with correct id', async () => {
       mockRepo.findOne.mockResolvedValue(mockCoffee);
       mockRepo.delete.mockResolvedValue(true);
-      mockCacheService.del.mockResolvedValue();
+      mockCacheService.del.mockResolvedValue(1);
 
       const result = await service.delete(1);
 
@@ -140,6 +141,22 @@ describe('Coffee service', () => {
       await expect(
         service.delete(1)
       ).rejects.toThrow(new NotFoundError('Coffee not found!'));
+    });
+  });
+
+  describe('Get most favorite coffees', () => {
+    it('Should return most favorite coffee data', async () => {
+      const mostFavoriteCoffees = [
+        { id: 1, name: 'Americano', total_ordered: 100 },
+        { id: 2, name: 'Latte', total_ordered: 80 },
+        { id: 3, name: 'Cappuccino', total_ordered: 70 },
+      ];
+
+      mockRepo.getMostFavoriteCoffees.mockResolvedValue(mostFavoriteCoffees);
+
+      const result = await service.getMostFavoriteCoffees();
+      expect(mockRepo.getMostFavoriteCoffees).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(mostFavoriteCoffees);
     });
   });
 });

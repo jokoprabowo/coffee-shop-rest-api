@@ -1,14 +1,19 @@
 import { NextFunction, Request, Response } from 'express';
 import { OrderService } from '../services';
 import { AuthenticationError } from '../exceptions';
+import { OrderValidator } from '../validators';
 
 class OrderController {
-  constructor(private readonly service: OrderService) {
+  constructor(
+    private readonly service: OrderService,
+    private readonly validator: typeof OrderValidator,
+  ) {
     this.createOrder = this.createOrder.bind(this);
     this.getOrders = this.getOrders.bind(this);
     this.getOrderDetails = this.getOrderDetails.bind(this);
     this.updateOrderStatus = this.updateOrderStatus.bind(this);
     this.deleteOrder = this.deleteOrder.bind(this);
+    this.getMonthlyOrderStats = this.getMonthlyOrderStats.bind(this);
   }
 
   public async createOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -17,12 +22,14 @@ class OrderController {
         throw new AuthenticationError('Login required!');
       }
       const order = await this.service.createOrder(req.userId);
+      const transaction = await this.service.createTransaction(req.userId, order.id);
 
       res.status(201).json({
         status: 'CREATED',
         message: 'Order has been created!',
         data: {
           order,
+          transaction,
         }
       });
       return;
@@ -52,7 +59,12 @@ class OrderController {
 
   public async getOrderDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const orders = await this.service.getOrderDetails(Number(req.params.id));
+      if (!req.userId) {
+        throw new AuthenticationError('Login required!');
+      }
+
+      this.validator.validateGetOrderDetails({ id: Number(req.params.id) });
+      const orders = await this.service.getOrderDetails(Number(req.params.id), req.userId);
       res.status(200).json({
         status: 'OK',
         message: 'Order have been retrieved!',
@@ -68,7 +80,12 @@ class OrderController {
 
   public async updateOrderStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      await this.service.updateStatus(Number(req.params.id), req.body.status);
+      if(!req.userId) {
+        throw new AuthenticationError('Login required!');
+      }
+
+      this.validator.validatePutOrderStatus({ id: Number(req.params.id), status: req.body.status });
+      await this.service.updateStatus(Number(req.params.id), req.body.status, req.userId);
       res.status(200).json({
         status: 'OK',
         message: 'Order status have been updated!',
@@ -81,13 +98,38 @@ class OrderController {
 
   public async deleteOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      await this.service.deleteOrder(Number(req.params.id));
+      if(!req.userId) {
+        throw new AuthenticationError('Login required!');
+      }
+
+      this.validator.validateDelOrder({ id: Number(req.params.id) });
+      await this.service.deleteOrder(Number(req.params.id), req.userId);
       res.status(200).json({
         status: 'OK',
-        message: 'Order status have been deleted!',
+        message: 'Order have been deleted!',
       });
       return;
     } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getMonthlyOrderStats(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const month = Number(req.query.month);
+      const year = Number(req.query.year);
+      const statuses = req.query.statuses ? (req.query.statuses as string).split(',') : [];
+      this.validator.validateGetMonthlyOrderStats({ month, year, statuses });
+      const orderStats = await this.service.getMonthlyOrderStats(month, year, statuses);
+      res.status(200).json({
+        status: 'OK',
+        message: 'Monthly order stats have been retrieved!',
+        data: {
+          orderStats,
+        },
+      });
+      return;
+    }  catch (err) {
       next(err);
     }
   }

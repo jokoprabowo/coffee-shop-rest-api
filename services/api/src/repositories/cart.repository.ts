@@ -40,7 +40,7 @@ class CartRepository {
       'ci.quantity, (co.price * ci.quantity) as total_price '+
       'from carts c inner join cart_items ci on ci.cart_id = c.id '+
       'inner join coffees co on co.id = ci.coffee_id '+
-      'where c.id = $1 order by ci.id',
+      'where c.id = $1 and c.status = \'open\' order by ci.id',
       values: [cartId],
     };
 

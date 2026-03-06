@@ -4,7 +4,7 @@ import { RedisStore } from 'rate-limit-redis';
 import type { RedisReply } from 'rate-limit-redis';
 import { redis } from '@project/shared';
 
-export const rateLimiter = (max: number = 100) => rateLimit({
+const rateLimiter = (max: number = 100) => rateLimit({
   windowMs: 15 * 60 * 1000,
   max,
   standardHeaders: true,
@@ -20,3 +20,6 @@ export const rateLimiter = (max: number = 100) => rateLimit({
     });
   },
 });
+
+export const authRateLimiter = rateLimiter(5);
+export const globalRateLimiter = rateLimiter(100);

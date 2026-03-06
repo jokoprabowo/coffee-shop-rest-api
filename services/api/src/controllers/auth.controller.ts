@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { AuthorizationError } from '../exceptions';
 import AuthenticateValidator from '../validators/authentication';
 import { RefreshTokenService, AuthService } from '../services';
-import { generateAccessToken } from '../utilities/token';
+import { generateAccessToken } from '../utils/token';
 import config from '../config';
 
 class AuthController {

@@ -1,7 +1,7 @@
 import request from 'supertest';
 import app from '../../../src/app';
 import { pool } from '@project/shared';
-import { generateAccessToken } from '../../../src/utilities/token';
+import { generateAccessToken } from '../../../src/utils/token';
 
 describe('Delete cart item endpoint.', () => {
   let userId: number;
@@ -31,6 +31,15 @@ describe('Delete cart item endpoint.', () => {
     expect(response.body.status).toBe('OK');
   });
 
+  it('Should return a 400 status code if request body is invalid.', async () => {
+    const response = await request(app).delete('/api/v1/carts')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ cartItemId: 'a' });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body.status).toBe('BAD_REQUEST');
+  });
+
   it('Should return a 401 status code if access token is missing.', async () => {
     const response = await request(app).delete('/api/v1/carts')
       .send({ cartItemId: cartItemId });
@@ -40,9 +49,10 @@ describe('Delete cart item endpoint.', () => {
   });
 
   it('Should return a 404 status code if cart item with provided id is not exist.', async () => {
+    const nonExistingCartItemId = cartItemId + 1;
     const response = await request(app).delete('/api/v1/carts')
       .set('Authorization', `Bearer ${token}`)
-      .send({ cartItemId: -1 });
+      .send({ cartItemId: nonExistingCartItemId });
 
     expect(response.statusCode).toBe(404);
     expect(response.body.status).toBe('NOT_FOUND');

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { pool, redis, Database } from '@project/shared';
+import { CartValidator } from '../../validators';
 import { CartRepository, UserRepository, CoffeeRepository } from '../../repositories';
 import { CartService, UserService, CacheService } from '../../services';
 import { CartController } from '../../controllers';
@@ -15,7 +16,7 @@ const cacheService = new CacheService(redis);
 const userService = new UserService(userRepository);
 const cartService = new CartService(db, cartRepository, coffeeRepository, cacheService);
 
-const cartController = new CartController(cartService);
+const cartController = new CartController(cartService, CartValidator);
 const middleware = new AuthMiddleware(userService);
 const router = Router();
 

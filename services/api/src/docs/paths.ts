@@ -157,7 +157,7 @@ export const paths = {
       responses: {
         200: pathResponse('Successfully reset user password', 'OK', 'Password successfully reset!'),
         400: pathResponse('Invalid or expired verification token', 'BAD_REQUEST', 'Invalid or expired token'),
-      }
+      },
     },
   },
   '/api/v1/auth/logout': {
@@ -171,9 +171,9 @@ export const paths = {
       },
     },
   },
-  '/api/v1/user/all': {
+  '/api/v1/users/all': {
     get: {
-      tags: ['Users'],
+      tags: ['Users', 'Admin'],
       summary: 'Get all users',
       security: [{ barerAuth: [] }],
       responses: {
@@ -185,7 +185,7 @@ export const paths = {
       },
     },
   },
-  '/api/v1/user/profile': {
+  '/api/v1/users/profile': {
     get: {
       tags: ['Users'],
       summary: 'Get user details',
@@ -199,7 +199,7 @@ export const paths = {
       },
     },
   },
-  '/api/v1/user/update': {
+  '/api/v1/users/update': {
     put: {
       tags: ['Users'],
       summary: 'Update user details',
@@ -222,7 +222,7 @@ export const paths = {
       },
     },
   },
-  'api/v1/user/delete': {
+  'api/v1/users/delete': {
     delete: {
       tags: ['Users'],
       summary: 'Delete user account',
@@ -234,9 +234,9 @@ export const paths = {
       },
     },
   },
-  '/api/v1/coffee': {
+  '/api/v1/coffees': {
     post: {
-      tags: ['Coffees'],
+      tags: ['Coffees', 'Admin'],
       summary: 'Create new coffee',
       security: [{ barerAuth: [] }],
       requestBody: {
@@ -269,7 +269,21 @@ export const paths = {
       },
     },
   },
-  '/api/v1/coffee/{id}': {
+  '/api/v1/coffees/most-favorite': {
+    get: {
+      tags: ['Coffees', 'Admin'],
+      summary: 'Get most favorite coffees',
+      security: [{ barerAuth: [] }],
+      responses: {
+        200: pathResponse('Successfully get most favorite coffees', 'OK', 'Most favorite coffees have been retrieved!',
+          { coffees: { type: 'array', items: { name: { type: 'string', description: 'The coffee name', example: 'Americano' },
+            total_ordered: { type: 'integer', description: 'Total ordered quantity of the coffee', example: 100 } } } }
+        ),
+        403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
+      },
+    },
+  },
+  '/api/v1/coffees/{id}': {
     get: {
       tags: ['Coffees'],
       summary: 'Get coffee details',
@@ -286,7 +300,7 @@ export const paths = {
       },
     },
     put: {
-      tags: ['Coffees'],
+      tags: ['Coffees', 'Admin'],
       summary: 'Update coffee',
       security: [{ barerAuth: [] }],
       parameters: [{
@@ -311,7 +325,7 @@ export const paths = {
       },
     },
     delete: {
-      tags: ['Coffees'],
+      tags: ['Coffees', 'Admin'],
       summary: 'Delete coffee',
       security: [{ barerAuth: [] }],
       parameters: [{
@@ -325,7 +339,7 @@ export const paths = {
       },
     },
   },
-  '/api/v1/cart': {
+  '/api/v1/carts': {
     post: {
       tags: ['Carts'],
       summary: 'Add coffee to cart',
@@ -348,6 +362,7 @@ export const paths = {
         201: pathResponse( 'Successfully add coffee to cart', 'CREATED', 'Coffee has been added to cart!', 
           { cartItems : { type: 'array', items: { $ref: '#/components/schemas/Cart item model' } } }
         ),
+        400: pathResponse('Invalid cart item input data', 'BAD_REQUEST', 'Invalid input!'),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
       },
     },
@@ -387,6 +402,7 @@ export const paths = {
         200: pathResponse( 'Successfully update cart item', 'OK', 'Cart item has been updated!',
           { cartItems : { type: 'array', items: { $ref: '#/components/schemas/Cart item model' } } }
         ),
+        400: pathResponse('Invalid cart item input data', 'BAD_REQUEST', 'Invalid input!'),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
         404: pathResponse( 'Cart item not found', 'NOT_FOUND', 'Cart item not found!' ),
       },
@@ -413,12 +429,13 @@ export const paths = {
       },
       responses: {
         200: pathResponse( 'Successfully delete cart item', 'OK', 'Cart item has been deleted!' ),
+        400: pathResponse('Invalid cart item input data', 'BAD_REQUEST', 'Invalid input!'),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
         404: pathResponse( 'Cart item not found', 'NOT_FOUND', 'Cart item not found!' ),
       },
     },
   },
-  '/api/v1/order': {
+  '/api/v1/orders': {
     post: {
       tags: ['Orders'],
       summary: 'Create new order from cart',
@@ -436,14 +453,39 @@ export const paths = {
       summary: 'Get user order histories',
       security: [{ barerAuth: [] }],
       responses: {
-        201: pathResponse( 'Successfully get user order histories', 'OK', 'Orders have been retrieved!',
+        200: pathResponse( 'Successfully get user order histories', 'OK', 'Orders have been retrieved!',
           { order: { type: 'array', items: { $ref: '#/components/schemas/Order model' } } }
         ),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
       },
     },
   },
-  '/api/v1/order/{id}': {
+  '/api/v1/orders/stats': {
+    get: {
+      tags: ['Orders', 'Admin'],
+      summary: 'Get list of total ordered and total revenue per day in a month',
+      security: [{ bearerAuth: [] }],
+      parameters: [{
+        name: 'month', in: 'query', required: true, description: 'The month of requested data', schema: { type: 'integer', example: 1 },
+      }, {
+        name: 'year', in: 'query', required: true, description: 'The year of requested data', schema: { type: 'integer', example: 2026 },
+      },  {
+        name: 'statuses', in: 'query', required: true, description: 'The status of requested data', schema: { type: 'string', example: 'paid,settlement' },
+      }],
+      responses: {
+        200: pathResponse('Successfully get monthly order stats data', 'OK', 'Monthly order stats have been retrieved!', {
+          orderStats: { type: 'array', items: {
+            date: { type: 'string', description: 'Date of the data', example: '2026-01-01T00:00:00' },
+            totalOrder: { type: 'integer', description: 'Total order data', example: 10 },
+            totalRevenue: { type: 'integer', description: 'Total ordered coffee', example: 100 }
+          } },
+        }),
+        400: pathResponse('Invalid order input data', 'BAD_REQUEST', 'Invalid input!'),
+        403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
+      },    
+    },
+  },
+  '/api/v1/orders/{id}': {
     get: {
       tags: ['Orders'],
       summary: 'Get order details',
@@ -452,12 +494,14 @@ export const paths = {
         name: 'id', in: 'path', required: true, description: 'Order id', schema: { type: 'integer', example: 1 },
       }],
       responses: {
-        201: pathResponse( 'Successfully get user order details', 'OK', 'Order has been retrieved!',
+        200: pathResponse( 'Successfully get user order details', 'OK', 'Order has been retrieved!',
           { order: { $ref: '#/components/schemas/Order model' } }
         ),
+        400: pathResponse('Invalid order input data', 'BAD_REQUEST', 'Invalid input!'),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
+        403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
         404: pathResponse( 'Order not found', 'NOT_FOUND', 'Order not found!' ),
-      }
+      },
     },
     put: {
       tags: ['Orders'],
@@ -480,8 +524,10 @@ export const paths = {
         },
       },
       responses: {
-        201: pathResponse( 'Successfully update user order', 'OK', 'Order has been updated!' ),
+        200: pathResponse( 'Successfully update user order', 'OK', 'Order has been updated!' ),
+        400: pathResponse('Invalid order input data', 'BAD_REQUEST', 'Invalid input!'),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
+        403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
         404: pathResponse( 'Order not found', 'NOT_FOUND', 'Order not found!' ),
       },
     },
@@ -493,9 +539,20 @@ export const paths = {
         name: 'id', in: 'path', required: true, description: 'Order id', schema: { type: 'integer', example: 1 },
       }],
       responses: {
-        201: pathResponse( 'Successfully delete user order', 'OK', 'Order has been deleted!' ),
+        200: pathResponse( 'Successfully delete user order', 'OK', 'Order has been deleted!' ),
+        400: pathResponse('Invalid order input data', 'BAD_REQUEST', 'Invalid input!'),
         401: pathResponse( 'Unauthenticated, login required!', 'UNAUTHENTICATED', 'Access token is missing!' ),
+        403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
         404: pathResponse( 'Order not found', 'NOT_FOUND', 'Order not found!' ),
+      },
+    },
+  },
+  '/api/v1/payments/webhook': {
+    post: {
+      tags: ['Payments'],
+      summary: 'Webhook for payment gateway',
+      response: {
+        201: pathResponse('Successfully create payment event', 'CREATED', 'Transaction has been created!'),
       },
     },
   },
