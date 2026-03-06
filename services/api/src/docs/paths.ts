@@ -173,7 +173,7 @@ export const paths = {
   },
   '/api/v1/users/all': {
     get: {
-      tags: ['Users'],
+      tags: ['Users', 'Admin'],
       summary: 'Get all users',
       security: [{ barerAuth: [] }],
       responses: {
@@ -236,7 +236,7 @@ export const paths = {
   },
   '/api/v1/coffees': {
     post: {
-      tags: ['Coffees'],
+      tags: ['Coffees', 'Admin'],
       summary: 'Create new coffee',
       security: [{ barerAuth: [] }],
       requestBody: {
@@ -271,7 +271,7 @@ export const paths = {
   },
   '/api/v1/coffees/most-favorite': {
     get: {
-      tags: ['Coffees'],
+      tags: ['Coffees', 'Admin'],
       summary: 'Get most favorite coffees',
       security: [{ barerAuth: [] }],
       responses: {
@@ -279,6 +279,7 @@ export const paths = {
           { coffees: { type: 'array', items: { name: { type: 'string', description: 'The coffee name', example: 'Americano' },
             total_ordered: { type: 'integer', description: 'Total ordered quantity of the coffee', example: 100 } } } }
         ),
+        403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
       },
     },
   },
@@ -299,7 +300,7 @@ export const paths = {
       },
     },
     put: {
-      tags: ['Coffees'],
+      tags: ['Coffees', 'Admin'],
       summary: 'Update coffee',
       security: [{ barerAuth: [] }],
       parameters: [{
@@ -324,7 +325,7 @@ export const paths = {
       },
     },
     delete: {
-      tags: ['Coffees'],
+      tags: ['Coffees', 'Admin'],
       summary: 'Delete coffee',
       security: [{ barerAuth: [] }],
       parameters: [{
@@ -461,7 +462,7 @@ export const paths = {
   },
   '/api/v1/orders/stats': {
     get: {
-      tags: ['Orders'],
+      tags: ['Orders', 'Admin'],
       summary: 'Get list of total ordered and total revenue per day in a month',
       security: [{ bearerAuth: [] }],
       parameters: [{
@@ -480,6 +481,7 @@ export const paths = {
           } },
         }),
         400: pathResponse('Invalid order input data', 'BAD_REQUEST', 'Invalid input!'),
+        403: pathResponse('Unauthorized access', 'FORBIDDEN', 'You do not have permission to access this resource!'),
       },    
     },
   },
