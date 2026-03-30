@@ -1,7 +1,7 @@
 {
   "name": "coffee-shop-rest-api",
   "private": true,
-  "packageManager": "npm@10.9.0",
+  "packageManager": "npm@11.12.1",
   "version": "1.0.0",
   "description": "The Coffee Shop REST API is a backend service designed to manage a coffee shop’s operations, built with **Express.js**, **TypeScript**, **PostgreSQL**, and **Docker**. It provides endpoints to handle customers, menu items, orders, carts, and authentication, enabling smooth integration with frontend or mobile applications.",
   "main": "index.js",
@@ -25,13 +25,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
+    "@eslint/js": "^10.0.1",
     "dotenv-cli": "^11.0.0",
-    "eslint": "^9.39.1",
-    "globals": "^16.5.0",
+    "eslint": "^10.1.0",
+    "globals": "^17.4.0",
     "jiti": "^2.6.1",
-    "turbo": "^2.5.8",
+    "turbo": "^2.8.21",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.48.0"
+    "typescript-eslint": "^8.57.2"
   }
 }
